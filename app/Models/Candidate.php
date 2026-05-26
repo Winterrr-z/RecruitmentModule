@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Candidate extends Model
+{
+    protected $table = 'candidates';
+
+    protected $fillable = [
+        'lowongan_id',
+        'user_id',
+        'nama',
+        'email',
+        'telepon',
+        'cv_path',
+        'portofolio_path',
+        'current_stage_id',
+        'status',
+        'source',
+        'offering_token',
+        'offering_token_expires_at',
+    ];
+
+    protected $casts = [
+        'offering_token_expires_at' => 'datetime',
+        'lowongan_id' => 'integer',
+        'user_id' => 'integer',
+        'current_stage_id' => 'integer',
+    ];
+
+    public function lowongan(): BelongsTo
+    {
+        return $this->belongsTo(Lowongan::class, 'lowongan_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function currentStage(): BelongsTo
+    {
+        return $this->belongsTo(Stage::class, 'current_stage_id');
+    }
+
+    public function candidateMovements(): HasMany
+    {
+        return $this->hasMany(CandidateMovement::class, 'candidate_id');
+    }
+
+    public function interviewSchedules(): HasMany
+    {
+        return $this->hasMany(InterviewSchedule::class, 'candidate_id');
+    }
+
+    public function scorecards(): HasMany
+    {
+        return $this->hasMany(Scorecard::class, 'candidate_id');
+    }
+}

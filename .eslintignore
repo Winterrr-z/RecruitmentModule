@@ -1,0 +1,6 @@
+# Ignore compiled production assets
+public/build/
+public/hot/
+public/storage/
+node_modules/
+vendor/
