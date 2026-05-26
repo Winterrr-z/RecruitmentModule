@@ -228,24 +228,17 @@
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Tanggal Dibuat</p>
                         <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->created_at->translatedFormat('d F Y') }}</p>
                     </div>
-                   <div class="space-y-1 sm:col-span-2">
-                        <div class="flex flex-wrap gap-2 mt-1">
-                            @if(is_array($mpp->keahlian) && count($mpp->keahlian) > 0)
-                                @foreach($mpp->keahlian as $skill)
-                                    <span class="px-3 py-1 bg-surface-container text-on-surface text-xs font-semibold rounded-full border border-surface-container-high">{{ $skill }}</span>
-                                @endforeach
-                            @else
-                                <span class="text-body-md text-on-surface-variant/70">-</span>
-                            @endif
-                        </div>
-                    </div>
+                </div>
+            </div>
 
-                    @if($mpp->note)
-                        <div class="sm:col-span-4 space-y-1 mt-4 pt-4 border-t border-surface-container/50">
-                            <p class="text-label-sm font-label-sm text-on-surface-variant">Note / Catatan</p>
-                            <p class="font-body-md text-body-md text-on-surface whitespace-pre-line">{{ $mpp->note }}</p>
-                        </div>
-                    @endif
+            <!-- Deskripsi / Catatan Tambahan Card -->
+            <div class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30">
+                <h4 class="font-title-md text-title-md mb-6 flex items-center gap-2 text-on-surface">
+                    <span class="material-symbols-outlined text-primary">description</span>
+                    Deskripsi / Catatan Perencanaan
+                </h4>
+                <div class="text-body-md text-on-surface whitespace-pre-line bg-surface-container-low/50 p-6 rounded-md border border-surface-container">
+                    {{ $mpp->note ?: 'Tidak ada deskripsi atau catatan tambahan.' }}
                 </div>
             </div>
         </section>

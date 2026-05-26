@@ -40,7 +40,7 @@
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($mpps as $mpp)
-                <div class="group relative bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] hover:shadow-[0px_40px_80px_-15px_rgba(107,56,212,0.1)] transition-all duration-300">
+                <a href="{{ route('mpp.show', $mpp->id) }}" class="block group relative bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] hover:shadow-[0px_40px_80px_-15px_rgba(107,56,212,0.1)] transition-all duration-300 no-underline text-on-surface">
                     <div class="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-error/10 text-error rounded-md text-[11px] font-bold">
                         <span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
                         Critical
@@ -54,9 +54,7 @@
                             @endif
                         </div>
                         <h4 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors">
-                            <a href="{{ route('mpp.show', ['mppId' => $mpp->id]) }}">
-                                {{ $mpp->nama_plan }}
-                            </a>
+                            {{ $mpp->nama_plan }}
                         </h4>
                         <p class="text-label-sm font-label-sm text-on-surface-variant">
                             {{ $mpp->departemen }}
@@ -65,7 +63,7 @@
                     <div class="space-y-4 pt-4 border-t border-surface-container">
                         <div class="flex justify-between items-center">
                             <span class="text-label-sm font-label-sm text-on-surface-variant">Kuota:</span>
-                            <span class="text-label-sm font-label-sm font-bold">
+                            <span class="text-label-sm font-label-sm font-bold text-on-surface">
                                 {{ $mpp->jumlah_kebutuhan }} Orang
                             </span>
                         </div>
@@ -86,14 +84,16 @@
                     </div>
                     <!-- Action Menu -->
                     <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                        <button wire:click="openEditModal({{ $mpp->id }})" class="p-2 hover:bg-surface-container-low rounded-md transition-colors text-on-surface-variant">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                        </button>
-                        <button wire:click="delete({{ $mpp->id }})" wire:confirm="Apakah Anda yakin ingin menghapus manpower plan ini?" class="p-2 hover:bg-error/10 rounded-md transition-colors text-error">
+                        <span onclick="event.stopPropagation()">
+                            <a href="{{ route('mpp.edit', $mpp->id) }}" class="p-2 hover:bg-surface-container-low rounded-md transition-colors text-on-surface-variant block">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </a>
+                        </span>
+                        <button wire:click="delete({{ $mpp->id }})" wire:confirm="Apakah Anda yakin ingin menghapus manpower plan ini?" onclick="event.stopPropagation()" class="p-2 hover:bg-error/10 rounded-md transition-colors text-error">
                             <span class="material-symbols-outlined text-[20px]">delete</span>
                         </button>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @endif

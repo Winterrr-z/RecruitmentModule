@@ -19,12 +19,10 @@ return new class extends Migration
             $table->integer('jumlah_kebutuhan');
             $table->integer('estimasi_gaji_min')->nullable();
             $table->integer('estimasi_gaji_max')->nullable();
-            $table->string('syarat_pendidikan', 50);
-            $table->string('syarat_pengalaman', 50);
-            $table->json('keahlian');
             $table->integer('sla_bulan');
             $table->date('target_waktu_absolut');
             $table->string('status', 20)->default('draft');
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }
