@@ -15,8 +15,8 @@
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Manpower Planning</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant/70">Kelola perencanaan kebutuhan tenaga kerja perusahaan Anda.</p>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">MPP List</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant/70">Perencanaan kebutuhan tenaga kerja</p>
         </div>
         <button wire:click="openCreateModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
             <span class="material-symbols-outlined text-[20px]">add</span>
@@ -30,12 +30,12 @@
             <span class="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4">group_add</span>
             <h3 class="text-title-md font-title-md text-on-surface mb-2">Belum Ada Manpower Planning</h3>
             <p class="text-label-sm font-label-sm text-on-surface-variant max-w-md mb-6">
-                Mulai rencanakan kebutuhan tenaga kerja baru untuk departemen Anda dengan membuat manpower plan pertama.
+                Mulai rencanakan kebutuhan tenaga kerja baru untuk departemen dengan membuat manpower plan pertama.
             </p>
-            <button wire:click="openCreateModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
+            <!-- <button wire:click="openCreateModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
                 <span class="material-symbols-outlined text-[20px]">add</span>
                 <span>Buat Plan Pertama</span>
-            </button>
+            </button> -->
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

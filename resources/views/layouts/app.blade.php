@@ -1,3 +1,22 @@
+@php
+    $requestPath = request()->path();
+
+    if (request()->routeIs('mpp.*') || str_starts_with($requestPath, 'mpp')) {
+        $headerTitle = 'Manpower Planning';
+    } elseif (request()->routeIs('rr.*') || str_starts_with($requestPath, 'rr')) {
+        $headerTitle = 'Recruitment Request';
+    } elseif (request()->routeIs('ats.*') || str_starts_with($requestPath, 'ats')) {
+        $headerTitle = 'Applicant Tracking System';
+    } elseif (request()->routeIs('dashboard') || str_starts_with($requestPath, 'dashboard')) {
+        $headerTitle = 'Dashboard';
+    } elseif (request()->routeIs('profile.*') || str_starts_with($requestPath, 'profile')) {
+        $headerTitle = 'Profile';
+    } elseif (request()->routeIs('settings.*') || str_starts_with($requestPath, 'settings')) {
+        $headerTitle = 'Settings';
+    } else {
+        $headerTitle = 'Dashboard';
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -45,9 +64,10 @@
     </a>
 </aside>
     <main class="min-h-screen ml-72">
-        <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 mx-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
+    <!-- Header -->
+    <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 mx-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
         <div class="flex items-center gap-4">
-            <span class="font-headline-lg text-headline-lg text-primary tracking-tight">Manpower Planning</span>
+            <span class="font-headline-lg text-headline-lg text-primary tracking-tight">{{ $headerTitle }}</span>
         </div>
         <div class="flex items-center gap-6">
             <div class="relative group">
@@ -57,6 +77,7 @@
             <button class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95"><span class="material-symbols-outlined">notifications</span></button>
         </div>
     </header>
+    <!-- Akhir Header -->
     <div class="p-gutter max-w-container-max-width mx-auto">
         {{ $slot }}
     </div>
