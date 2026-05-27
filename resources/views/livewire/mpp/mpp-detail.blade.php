@@ -24,24 +24,25 @@
             <div class="flex items-center gap-4">
                 <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $mpp->nama_plan }}</h1>
                 
-                @if(strtolower($mpp->status) === 'approved')
-                    <span class="px-4 py-1 bg-green-100 text-green-800 text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Approved</span>
-                @elseif(strtolower($mpp->status) === 'completed' || strtolower($mpp->status) === 'closed')
-                    <span class="px-4 py-1 bg-blue-100 text-blue-800 text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Completed</span>
-                @else
-                    <span class="px-4 py-1 bg-surface-container-highest text-on-surface-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Draft</span>
-                @endif
+                @php $heroBadge = $mpp->getStatusBadge(); @endphp
+                <span class="px-4 py-1 {{ $heroBadge['bg'] }} {{ $heroBadge['color'] }} text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">{{ $heroBadge['icon'] }}</span>
+                    {{ $heroBadge['label'] }}
+                </span>
             </div>
         </section>
 
         <!-- Step Indicator -->
         <section class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.06)] border border-surface-container/30">
             @php
-                $isCompleted = in_array(strtolower($mpp->status), ['completed', 'closed']);
+                $computedStatus = $mpp->getComputedStatus();
+                $isCompleted = in_array(strtolower($mpp->status), ['completed', 'closed']) || $computedStatus === 'Filled';
                 
                 $isDraftActive = !$isCompleted;
                 $isApprovedActive = (strtolower($mpp->status) === 'approved' || $hasLowongan) && !$isCompleted;
                 $isLowonganActive = $hasLowongan && !$isCompleted;
+                
+                $slaDisplay = $mpp->sla_hari >= 30 ? (int) floor($mpp->sla_hari / 30) . ' Bulan' : (int) $mpp->sla_hari . ' Hari';
             @endphp
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-8">
                 <!-- Step 1: Draft -->
@@ -115,11 +116,9 @@
 
                 if ($daysRemaining > 0) {
                     if ($daysRemaining >= 30) {
-                        $sisaWaktuFormatted = round($daysRemaining / 30) . ' Bulan';
-                    } elseif ($daysRemaining >= 7) {
-                        $sisaWaktuFormatted = round($daysRemaining / 7) . ' Minggu';
+                        $sisaWaktuFormatted = (int) floor($daysRemaining / 30) . ' Bulan';
                     } else {
-                        $sisaWaktuFormatted = $daysRemaining . ' Hari';
+                        $sisaWaktuFormatted = (int) floor($daysRemaining) . ' Hari';
                     }
                 } else {
                     $sisaWaktuFormatted = 'Waktu Habis';
@@ -218,7 +217,7 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">SLA Perencanaan</p>
-                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->sla_bulan }} Bulan</p>
+                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $slaDisplay }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Target Selesai</p>
@@ -320,10 +319,24 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Edit Button -->
-                    <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                        <span>Edit Plan</span>
-                    </a>
+                    @if($computedStatus === 'Closed' || $computedStatus === 'Filled')
+                        {{-- Edit disabled/hidden if closed or filled --}}
+                    @elseif(strtolower($mpp->status) === 'approved' && $mpp->hasPublishedRr())
+                        {{-- Edit disabled if plan is approved and RR is published --}}
+                    @else
+                        <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                            <span>Edit Plan</span>
+                        </a>
+                    @endif
+                    
+                    <!-- Tutup Plan Button -->
+                    @if(strtolower($mpp->status) === 'approved' && !$mpp->hasActiveCandidates())
+                        <button wire:click="closePlan" wire:confirm="Anda yakin ingin menutup Plan ini?" class="px-6 h-14 bg-error text-white hover:brightness-110 border border-error font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">cancel</span>
+                            <span>Tutup Plan</span>
+                        </button>
+                    @endif
 
                     <!-- Approve Button -->
                     @if(strtolower($mpp->status) === 'draft')

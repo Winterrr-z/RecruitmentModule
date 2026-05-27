@@ -93,9 +93,26 @@ class MppDetail extends Component
     public function approve()
     {
         if (strtolower($this->mpp->status) === 'draft') {
-            $this->mpp->update(['status' => 'approved']);
+            $this->mpp->update(['status' => 'approved', 'last_activity_at' => now()]);
             session()->flash('message', 'Manpower Planning berhasil disetujui.');
-            $this->loadMpp(); // refresh data
+            $this->loadMpp();
+        }
+    }
+
+    /**
+     * Tutup Manpower Planning.
+     * Mengubah status MPP menjadi 'Closed' jika syarat terpenuhi.
+     * 
+     * @return void
+     */
+    public function closePlan()
+    {
+        if (strtolower($this->mpp->status) === 'approved' && !$this->mpp->hasActiveCandidates()) {
+            $this->mpp->update(['status' => 'Closed', 'last_activity_at' => now()]);
+            session()->flash('message', 'Manpower Planning berhasil ditutup.');
+            $this->loadMpp();
+        } else {
+            session()->flash('error', 'Tidak dapat menutup plan. Pastikan plan sudah di-approve dan tidak ada kandidat aktif.');
         }
     }
 
