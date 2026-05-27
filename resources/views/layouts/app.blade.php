@@ -32,24 +32,24 @@
         <span class="font-headline-lg text-headline-lg text-primary tracking-tight">ATT Group</span>
     </div>
     <nav class="flex flex-col gap-2 px-4">
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="#">
+        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="dashboard">
             <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
-        <a class="bg-primary-container text-on-primary-container rounded-md px-6 py-3 font-semibold flex items-center gap-4 transition-all scale-102" href="#">
+        <a class="{{ request()->routeIs('mpp.*') ? 'bg-primary-container text-on-primary-container font-semibold scale-102' : 'text-on-surface-variant hover:text-primary hover:bg-primary/10' }} rounded-md px-6 py-3 flex items-center gap-4 transition-all" href="{{ route('mpp.index') }}">
             <span class="material-symbols-outlined" data-icon="group_add">group_add</span>
             <span class="font-body-md text-body-md">Manpower Planning</span>
         </a>
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="#">
-            <span class="material-symbols-outlined" data-icon="description">description</span>
+        <a href="{{ route('rr.index') }}" class="{{ request()->routeIs('rr.*') ? 'bg-primary-container text-on-primary-container font-semibold scale-102' : 'text-on-surface-variant hover:text-primary hover:bg-primary/10' }} rounded-md px-6 py-3 flex items-center gap-4 transition-all">
+            <span class="material-symbols-outlined">description</span>
             <span class="font-body-md text-body-md">Recruitment Request</span>
         </a>
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="#">
+        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="ats">
             <span class="material-symbols-outlined" data-icon="person_search">person_search</span>
             <span class="font-body-md text-body-md">ATS</span>
         </a>
         <div class="mt-auto pt-8">
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="#">
+        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="settings">
             <span class="material-symbols-outlined" data-icon="settings">settings</span>
             <span class="font-body-md text-body-md">Settings</span>
         </a>

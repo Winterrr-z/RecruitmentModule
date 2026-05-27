@@ -22,6 +22,12 @@ class MppIndex extends Component
      */
     public $mpps;
 
+    /** @var string Kata kunci pencarian. */
+    public $search = '';
+
+    /** @var string Departemen terpilih untuk filter. */
+    public $selectedDepartment = '';
+
     /**
      * @var bool Status tampilnya modal (Create/Edit).
      */
@@ -325,16 +331,47 @@ class MppIndex extends Component
     }
 
     /**
+     * Reset search and department filters.
+     * 
+     * @return void
+     */
+    public function resetFilters()
+    {
+        $this->search = '';
+        $this->selectedDepartment = '';
+    }
+
+    /**
      * Render the Livewire component.
-     * Memuat daftar semua MPP dari database dan menampilkannya di view index.
+     * Memuat daftar semua MPP dari database berdasarkan filter dan menampilkannya di view index.
      * 
      * @return \Illuminate\View\View
      */
     public function render()
     {
-        $this->mpps = Mpp::latest()->get();
+        $departments = Mpp::select('departemen')
+            ->whereNotNull('departemen')
+            ->distinct()
+            ->orderBy('departemen')
+            ->pluck('departemen');
 
-        return view('livewire.mpp.index')
+        $query = Mpp::latest();
+
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('nama_plan', 'like', '%' . $this->search . '%')
+                  ->orWhere('jabatan', 'like', '%' . $this->search . '%')
+                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if (!empty($this->selectedDepartment)) {
+            $query->where('departemen', $this->selectedDepartment);
+        }
+
+        $this->mpps = $query->get();
+
+        return view('livewire.mpp.index', compact('departments'))
             ->layout('layouts.app');
     }
 }

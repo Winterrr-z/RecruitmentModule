@@ -254,7 +254,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Edit Button -->
-                    <a href="{{ route('mpp.edit', ['mppId' => $mpp->id]) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">edit</span>
                         <span>Edit Plan</span>
                     </a>

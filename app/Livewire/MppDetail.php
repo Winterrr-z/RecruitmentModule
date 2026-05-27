@@ -38,9 +38,9 @@ class MppDetail extends Component
      * @param int $mppId
      * @return void
      */
-    public function mount($mppId)
+    public function mount($id = null, $mppId = null)
     {
-        $this->mppId = $mppId;
+        $this->mppId = $id ?? $mppId;
         $this->loadMpp();
     }
 
