@@ -20,6 +20,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/recruitment-requests', App\Livewire\RRIndex::class)->name('rr.index');
     Route::get('/recruitment-requests/create/{mppId?}', App\Livewire\RRForm::class)->name('rr.create');
+    Route::get('/recruitment-requests/{id}/edit', App\Livewire\RRForm::class)->name('rr.edit');
     Route::get('/recruitment-requests/{id}', App\Livewire\RRDetail::class)->name('rr.show');
 });
 

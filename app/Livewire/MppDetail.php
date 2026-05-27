@@ -32,6 +32,21 @@ class MppDetail extends Component
     public $hasLowongan = false;
 
     /**
+     * @var int Sisa kuota MPP yang belum terpenuhi.
+     */
+    public $remainingQuota = 0;
+
+    /**
+     * @var bool Apakah MPP memiliki Lowongan/Recruitment Request yang aktif (belum completed/closed).
+     */
+    public $hasActiveRr = false;
+
+    /**
+     * @var \Illuminate\Database\Eloquent\Collection Daftar Lowongan terkait.
+     */
+    public $mppLowongans;
+
+    /**
      * Initialize the component.
      * Menerima parameter mppId dan memuat data terkait.
      *
@@ -46,14 +61,27 @@ class MppDetail extends Component
 
     /**
      * Load the MPP and check relationship status.
-     * Mengambil data Mpp berdasarkan ID dan mengecek apakah ada record Lowongan dengan mpp_id yang sama.
+     * Mengambil data Mpp berdasarkan ID dan mengecek status lowongan, sisa kuota, serta relasi lowongan.
      * 
      * @return void
      */
     protected function loadMpp()
     {
-        $this->mpp = Mpp::findOrFail($this->mppId);
-        $this->hasLowongan = Lowongan::where('mpp_id', $this->mpp->id)->exists();
+        $this->mpp = Mpp::with('lowongans')->findOrFail($this->mppId);
+        $this->mppLowongans = $this->mpp->lowongans;
+        $this->hasLowongan = $this->mppLowongans->isNotEmpty();
+
+        // Cari sisa kuota
+        $hiredCount = \App\Models\Candidate::whereHas('lowongan', function ($query) {
+            $query->where('mpp_id', $this->mpp->id);
+        })->where('status', 'Hired')->count();
+
+        $this->remainingQuota = max(0, $this->mpp->jumlah_kebutuhan - $hiredCount);
+
+        // Cari apakah ada Lowongan di bawah MPP ini yang tidak berstatus Completed/Closed
+        $this->hasActiveRr = $this->mppLowongans->contains(function ($lowongan) {
+            return $lowongan->status !== 'Completed/Closed';
+        });
     }
 
     /**

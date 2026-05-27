@@ -142,11 +142,35 @@
 
                         @if($lowongan->status === 'Ready to Publish' || $lowongan->status === 'Published')
                             <div class="flex items-center justify-end gap-2 pt-3 border-t border-surface-container-low">
-                                <!-- Tombol Publish -->
+                                <!-- Tombol Edit (Draft & Tanpa Pelamar) -->
+                                @if($lowongan->status === 'Ready to Publish' && $lowongan->candidates_count === 0)
+                                    <a href="{{ route('rr.edit', $lowongan->id) }}" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95 no-underline">
+                                        <span class="material-symbols-outlined text-[16px]">edit</span>
+                                        <span>Edit</span>
+                                    </a>
+                                @endif
+
+                                <!-- Tombol Hapus (Draft & Tanpa Pelamar) -->
+                                @if($lowongan->status === 'Ready to Publish' && $lowongan->candidates_count === 0)
+                                    <button wire:click="delete({{ $lowongan->id }})" wire:confirm="Apakah Anda yakin ingin menghapus Recruitment Request ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/10 text-error font-label-sm text-xs font-semibold hover:bg-error/20 transition-all active:scale-95">
+                                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        <span>Hapus</span>
+                                    </button>
+                                @endif
+
+                                <!-- Tombol Aktifkan -->
                                 @if($lowongan->status === 'Ready to Publish')
                                     <button wire:click="publish({{ $lowongan->id }})" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-on-primary font-label-sm text-xs font-semibold hover:bg-primary-container shadow-sm transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
-                                        <span>Publish</span>
+                                        <span>Aktifkan</span>
+                                    </button>
+                                @endif
+
+                                <!-- Tombol Nonaktifkan -->
+                                @if($lowongan->status === 'Published')
+                                    <button wire:click="unpublish({{ $lowongan->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95">
+                                        <span class="material-symbols-outlined text-[16px]">visibility_off</span>
+                                        <span>Nonaktifkan</span>
                                     </button>
                                 @endif
 

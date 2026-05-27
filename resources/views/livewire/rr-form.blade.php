@@ -1,8 +1,8 @@
 <div>
     <!-- Content Header -->
     <div class="mb-8">
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Buat Recruitment Request</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant/70">Buat lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.</p>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi lowongan pekerjaan yang ada.' : 'Buat lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
     </div>
 
     <form wire:submit.prevent="save">
@@ -196,7 +196,7 @@
                     <button type="submit" 
                             class="w-full flex items-center justify-center gap-2 h-14 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
                         <span class="material-symbols-outlined text-[20px]">save</span>
-                        <span>Simpan sebagai Draft</span>
+                        <span>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan sebagai Draft' }}</span>
                     </button>
                     <a href="{{ route('rr.index') }}" 
                        class="w-full flex items-center justify-center h-14 border border-surface-container-high bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-bold rounded-md transition-colors active:scale-95">

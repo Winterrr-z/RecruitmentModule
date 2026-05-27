@@ -46,7 +46,7 @@ class RRIndex extends Component
     }
 
     /**
-     * Publikasikan lowongan (ubah status dari 'Ready to Publish' ke 'Published').
+     * Aktifkan lowongan (ubah status dari 'Ready to Publish' ke 'Published').
      *
      * @param int $id
      * @return void
@@ -56,7 +56,22 @@ class RRIndex extends Component
         $lowongan = Lowongan::findOrFail($id);
         if ($lowongan->status === 'Ready to Publish') {
             $lowongan->update(['status' => 'Published']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil dipublikasikan.');
+            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil diaktifkan.');
+        }
+    }
+
+    /**
+     * Nonaktifkan lowongan (ubah status dari 'Published' ke 'Ready to Publish').
+     *
+     * @param int $id
+     * @return void
+     */
+    public function unpublish($id)
+    {
+        $lowongan = Lowongan::findOrFail($id);
+        if ($lowongan->status === 'Published') {
+            $lowongan->update(['status' => 'Ready to Publish']);
+            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil dinonaktifkan.');
         }
     }
 
@@ -76,6 +91,26 @@ class RRIndex extends Component
     }
 
     /**
+     * Hapus lowongan draft (Ready to Publish) jika tidak memiliki pelamar.
+     *
+     * @param int $id
+     * @return void
+     */
+    public function delete($id)
+    {
+        $lowongan = Lowongan::with('candidates')->findOrFail($id);
+
+        // Logika rr tidak dapat didelete ketika terdapat pelamar pada lowongan dan status tidak sama dengan draft.
+        if ($lowongan->candidates->count() > 0 || $lowongan->status !== 'Ready to Publish') {
+            session()->flash('error', 'Lowongan yang memiliki pelamar atau statusnya bukan Draft tidak dapat dihapus.');
+            return;
+        }
+
+        $lowongan->delete();
+        session()->flash('message', 'Recruitment Request berhasil dihapus.');
+    }
+
+    /**
      * Render komponen Livewire.
      *
      * @return \Illuminate\View\View
@@ -89,8 +124,8 @@ class RRIndex extends Component
             'completed' => Lowongan::where('status', 'Completed/Closed')->count(),
         ];
 
-        // Query lowongans dengan filter
-        $query = Lowongan::query();
+        // Query lowongans dengan filter dan eager load count kandidat
+        $query = Lowongan::withCount('candidates');
 
         if ($this->status !== '') {
             if ($this->status === 'Completed/Closed') {

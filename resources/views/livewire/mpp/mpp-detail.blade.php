@@ -241,6 +241,72 @@
                     {{ $mpp->note ?: 'Tidak ada deskripsi atau catatan tambahan.' }}
                 </div>
             </div>
+
+            <!-- Recruitment Requests (Lowongan) Terkait -->
+            @if($hasLowongan)
+                <div class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 space-y-6">
+                    <h4 class="font-title-md text-title-md flex items-center gap-2 text-on-surface">
+                        <span class="material-symbols-outlined text-primary">assignment_ind</span>
+                        Recruitment Request (Lowongan) Terkait
+                    </h4>
+                    
+                    <div class="overflow-x-auto border border-surface-container rounded-md">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low border-b border-surface-container text-label-sm font-label-sm text-on-surface-variant">
+                                    <th class="p-4 pl-6">Posisi / Jabatan</th>
+                                    <th class="p-4">Tipe & Lokasi</th>
+                                    <th class="p-4 text-center">Kuota Lowongan</th>
+                                    <th class="p-4 text-center">Hired / Pelamar</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 pr-6 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-surface-container">
+                                @foreach($mppLowongans as $l)
+                                    @php
+                                        $hired = $l->candidates()->where('status', 'Hired')->count();
+                                        $total = $l->candidates()->count();
+                                    @endphp
+                                    <tr class="hover:bg-surface-container-low/50 transition-colors text-body-md text-on-surface">
+                                        <td class="p-4 pl-6 font-semibold">
+                                            {{ $l->jabatan }}
+                                            <div class="text-xs text-on-surface-variant font-normal">{{ $l->departemen }}</div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-normal">
+                                                <span class="capitalize">{{ $l->tipe_kerja }}</span>
+                                                <span>•</span>
+                                                <span class="capitalize">{{ $l->lokasi }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-center font-semibold">{{ $l->kuota }} Orang</td>
+                                        <td class="p-4 text-center font-semibold">
+                                            <span class="text-primary">{{ $hired }}</span>
+                                            <span class="text-on-surface-variant">/ {{ $total }}</span>
+                                        </td>
+                                        <td class="p-4">
+                                            @if($l->status === 'Published')
+                                                <span class="px-2.5 py-0.5 bg-[#dcfce7] text-[#166534] text-xs font-bold rounded-full uppercase">Aktif (Published)</span>
+                                            @elseif($l->status === 'Completed/Closed')
+                                                <span class="px-2.5 py-0.5 bg-[#f3f4f6] text-[#374151] text-xs font-bold rounded-full uppercase">Closed</span>
+                                            @else
+                                                <span class="px-2.5 py-0.5 bg-[#fef9c3] text-[#854d0e] text-xs font-bold rounded-full uppercase">Draft</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4 pr-6 text-right">
+                                            <a href="{{ route('rr.show', $l->id) }}" class="inline-flex items-center gap-1 text-primary hover:text-primary-container font-bold transition-all text-sm">
+                                                <span>Detail</span>
+                                                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         </section>
 
         <!-- Bottom Reactive Action Area -->
@@ -268,7 +334,7 @@
                     @endif
 
                     <!-- Buat Lowongan Button -->
-                    @if(strtolower($mpp->status) === 'approved' && !$hasLowongan)
+                    @if(strtolower($mpp->status) === 'approved' && $remainingQuota > 0 && !$hasActiveRr)
                         <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_box</span>
                             <span>Buat Lowongan</span>

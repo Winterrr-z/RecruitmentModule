@@ -4,14 +4,15 @@ namespace App\Livewire;
 
 use App\Models\Mpp;
 use App\Models\Lowongan;
+use App\Models\Candidate;
 use Carbon\Carbon;
 use Livewire\Component;
 
 /**
  * Class RRForm
  * 
- * Komponen Livewire untuk form pembuatan Recruitment Request (RR) Baru.
- * Menangani pemilihan MPP, field read-only, validasi kuota sisa, dan penyimpanan ke database.
+ * Komponen Livewire untuk form pembuatan & pengeditan Recruitment Request (RR) Baru.
+ * Menangani pemilihan MPP, field read-only, validasi kuota sisa, pengeditan draft yang tidak memiliki pelamar, dan penyimpanan ke database.
  *
  * @package App\Livewire
  */
@@ -21,6 +22,16 @@ class RRForm extends Component
      * @var int|null ID MPP terpilih.
      */
     public $selectedMppId;
+
+    /**
+     * @var int|null ID Lowongan yang sedang diedit.
+     */
+    public $lowonganId;
+
+    /**
+     * @var bool Menandakan apakah sedang dalam mode edit.
+     */
+    public $isEdit = false;
 
     /**
      * @var bool Status form read-only (dikunci dari parameter query).
@@ -44,13 +55,63 @@ class RRForm extends Component
     public $tampilkan_gaji = false;
 
     /**
+     * Hitung sisa kuota yang dapat digunakan untuk MPP tertentu.
+     * Sisa kuota = jumlah kebutuhan MPP - jumlah pelamar yang berstatus 'Hired' di bawah MPP tersebut.
+     *
+     * @param Mpp $mpp
+     * @return int
+     */
+    protected function getMppRemainingQuota(Mpp $mpp)
+    {
+        $hiredCount = Candidate::whereHas('lowongan', function ($query) use ($mpp) {
+            $query->where('mpp_id', $mpp->id);
+        })->where('status', 'Hired')->count();
+
+        return max(0, $mpp->jumlah_kebutuhan - $hiredCount);
+    }
+
+    /**
      * Inisialisasi komponen.
      *
      * @param int|null $mppId
+     * @param int|null $id
      * @return void|\Illuminate\Http\RedirectResponse
      */
-    public function mount($mppId = null)
+    public function mount($mppId = null, $id = null)
     {
+        // Rute edit: jika $id disediakan
+        if ($id) {
+            $lowongan = Lowongan::with('candidates')->findOrFail($id);
+
+            // Logika rr dapat diedit ketika tidak berada di status active (Published), dan closed/completed selama tidak ada kandidat yang sudah apply.
+            if ($lowongan->status === 'Published' || $lowongan->status === 'Completed/Closed' || $lowongan->candidates->count() > 0) {
+                session()->flash('error', 'Lowongan yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
+                return redirect()->route('rr.index');
+            }
+
+            $this->lowonganId = $lowongan->id;
+            $this->isEdit = true;
+            $this->isReadOnly = true;
+            $this->selectedMppId = $lowongan->mpp_id;
+
+            // Populate MPP read-only fields
+            $this->jabatan = $lowongan->jabatan;
+            $this->departemen = $lowongan->departemen;
+            $this->kuota = $lowongan->kuota;
+            $this->estimasi_gaji_min = $lowongan->estimasi_gaji_min;
+            $this->estimasi_gaji_max = $lowongan->estimasi_gaji_max;
+            $this->expected_join_date = $lowongan->expected_join_date ? $lowongan->expected_join_date->format('Y-m-d') : null;
+
+            // Populate HR editable fields
+            $this->deskripsi_pekerjaan = $lowongan->deskripsi_pekerjaan;
+            $this->spesifikasi_kebutuhan = $lowongan->spesifikasi_kebutuhan;
+            $this->tipe_kerja = $lowongan->tipe_kerja;
+            $this->lokasi = $lowongan->lokasi;
+            $this->application_deadline = $lowongan->application_deadline ? $lowongan->application_deadline->format('Y-m-d') : null;
+            $this->tampilkan_gaji = $lowongan->tampilkan_gaji;
+            return;
+        }
+
         // Fallback mengambil mppId dari query string jika tidak disediakan lewat parameter route
         if (!$mppId) {
             $mppId = request()->query('mpp_id');
@@ -65,10 +126,19 @@ class RRForm extends Component
                 return redirect()->route('rr.index');
             }
 
-            // Validasi anti-duplikasi: satu MPP hanya boleh memiliki maksimal 1 lowongan (RR)
-            $exists = Lowongan::where('mpp_id', $mpp->id)->exists();
-            if ($exists) {
-                session()->flash('error', 'Manpower Planning ini sudah memiliki lowongan pekerjaan yang terdaftar.');
+            // Validasi sisa kuota
+            $remainingQuota = $this->getMppRemainingQuota($mpp);
+            if ($remainingQuota <= 0) {
+                session()->flash('error', 'Manpower Planning ini sudah memenuhi seluruh kuota kebutuhan.');
+                return redirect()->route('rr.index');
+            }
+
+            // Validasi: rr yang lain completed/closed dibawah mpp yang sama
+            $hasActiveRr = Lowongan::where('mpp_id', $mpp->id)
+                ->where('status', '!=', 'Completed/Closed')
+                ->exists();
+            if ($hasActiveRr) {
+                session()->flash('error', 'Manpower Planning ini masih memiliki Recruitment Request yang aktif.');
                 return redirect()->route('rr.index');
             }
 
@@ -91,7 +161,7 @@ class RRForm extends Component
         $this->estimasi_gaji_min = $mpp->estimasi_gaji_min;
         $this->estimasi_gaji_max = $mpp->estimasi_gaji_max;
         $this->expected_join_date = $mpp->target_waktu_absolut ? $mpp->target_waktu_absolut->format('Y-m-d') : null;
-        $this->kuota = $mpp->jumlah_kebutuhan; // Kuota RR otomatis terisi dari jumlah kebutuhan MPP
+        $this->kuota = $this->getMppRemainingQuota($mpp); // Mengunci kuota dari sisa kuota MPP
     }
 
     /**
@@ -119,6 +189,20 @@ class RRForm extends Component
     {
         if ($value) {
             $mpp = Mpp::findOrFail($value);
+            
+            // Validasi sisa kuota & RR aktif
+            $remainingQuota = $this->getMppRemainingQuota($mpp);
+            $hasActiveRr = Lowongan::where('mpp_id', $mpp->id)
+                ->where('status', '!=', 'Completed/Closed')
+                ->exists();
+
+            if ($remainingQuota <= 0 || $hasActiveRr) {
+                $this->clearMppFields();
+                $this->selectedMppId = null;
+                $this->addError('selectedMppId', 'Manpower Planning tidak dapat digunakan karena kuota habis atau memiliki RR aktif.');
+                return;
+            }
+
             $this->populateMppFields($mpp);
         } else {
             $this->clearMppFields();
@@ -126,7 +210,7 @@ class RRForm extends Component
     }
 
     /**
-     * Simpan data lowongan ke database sebagai Draft.
+     * Simpan data lowongan ke database.
      *
      * @return void|\Illuminate\Http\RedirectResponse
      */
@@ -135,21 +219,6 @@ class RRForm extends Component
         if (!$this->selectedMppId) {
             $this->addError('selectedMppId', 'Pilih Manpower Planning terlebih dahulu.');
             return;
-        }
-
-        $mpp = Mpp::findOrFail($this->selectedMppId);
-
-        // Validasi status approved
-        if (strtolower($mpp->status) !== 'approved') {
-            session()->flash('error', 'Hanya Manpower Planning yang telah disetujui (Approved) yang dapat dibuatkan lowongan.');
-            return redirect()->route('rr.index');
-        }
-
-        // Validasi anti-duplikasi sebelum submit
-        $exists = Lowongan::where('mpp_id', $this->selectedMppId)->exists();
-        if ($exists) {
-            session()->flash('error', 'Manpower Planning ini sudah memiliki lowongan pekerjaan yang terdaftar.');
-            return redirect()->route('rr.index');
         }
 
         // Lakukan validasi input
@@ -167,25 +236,70 @@ class RRForm extends Component
             'application_deadline.after_or_equal' => 'Application Deadline minimal hari ini.',
         ]);
 
-        // Simpan Lowongan baru sebagai Ready to Publish (Draft)
-        Lowongan::create([
-            'mpp_id' => $mpp->id,
-            'jabatan' => $mpp->jabatan,
-            'departemen' => $mpp->departemen,
-            'estimasi_gaji_min' => $mpp->estimasi_gaji_min,
-            'estimasi_gaji_max' => $mpp->estimasi_gaji_max,
-            'expected_join_date' => $mpp->target_waktu_absolut,
-            'deskripsi_pekerjaan' => $this->deskripsi_pekerjaan,
-            'spesifikasi_kebutuhan' => $this->spesifikasi_kebutuhan ?: '',
-            'tipe_kerja' => $this->tipe_kerja,
-            'lokasi' => $this->lokasi,
-            'application_deadline' => $this->application_deadline,
-            'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
-            'status' => 'Ready to Publish',
-            'kuota' => $mpp->jumlah_kebutuhan, // Mengunci kuota dari MPP
-        ]);
+        if ($this->isEdit) {
+            $lowongan = Lowongan::with('candidates')->findOrFail($this->lowonganId);
 
-        session()->flash('message', 'Recruitment Request berhasil dibuat sebagai Draft.');
+            // Double check edit permission sebelum disimpan
+            if ($lowongan->status === 'Published' || $lowongan->status === 'Completed/Closed' || $lowongan->candidates->count() > 0) {
+                session()->flash('error', 'Lowongan yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
+                return redirect()->route('rr.index');
+            }
+
+            $lowongan->update([
+                'deskripsi_pekerjaan' => $this->deskripsi_pekerjaan,
+                'spesifikasi_kebutuhan' => $this->spesifikasi_kebutuhan ?: '',
+                'tipe_kerja' => $this->tipe_kerja,
+                'lokasi' => $this->lokasi,
+                'application_deadline' => $this->application_deadline,
+                'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
+            ]);
+
+            session()->flash('message', 'Recruitment Request berhasil diperbarui.');
+        } else {
+            $mpp = Mpp::findOrFail($this->selectedMppId);
+
+            // Validasi status approved
+            if (strtolower($mpp->status) !== 'approved') {
+                session()->flash('error', 'Hanya Manpower Planning yang telah disetujui (Approved) yang dapat dibuatkan lowongan.');
+                return redirect()->route('rr.index');
+            }
+
+            // Validasi sisa kuota sebelum disubmit
+            $remainingQuota = $this->getMppRemainingQuota($mpp);
+            if ($remainingQuota <= 0) {
+                session()->flash('error', 'Manpower Planning ini sudah memenuhi seluruh kuota kebutuhan.');
+                return redirect()->route('rr.index');
+            }
+
+            // Validasi RR aktif yang lain sebelum disubmit
+            $hasActiveRr = Lowongan::where('mpp_id', $mpp->id)
+                ->where('status', '!=', 'Completed/Closed')
+                ->exists();
+            if ($hasActiveRr) {
+                session()->flash('error', 'Manpower Planning ini masih memiliki Recruitment Request yang aktif.');
+                return redirect()->route('rr.index');
+            }
+
+            // Simpan Lowongan baru sebagai Ready to Publish (Draft)
+            Lowongan::create([
+                'mpp_id' => $mpp->id,
+                'jabatan' => $mpp->jabatan,
+                'departemen' => $mpp->departemen,
+                'estimasi_gaji_min' => $mpp->estimasi_gaji_min,
+                'estimasi_gaji_max' => $mpp->estimasi_gaji_max,
+                'expected_join_date' => $mpp->target_waktu_absolut,
+                'deskripsi_pekerjaan' => $this->deskripsi_pekerjaan,
+                'spesifikasi_kebutuhan' => $this->spesifikasi_kebutuhan ?: '',
+                'tipe_kerja' => $this->tipe_kerja,
+                'lokasi' => $this->lokasi,
+                'application_deadline' => $this->application_deadline,
+                'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
+                'status' => 'Ready to Publish',
+                'kuota' => $remainingQuota, // Mengunci kuota dari sisa kebutuhan MPP
+            ]);
+
+            session()->flash('message', 'Recruitment Request berhasil dibuat sebagai Draft.');
+        }
 
         return redirect()->route('rr.index');
     }
@@ -197,17 +311,30 @@ class RRForm extends Component
      */
     public function render()
     {
-        // Ambil semua MPP Approved yang BELUM memiliki lowongan sama sekali
-        $mppsDropdown = Mpp::whereIn('status', ['Approved', 'approved'])
-            ->whereNotExists(function ($query) {
-                $query->select(\Illuminate\Support\Facades\DB::raw(1))
-                    ->from('lowongans')
-                    ->whereColumn('lowongans.mpp_id', 'mpps.id');
-            })
-            ->get();
+        // Ambil semua MPP Approved yang tidak memiliki lowongan aktif (selain Completed/Closed)
+        $query = Mpp::whereIn('status', ['Approved', 'approved'])
+            ->whereDoesntHave('lowongans', function ($query) {
+                $query->where('status', '!=', 'Completed/Closed');
+            });
+
+        // Jika sedang edit, masukkan MPP yang terikat saat ini agar opsi dropdown tidak kosong/error
+        if ($this->isEdit && $this->selectedMppId) {
+            $query->orWhere('id', $this->selectedMppId);
+        }
+
+        // Ambil semua hasil query, lalu filter sisa kuota harus > 0 di sisi PHP
+        $mppsDropdown = $query->get()->filter(function ($mpp) {
+            // Khusus MPP terpilih saat edit, selalu lolos agar select tetap terikat
+            if ($this->isEdit && $mpp->id === $this->selectedMppId) {
+                return true;
+            }
+            return $this->getMppRemainingQuota($mpp) > 0;
+        });
 
         return view('livewire.rr-form', [
             'mppsDropdown' => $mppsDropdown
         ])->layout('layouts.app');
     }
 }
+
+
