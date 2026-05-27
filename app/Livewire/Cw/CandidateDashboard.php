@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\Candidate;
 use Livewire\Component;
@@ -71,7 +71,7 @@ class CandidateDashboard extends Component
             ->latest()
             ->get();
 
-        return view('livewire.candidate-dashboard', compact('activeApplications', 'inactiveApplications'))
+        return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications'))
             ->layout('layouts.applicant');
     }
 }

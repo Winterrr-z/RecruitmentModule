@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\Lowongan;
 use Carbon\Carbon;
@@ -56,7 +56,7 @@ class PublicJobList extends Component
 
         $lowongans = $query->orderBy('created_at', 'desc')->get();
 
-        return view('livewire.career-job-list', compact('lowongans'))
+        return view('livewire.cw.career-job-list', compact('lowongans'))
             ->layout('layouts.guest');
     }
 }

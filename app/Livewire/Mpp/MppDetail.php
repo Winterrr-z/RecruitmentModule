@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Mpp;
 
 use App\Models\Mpp;
 use App\Models\Lowongan;

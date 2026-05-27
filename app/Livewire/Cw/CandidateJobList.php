@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\Lowongan;
 use Carbon\Carbon;
@@ -72,7 +72,7 @@ class CandidateJobList extends Component
             ->pluck('total', 'departemen')
             ->toArray();
 
-        return view('livewire.career-job-list-logged-in', compact('lowongans', 'departments'))
+        return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))
             ->layout('layouts.applicant');
     }
 }

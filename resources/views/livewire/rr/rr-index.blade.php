@@ -20,7 +20,7 @@
         </div>
         <a href="{{ route('rr.create') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
             <span class="material-symbols-outlined text-[20px]">add</span>
-            <span>Buat RR Baru</span>
+            <span>Tambah Request</span>
         </a>
     </div>
 
@@ -72,7 +72,7 @@
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($lowongans as $lowongan)
-                <a href="{{ route('rr.show', $lowongan->id) }}" class="block group bg-surface-container-lowest p-6 rounded-md border border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.04)] hover:shadow-[0px_35px_60px_-15px_rgba(107,56,212,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between no-underline text-on-surface">
+                <div onclick="window.location='{{ route('rr.show', $lowongan->id) }}'" class="cursor-pointer block group bg-surface-container-lowest p-6 rounded-md border border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.04)] hover:shadow-[0px_35px_60px_-15px_rgba(107,56,212,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between text-on-surface">
                     <div>
                         <!-- Badge status -->
                         <div class="flex justify-between items-start mb-4">
@@ -184,7 +184,7 @@
                             </div>
                         @endif
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
 

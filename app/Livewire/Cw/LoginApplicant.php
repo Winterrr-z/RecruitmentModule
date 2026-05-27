@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Auth;
@@ -117,7 +117,7 @@ class LoginApplicant extends Component
      */
     public function render()
     {
-        return view('livewire.login-applicant')
+        return view('livewire.cw.login-applicant')
             ->layout('layouts.guest');
     }
 }

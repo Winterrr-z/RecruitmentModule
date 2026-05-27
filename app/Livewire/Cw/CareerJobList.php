@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\Lowongan;
 use Carbon\Carbon;
@@ -124,11 +124,11 @@ class CareerJobList extends Component
         }
 
         if ($isLoggedIn) {
-            return view('livewire.career-job-list-logged-in', compact('lowongans', 'departments'))
+            return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))
                 ->layout('layouts.applicant');
         }
 
-        return view('livewire.career-job-list', compact('lowongans'))
+        return view('livewire.cw.career-job-list', compact('lowongans'))
             ->layout('layouts.guest');
     }
 }

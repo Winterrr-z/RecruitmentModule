@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Rr;
 
 use App\Models\Lowongan;
 use Livewire\Component;
@@ -144,7 +144,7 @@ class RRIndex extends Component
 
         $lowongans = $query->latest()->paginate(10);
 
-        return view('livewire.rr-index', [
+        return view('livewire.rr.rr-index', [
             'lowongans' => $lowongans,
             'stats' => $stats
         ])->layout('layouts.app');

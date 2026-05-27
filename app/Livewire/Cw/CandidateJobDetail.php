@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\Lowongan;
 use App\Models\Candidate;
@@ -105,7 +105,7 @@ class CandidateJobDetail extends Component
     public function render()
     {
         $layout = auth()->check() ? 'layouts.applicant' : 'layouts.guest';
-        return view('livewire.candidate-job-detail')
+        return view('livewire.cw.candidate-job-detail')
             ->layout($layout);
     }
 }

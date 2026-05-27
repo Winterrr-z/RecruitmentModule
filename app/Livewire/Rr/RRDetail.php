@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Rr;
 
 use App\Models\Lowongan;
 use App\Models\Candidate;
@@ -122,7 +122,7 @@ class RRDetail extends Component
             ];
         });
 
-        return view('livewire.rr-detail', [
+        return view('livewire.rr.rr-detail', [
             'lowongan' => $lowongan,
             'totalCandidates' => $totalCandidates,
             'hiredCandidates' => $hiredCandidates,

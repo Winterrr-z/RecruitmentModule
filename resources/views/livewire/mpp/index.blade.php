@@ -15,7 +15,7 @@
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">MPP List</h2>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">List Manpower Planning</h2>
             <p class="font-body-md text-body-md text-on-surface-variant/70">Perencanaan kebutuhan tenaga kerja</p>
         </div>
         <button wire:click="openCreateModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">

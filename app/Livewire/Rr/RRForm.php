@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Rr;
 
 use App\Models\Mpp;
 use App\Models\Lowongan;
@@ -331,7 +331,7 @@ class RRForm extends Component
             return $this->getMppRemainingQuota($mpp) > 0;
         });
 
-        return view('livewire.rr-form', [
+        return view('livewire.rr.rr-form', [
             'mppsDropdown' => $mppsDropdown
         ])->layout('layouts.app');
     }

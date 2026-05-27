@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Cw;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -99,7 +99,7 @@ class RegisterApplicant extends Component
      */
     public function render()
     {
-        return view('livewire.register-applicant')
+        return view('livewire.cw.register-applicant')
             ->layout('layouts.guest');
     }
 }
