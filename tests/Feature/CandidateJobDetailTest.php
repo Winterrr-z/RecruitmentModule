@@ -30,8 +30,8 @@ class CandidateJobDetailTest extends TestCase
             'departemen' => 'Teknologi',
             'jabatan' => 'Developer',
             'jumlah_kebutuhan' => 3,
-            'sla_bulan' => 3,
-            'target_waktu_absolut' => now()->addMonths(3)->format('Y-m-d'),
+            'sla_hari' => 90,
+            'target_waktu_absolut' => now()->addDays(90)->format('Y-m-d'),
         ]);
 
         $this->lowongan = Lowongan::create([
@@ -76,7 +76,7 @@ class CandidateJobDetailTest extends TestCase
         $user = User::factory()->create(['role' => 'applicant']);
 
         Livewire::actingAs($user)
-            ->test('candidate-job-detail', ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
             ->call('apply')
             ->assertHasErrors(['telepon' => 'required', 'cv' => 'required']);
     }
@@ -95,7 +95,7 @@ class CandidateJobDetailTest extends TestCase
         $portfolioFile = UploadedFile::fake()->create('portfolio.pdf', 2000, 'application/pdf');
 
         Livewire::actingAs($user)
-            ->test('candidate-job-detail', ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
             ->set('telepon', '0812345678')
             ->set('cv', $cvFile)
             ->set('portofolio', $portfolioFile)
@@ -139,7 +139,7 @@ class CandidateJobDetailTest extends TestCase
         $cvFile = UploadedFile::fake()->create('cv.pdf', 1000, 'application/pdf');
 
         Livewire::actingAs($user)
-            ->test('candidate-job-detail', ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
             ->set('telepon', '0812345678') // blacklist by email
             ->set('cv', $cvFile)
             ->call('apply')

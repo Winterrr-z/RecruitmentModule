@@ -15,19 +15,19 @@ class ApplicantAuthTest extends TestCase
     {
         $this->get(route('candidate.register'))
             ->assertSuccessful()
-            ->assertSeeLivewire('register-applicant');
+            ->assertSeeLivewire(\App\Livewire\Cw\RegisterApplicant::class);
     }
 
     public function test_login_page_contains_livewire_component()
     {
         $this->get(route('candidate.login'))
             ->assertSuccessful()
-            ->assertSeeLivewire('login-applicant');
+            ->assertSeeLivewire(\App\Livewire\Cw\LoginApplicant::class);
     }
 
     public function test_applicant_can_register()
     {
-        Livewire::test('register-applicant')
+        Livewire::test(\App\Livewire\Cw\RegisterApplicant::class)
             ->set('name', 'John Doe')
             ->set('email', 'johndoe@example.com')
             ->set('password', 'Secret123')
@@ -53,7 +53,7 @@ class ApplicantAuthTest extends TestCase
             'role' => 'applicant',
         ]);
 
-        Livewire::test('register-applicant')
+        Livewire::test(\App\Livewire\Cw\RegisterApplicant::class)
             ->set('name', '')
             ->set('email', 'existing@example.com')
             ->set('password', 'short')
@@ -74,7 +74,7 @@ class ApplicantAuthTest extends TestCase
             'role' => 'applicant',
         ]);
 
-        Livewire::test('login-applicant')
+        Livewire::test(\App\Livewire\Cw\LoginApplicant::class)
             ->set('email', 'applicant@example.com')
             ->set('password', 'Secret123')
             ->call('login')
@@ -94,14 +94,14 @@ class ApplicantAuthTest extends TestCase
             'role' => 'applicant',
         ]);
 
-        Livewire::test('login-applicant')
+        Livewire::test(\App\Livewire\Cw\LoginApplicant::class)
             ->set('email', '')
             ->set('password', '')
             ->call('login')
             ->assertHasErrors(['email', 'password']);
 
         // Failed attempts rate limiting checks
-        $component = Livewire::test('login-applicant')
+        $component = Livewire::test(\App\Livewire\Cw\LoginApplicant::class)
             ->set('email', 'applicant@example.com')
             ->set('password', 'wrong-password');
 

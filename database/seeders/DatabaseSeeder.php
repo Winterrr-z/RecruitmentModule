@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
                 'deskripsi' => 'Default final stage',
                 'butuh_scorecard' => false,
                 'butuh_jadwal' => false,
-                'urutan' => 999,
+                'urutan' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

@@ -20,19 +20,19 @@ class MppTest extends TestCase
         $this->actingAs($user)
             ->get(route('mpp.index'))
             ->assertSuccessful()
-            ->assertSeeLivewire('mpp-index');
+            ->assertSeeLivewire(\App\Livewire\Mpp\MppIndex::class);
     }
 
     public function test_can_create_mpp()
     {
-        Livewire::test('mpp-index')
+        Livewire::test(\App\Livewire\Mpp\MppForm::class)
             ->set('nama_plan', 'Test Plan')
             ->set('departemen', 'IT')
             ->set('jabatan', 'Software Engineer')
             ->set('jumlah_kebutuhan', 2)
             ->set('estimasi_gaji_min', '10,000,000')
             ->set('estimasi_gaji_max', '15,000,000')
-            ->set('sla_bulan', 3)
+            ->set('sla_hari', 90)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -43,7 +43,7 @@ class MppTest extends TestCase
             'jumlah_kebutuhan' => 2,
             'estimasi_gaji_min' => 10000000,
             'estimasi_gaji_max' => 15000000,
-            'sla_bulan' => 3,
+            'sla_hari' => 90,
             'status' => 'draft',
         ]);
     }
@@ -56,14 +56,14 @@ class MppTest extends TestCase
             'departemen' => 'HR',
             'jabatan' => 'HR Manager',
             'jumlah_kebutuhan' => 1,
-            'sla_bulan' => 2,
-            'target_waktu_absolut' => now()->addMonths(2)->format('Y-m-d'),
+            'sla_hari' => 60,
+            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
         ]);
 
         $this->actingAs($user)
             ->get(route('mpp.show', $mpp->id))
             ->assertSuccessful()
-            ->assertSeeLivewire('mpp-detail');
+            ->assertSeeLivewire(\App\Livewire\Mpp\MppDetail::class);
     }
 
     public function test_can_approve_mpp()
@@ -73,12 +73,12 @@ class MppTest extends TestCase
             'departemen' => 'Finance',
             'jabatan' => 'Accountant',
             'jumlah_kebutuhan' => 1,
-            'sla_bulan' => 1,
+            'sla_hari' => 30,
             'status' => 'draft',
-            'target_waktu_absolut' => now()->addMonths(1)->format('Y-m-d'),
+            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        Livewire::test('mpp-detail', ['mppId' => $mpp->id])
+        Livewire::test(\App\Livewire\Mpp\MppDetail::class, ['mppId' => $mpp->id])
             ->call('approve');
 
         $this->assertDatabaseHas('mpps', [

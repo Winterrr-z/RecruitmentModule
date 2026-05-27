@@ -49,6 +49,27 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // ---------------------------------------------------------------------------
+// ATS area (Applicant Tracking System)
+// ---------------------------------------------------------------------------
+Route::middleware(['auth'])->prefix('ats')->group(function () {
+    Route::get('/', App\Livewire\Ats\AtsDashboard::class)->name('ats.dashboard');
+    Route::get('/stages', App\Livewire\Ats\AtsStageConfig::class)->name('ats.stages');
+    Route::get('/blacklist', App\Livewire\Ats\AtsBlacklist::class)->name('ats.blacklist');
+    Route::get('/manual/{lowonganId?}', App\Livewire\Ats\AtsManualCandidate::class)->name('ats.candidate.manual');
+    Route::get('/candidate/{candidateId}', App\Livewire\Ats\AtsCandidateDetail::class)->name('ats.candidate.detail');
+    Route::get('/candidate/{candidateId}/schedule/{stageId}', App\Livewire\Ats\AtsScheduleForm::class)->name('ats.candidate.schedule');
+    Route::get('/candidate/{candidateId}/scorecard/{stageId}', App\Livewire\Ats\AtsScorecardForm::class)->name('ats.candidate.scorecard');
+});
+
+// Offering (HR)
+Route::get('/ats/offering/{candidateId}', App\Livewire\OfferingSend::class)->name('ats.offering.send')->middleware('auth');
+
+// Offering Response (Publik)
+Route::get('/offering/{token}', App\Livewire\OfferingResponse::class)->name('offering.response');
+Route::post('/offering/{token}/respond', [App\Livewire\OfferingResponse::class, 'respond'])->name('offering.respond');
+
+
+// ---------------------------------------------------------------------------
 // Dev helpers — Login/Logout cepat untuk testing layout applicant
 // ---------------------------------------------------------------------------
 if (app()->environment(['local', 'testing'])) {

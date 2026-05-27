@@ -26,8 +26,8 @@
 </head>
 <body>
     <!-- SideNavBar -->
-<aside class="fixed left-0 top-0 h-screen flex flex-col py-8 gap-4 bg-surface-container-low/50 backdrop-blur-xl h-full w-72 rounded-r-sm z-40">
-    <div class="flex items-center gap-3 mb-2 px-8 mb-8">
+<aside class="fixed left-0 top-0 flex flex-col py-8 gap-4 bg-surface-container-low/50 backdrop-blur-xl h-full w-72 rounded-r-sm z-40">
+    <div class="flex items-center gap-3 px-8 mb-8">
         <img alt="Human First Company Logo" class="h-12 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArvIhduHmMzrhk2FNidLA8cUpVK9DgP2amH6bhd_Oj219BIP1iwGUvq8yJLBIXMdB7By_NaH2-1weYeSLF04ZdRDcMDQ5p4PWQjLH1AbFHbS52Hguy5K8L4cJptKFqS9-Pdp7u1k4rCWhrxquGspZDgILG0MxUEk8tIDNgK2Rn7p9v_g5oF9tSNcqmt5VC0qo-QgP76kcY-oTg2FssGWorMJuHsk2hVaKMlZB9OPvxY0DDEE_Rw4HndUeJZ4mgcBDNfGIatlCYTSkU">
         <span class="font-headline-lg text-headline-lg text-primary tracking-tight">ATT Group</span>
     </div>
@@ -44,10 +44,36 @@
             <span class="material-symbols-outlined">description</span>
             <span class="font-body-md text-body-md">Recruitment Request</span>
         </a>
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="ats">
-            <span class="material-symbols-outlined" data-icon="person_search">person_search</span>
-            <span class="font-body-md text-body-md">ATS</span>
-        </a>
+        <!-- ATS Dropdown Menu -->
+        <div x-data="{ open: {{ (request()->routeIs('ats.*') || str_starts_with($requestPath, 'ats')) ? 'true' : 'false' }} }" class="flex flex-col">
+            <button @click="open = !open" 
+                    class="{{ (request()->routeIs('ats.*') || str_starts_with($requestPath, 'ats')) ? 'bg-primary-container text-on-primary-container font-semibold scale-102' : 'text-on-surface-variant hover:text-primary hover:bg-primary/10' }} rounded-md px-6 py-3 flex items-center justify-between transition-all w-full text-left">
+                <div class="flex items-center gap-4">
+                    <span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                    <span class="font-body-md text-body-md">ATS</span>
+                </div>
+                <span class="material-symbols-outlined transition-transform duration-200" :class="open ? 'rotate-180' : ''">keyboard_arrow_down</span>
+            </button>
+            <div x-show="open" 
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform -translate-y-2"
+                 class="pl-10 flex flex-col gap-1 mt-1">
+                <a href="{{ route('ats.dashboard') }}" 
+                   class="{{ request()->routeIs('ats.dashboard') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
+                    <span class="material-symbols-outlined text-[18px]">account_tree</span>
+                    <span class="font-body-md text-sm">Pipeline</span>
+                </a>
+                <a href="{{ route('ats.stages') }}" 
+                   class="{{ request()->routeIs('ats.stages') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
+                    <span class="material-symbols-outlined text-[18px]">settings</span>
+                    <span class="font-body-md text-sm">Config Stage</span>
+                </a>
+            </div>
+        </div>
         <div class="mt-auto pt-8">
         <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="settings">
             <span class="material-symbols-outlined" data-icon="settings">settings</span>
@@ -65,13 +91,13 @@
 </aside>
     <main class="min-h-screen ml-72">
     <!-- Header -->
-    <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 mx-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
+    <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
         <div class="flex items-center gap-4">
             <span class="font-headline-lg text-headline-lg text-primary tracking-tight">{{ $headerTitle }}</span>
         </div>
         <div class="flex items-center gap-6">
             <div class="relative group">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search </span>
                 <input class="pl-12 pr-6 h-12 bg-surface-container-low border-none rounded-md w-64 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md" placeholder="Cari" type="text">
             </div>
             <button class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95"><span class="material-symbols-outlined">notifications</span></button>

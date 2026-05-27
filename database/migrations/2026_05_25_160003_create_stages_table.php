@@ -19,6 +19,13 @@ return new class extends Migration
             $table->boolean('butuh_scorecard')->default(false);
             $table->boolean('butuh_jadwal')->default(false);
             $table->integer('urutan');
+            
+            // Predefined Configuration Templates
+            $table->text('scorecard_kriteria')->nullable(); // JSON Array
+            $table->string('tipe_wawancara', 50)->nullable(); // online, offline, hybrid
+            $table->string('lokasi_default', 200)->nullable();
+            $table->string('tautan_virtual_default', 200)->nullable();
+
             $table->timestamps();
         });
 
@@ -39,7 +46,7 @@ return new class extends Migration
                 'deskripsi' => 'Default final stage',
                 'butuh_scorecard' => false,
                 'butuh_jadwal' => false,
-                'urutan' => 999,
+                'urutan' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

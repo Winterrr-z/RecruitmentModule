@@ -25,8 +25,8 @@ class CareerJobListTest extends TestCase
             'departemen' => 'Teknologi',
             'jabatan' => 'Developer',
             'jumlah_kebutuhan' => 5,
-            'sla_bulan' => 3,
-            'target_waktu_absolut' => now()->addMonths(3)->format('Y-m-d'),
+            'sla_hari' => 90,
+            'target_waktu_absolut' => now()->addDays(90)->format('Y-m-d'),
         ]);
     }
 
@@ -34,7 +34,7 @@ class CareerJobListTest extends TestCase
     {
         $this->get(route('careers'))
             ->assertSuccessful()
-            ->assertSeeLivewire('public-job-list');
+            ->assertSeeLivewire(\App\Livewire\Cw\PublicJobList::class);
     }
 
     public function test_displays_only_published_active_jobs_with_quota_and_valid_deadline()
@@ -99,7 +99,7 @@ class CareerJobListTest extends TestCase
             'kuota' => 1,
         ]);
 
-        Livewire::test('public-job-list')
+        Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->assertSee($validLowongan->jabatan)
             ->assertDontSee($draftLowongan->jabatan)
             ->assertDontSee($noQuotaLowongan->jabatan)
@@ -136,7 +136,7 @@ class CareerJobListTest extends TestCase
             'kuota' => 1,
         ]);
 
-        Livewire::test('public-job-list')
+        Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('search', 'iOS')
             ->assertSee($job1->jabatan)
             ->assertDontSee($job2->jabatan);
@@ -172,12 +172,12 @@ class CareerJobListTest extends TestCase
             'kuota' => 1,
         ]);
 
-        Livewire::test('public-job-list')
+        Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('selectedTipeKerja', 'full-time')
             ->assertSee($fullTimeRemote->jabatan)
             ->assertDontSee($contractOnSite->jabatan);
 
-        Livewire::test('public-job-list')
+        Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('selectedLokasi', 'on-site')
             ->assertSee($contractOnSite->jabatan)
             ->assertDontSee($fullTimeRemote->jabatan);
@@ -190,7 +190,7 @@ class CareerJobListTest extends TestCase
         $this->actingAs($user)
             ->get(route('candidate.jobs'))
             ->assertSuccessful()
-            ->assertSeeLivewire('candidate-job-list');
+            ->assertSeeLivewire(\App\Livewire\Cw\CandidateJobList::class);
     }
 
     public function test_logged_in_checkbox_department_filter()
@@ -225,7 +225,7 @@ class CareerJobListTest extends TestCase
             'kuota'               => 1,
         ]);
 
-        Livewire::actingAs($user)->test('candidate-job-list')
+        Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)
             ->set('selectedDepartments', ['IT'])
             ->assertSee($itJob->jabatan)
             ->assertDontSee($financeJob->jabatan);
@@ -263,7 +263,7 @@ class CareerJobListTest extends TestCase
             'kuota'               => 1,
         ]);
 
-        Livewire::actingAs($user)->test('candidate-job-list')
+        Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)
             ->set('selectedTypes', ['contract'])
             ->assertSee($contract->jabatan)
             ->assertDontSee($fullTime->jabatan);
@@ -303,14 +303,14 @@ class CareerJobListTest extends TestCase
             ->update(['created_at' => now()]);
 
         // Newest first → Junior appears before Senior
-        $component = Livewire::actingAs($user)->test('candidate-job-list')->set('sortBy', 'newest');
+        $component = Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)->set('sortBy', 'newest');
         $html = $component->html();
         $posNewer = strpos($html, $newer->jabatan);
         $posOlder = strpos($html, $older->jabatan);
         $this->assertLessThan($posOlder, $posNewer, 'Terbaru harus muncul lebih awal.');
 
         // Oldest first → Senior appears before Junior
-        $component2 = Livewire::actingAs($user)->test('candidate-job-list')->set('sortBy', 'oldest');
+        $component2 = Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)->set('sortBy', 'oldest');
         $html2 = $component2->html();
         $posNewer2 = strpos($html2, $newer->jabatan);
         $posOlder2 = strpos($html2, $older->jabatan);

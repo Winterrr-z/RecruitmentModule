@@ -15,12 +15,17 @@ class Stage extends Model
         'butuh_scorecard',
         'butuh_jadwal',
         'urutan',
+        'scorecard_kriteria',
+        'tipe_wawancara',
+        'lokasi_default',
+        'tautan_virtual_default',
     ];
 
     protected $casts = [
         'butuh_scorecard' => 'boolean',
         'butuh_jadwal' => 'boolean',
         'urutan' => 'integer',
+        'scorecard_kriteria' => 'array',
     ];
 
     public function candidates(): HasMany
