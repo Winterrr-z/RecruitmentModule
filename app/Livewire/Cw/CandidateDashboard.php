@@ -35,7 +35,7 @@ class CandidateDashboard extends Component
      *
      * @var array<string>
      */
-    private const INACTIVE_STATUSES = ['Ditolak', 'Hired', 'Offering Expired'];
+    private const INACTIVE_STATUSES = ['Rejected', 'Hired', 'Declined', 'Expired'];
 
     /**
      * Mendapatkan ikon Material Symbols berdasarkan nama stage.
@@ -60,7 +60,7 @@ class CandidateDashboard extends Component
         // Lamaran aktif: belum ditolak, belum hired, belum expired
         $activeApplications = Candidate::where('user_id', $userId)
             ->whereNotIn('status', self::INACTIVE_STATUSES)
-            ->with(['lowongan', 'currentStage'])
+            ->with(['lowongan', 'currentStage', 'interviewSchedules'])
             ->latest()
             ->get();
 

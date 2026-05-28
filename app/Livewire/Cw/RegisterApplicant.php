@@ -104,6 +104,6 @@ class RegisterApplicant extends Component
     public function render()
     {
         return view('livewire.cw.register-applicant')
-            ->layout('layouts.guest');
+            ->layout('layouts.auth');
     }
 }

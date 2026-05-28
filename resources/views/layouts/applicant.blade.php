@@ -73,7 +73,7 @@
         </header>
 
         <!-- Dynamic Content Section -->
-        <section class="flex-grow px-gutter py-section-padding-desktop w-full">
+        <section class="flex-grow px-gutter pt-8 pb-section-padding-desktop w-full">
             {{ $slot }}
         </section>
 

@@ -40,8 +40,19 @@ class CareerJobListTest extends TestCase
     public function test_displays_only_published_active_jobs_with_quota_and_valid_deadline()
     {
         // 1. Valid Lowongan (Published, quota > 0, deadline in future)
-        $validLowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $validLowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Laravel Developer',
             'departemen' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -55,8 +66,19 @@ class CareerJobListTest extends TestCase
         ]);
 
         // 2. Draft Lowongan (not published)
-        $draftLowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $draftLowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'React Developer',
             'departemen' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -70,8 +92,19 @@ class CareerJobListTest extends TestCase
         ]);
 
         // 3. Lowongan with 0 quota
-        $noQuotaLowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $noQuotaLowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'DevOps Engineer',
             'departemen' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -85,8 +118,19 @@ class CareerJobListTest extends TestCase
         ]);
 
         // 4. Lowongan with expired deadline
-        $expiredLowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $expiredLowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'UI Designer',
             'departemen' => 'Design',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -108,8 +152,19 @@ class CareerJobListTest extends TestCase
 
     public function test_filters_by_search_keyword()
     {
-        $job1 = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $job1 = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'iOS Developer',
             'departemen' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -122,8 +177,19 @@ class CareerJobListTest extends TestCase
             'kuota' => 1,
         ]);
 
-        $job2 = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $job2 = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Android Specialist',
             'departemen' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -144,8 +210,19 @@ class CareerJobListTest extends TestCase
 
     public function test_filters_by_tipe_kerja_and_lokasi()
     {
-        $fullTimeRemote = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $fullTimeRemote = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Backend Engineer',
             'departemen' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -158,8 +235,19 @@ class CareerJobListTest extends TestCase
             'kuota' => 1,
         ]);
 
-        $contractOnSite = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $contractOnSite = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Frontend Consultant',
             'departemen' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -197,8 +285,30 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
+        $rr_temp = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $rr2 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Cloud Architect',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Cloud infra',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
         $itJob = Lowongan::create([
-            'mpp_id'              => $this->mpp->id,
+            'recruitment_request_id' => $rr2->id,
             'jabatan'             => 'Cloud Architect',
             'departemen'          => 'IT',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -211,8 +321,30 @@ class CareerJobListTest extends TestCase
             'kuota'               => 1,
         ]);
 
+        $rr_temp = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $rr3 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Financial Analyst',
+            'departemen' => 'Finance',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Finance analysis',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'on-site',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
         $financeJob = Lowongan::create([
-            'mpp_id'              => $this->mpp->id,
+            'recruitment_request_id' => $rr3->id,
             'jabatan'             => 'Financial Analyst',
             'departemen'          => 'Finance',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -235,8 +367,30 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
+        $rr_temp = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $rr4 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Data Engineer',
+            'departemen' => 'Data',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'ETL pipelines',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
         $fullTime = Lowongan::create([
-            'mpp_id'              => $this->mpp->id,
+            'recruitment_request_id' => $rr4->id,
             'jabatan'             => 'Data Engineer',
             'departemen'          => 'Data',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -249,8 +403,30 @@ class CareerJobListTest extends TestCase
             'kuota'               => 1,
         ]);
 
+        $rr_temp = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $rr5 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'QA Contractor',
+            'departemen' => 'QA',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Testing',
+            'tipe_kerja' => 'contract',
+            'lokasi' => 'on-site',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
         $contract = Lowongan::create([
-            'mpp_id'              => $this->mpp->id,
+            'recruitment_request_id' => $rr5->id,
             'jabatan'             => 'QA Contractor',
             'departemen'          => 'QA',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -273,8 +449,19 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
+        $rr6 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Senior Researcher',
+            'departemen' => 'RnD',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Research',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
         $olderData = [
-            'mpp_id'               => $this->mpp->id,
+            'recruitment_request_id' => $rr6->id,
             'jabatan'              => 'Senior Researcher',
             'departemen'           => 'RnD',
             'expected_join_date'   => now()->addMonths(2)->format('Y-m-d'),
@@ -292,6 +479,18 @@ class CareerJobListTest extends TestCase
         ]);
 
         $older = Lowongan::create($olderData);
+        $rr7 = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Junior Researcher',
+            'departemen' => 'RnD',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Research',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $newerData['recruitment_request_id'] = $rr7->id;
         $newer = Lowongan::create($newerData);
 
         // Force created_at via raw DB to bypass Eloquent timestamp guard

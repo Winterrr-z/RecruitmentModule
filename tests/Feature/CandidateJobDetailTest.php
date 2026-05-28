@@ -34,8 +34,19 @@ class CandidateJobDetailTest extends TestCase
             'target_waktu_absolut' => now()->addDays(90)->format('Y-m-d'),
         ]);
 
-        $this->lowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $this->lowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Laravel Specialist',
             'departemen' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),

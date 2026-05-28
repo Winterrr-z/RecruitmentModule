@@ -40,10 +40,10 @@ class OfferingSend extends Component
             return;
         }
 
-        // 2. Status check (must be 'Applied', cannot be already Hired/Ditolak/Offered/Expired)
-        if ($this->candidate->status !== 'Applied') {
+        // 2. Status check (must be 'Applied', 'In Progress', or 'Offered')
+        if (!in_array($this->candidate->status, ['Applied', 'In Progress', 'Offered'])) {
             $this->isValid = false;
-            $this->errorMessage = 'Status kandidat harus "Applied". Saat ini status kandidat adalah "' . $this->candidate->status . '".';
+            $this->errorMessage = 'Status kandidat tidak valid untuk dikirimi offering letter. Saat ini status kandidat adalah "' . $this->candidate->status . '".';
             return;
         }
 

@@ -65,10 +65,10 @@ class RRTest extends TestCase
             ->assertHasNoErrors()
             ->assertRedirect(route('rr.index'));
 
-        $this->assertDatabaseHas('lowongans', [
+        $this->assertDatabaseHas('recruitment_requests', [
             'mpp_id' => $mpp->id,
             'jabatan' => 'Accountant',
-            'status' => 'Ready to Publish',
+            'status' => 'Draft',
             'tipe_kerja' => 'full-time',
             'lokasi' => 'on-site',
         ]);
@@ -86,8 +86,19 @@ class RRTest extends TestCase
             'status' => 'approved',
         ]);
 
-        $lowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $lowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'HR Manager',
             'departemen' => 'HR',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),

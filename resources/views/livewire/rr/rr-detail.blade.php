@@ -24,11 +24,11 @@
             </nav>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $lowongan->jabatan }}</h1>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->jabatan }}</h1>
                     
-                    @if($lowongan->status === 'Ready to Publish')
+                    @if($rr->status === 'Ready to Publish')
                         <span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Ready to Publish</span>
-                    @elseif($lowongan->status === 'Published')
+                    @elseif($rr->status === 'Published')
                         <span class="inline-flex items-center gap-1.5 px-4 py-1 bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">
                             <span class="relative flex h-2 w-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -37,13 +37,13 @@
                             Published
                         </span>
                     @else
-                        <span class="px-4 py-1 bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-outline-variant">Completed</span>
+                        <span class="px-4 py-1 bg-green-100 text-green-800 text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-green-200">Completed</span>
                     @endif
                 </div>
                 
-                @if($lowongan->mpp)
+                @if($rr->mpp)
                     <span class="font-body-md text-sm text-on-surface-variant/70 font-semibold bg-surface-container-low border border-surface-container-high px-3 py-1.5 rounded-md self-start sm:self-auto">
-                        Terhubung ke: <a href="{{ route('mpp.show', $lowongan->mpp_id) }}" class="text-primary hover:underline font-bold">MPP-{{ str_pad($lowongan->mpp_id, 3, '0', STR_PAD_LEFT) }} ({{ $lowongan->mpp->nama_plan }})</a>
+                        Terhubung ke: <a href="{{ route('mpp.show', $rr->mpp_id) }}" class="text-primary hover:underline font-bold">MPP-{{ str_pad($rr->mpp_id, 3, '0', STR_PAD_LEFT) }} ({{ $rr->mpp->nama_plan }})</a>
                     </span>
                 @endif
             </div>
@@ -71,7 +71,7 @@
             <div class="bg-surface-container-lowest p-6 rounded-md border border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.02)] flex flex-col justify-between">
                 <p class="text-label-sm font-label-sm text-on-surface-variant/80 uppercase tracking-wider">Fulfillment Kuota</p>
                 <div class="text-headline-lg font-headline-lg text-secondary mt-2">
-                    {{ $hiredCandidates }} <span class="text-title-md font-semibold text-on-surface-variant/50">/ {{ $lowongan->kuota }} Orang</span>
+                    {{ $hiredCandidates }} <span class="text-title-md font-semibold text-on-surface-variant/50">/ {{ $rr->kuota }} Orang</span>
                 </div>
             </div>
         </section>
@@ -88,7 +88,7 @@
                         Deskripsi Pekerjaan
                     </h4>
                     <div class="text-body-md text-on-surface whitespace-pre-line bg-surface-container-low/50 p-6 rounded-md border border-surface-container leading-relaxed">
-                        {{ $lowongan->deskripsi_pekerjaan }}
+                        {{ $rr->deskripsi_pekerjaan }}
                     </div>
                 </div>
 
@@ -99,7 +99,7 @@
                         Spesifikasi Kebutuhan
                     </h4>
                     <div class="text-body-md text-on-surface whitespace-pre-line bg-surface-container-low/50 p-6 rounded-md border border-surface-container leading-relaxed">
-                        {{ $lowongan->spesifikasi_kebutuhan ?: 'Tidak ada kualifikasi khusus yang dilampirkan.' }}
+                        {{ $rr->spesifikasi_kebutuhan ?: 'Tidak ada kualifikasi khusus yang dilampirkan.' }}
                     </div>
                 </div>
 
@@ -134,7 +134,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 bg-red-500 rounded-sm"></span>
-                            <span>Ditolak / CV Bank: <strong>{{ $rejectedCandidates }} Orang</strong></span>
+                            <span>Rejected / CV Bank: <strong>{{ $rejectedCandidates }} Orang</strong></span>
                         </div>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
                             <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">work</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Tipe Kerja</span>
-                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $lowongan->tipe_kerja }}</span>
+                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->tipe_kerja }}</span>
                             </div>
                         </div>
 
@@ -164,7 +164,7 @@
                             <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">location_on</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Lokasi</span>
-                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $lowongan->lokasi }}</span>
+                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->lokasi }}</span>
                             </div>
                         </div>
 
@@ -174,7 +174,7 @@
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Batas Pendaftaran (Deadline)</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface block mt-0.5">
-                                    {{ $lowongan->application_deadline->translatedFormat('d F Y') }}
+                                    {{ $rr->application_deadline->translatedFormat('d F Y') }}
                                 </span>
                             </div>
                         </div>
@@ -185,18 +185,18 @@
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Estimasi Rentang Gaji</span>
                                 <span class="font-body-md text-sm font-bold text-primary block mt-0.5">
-                                    @if($lowongan->estimasi_gaji_min && $lowongan->estimasi_gaji_max)
-                                        Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}
-                                    @elseif($lowongan->estimasi_gaji_min)
-                                        Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }}
-                                    @elseif($lowongan->estimasi_gaji_max)
-                                        Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}
+                                    @if($rr->estimasi_gaji_min && $rr->estimasi_gaji_max)
+                                        Rp {{ number_format($rr->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($rr->estimasi_gaji_max, 0, ',', '.') }}
+                                    @elseif($rr->estimasi_gaji_min)
+                                        Rp {{ number_format($rr->estimasi_gaji_min, 0, ',', '.') }}
+                                    @elseif($rr->estimasi_gaji_max)
+                                        Rp {{ number_format($rr->estimasi_gaji_max, 0, ',', '.') }}
                                     @else
                                         Negosiasi
                                     @endif
                                 </span>
                                 <div class="mt-1">
-                                    @if($lowongan->tampilkan_gaji)
+                                    @if($rr->tampilkan_gaji)
                                         <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 bg-green-500/10 px-2 py-0.5 rounded">
                                             <span class="material-symbols-outlined text-[12px]">visibility</span>
                                             Tampil Publik
@@ -217,7 +217,7 @@
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Expected Join Date</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface block mt-0.5">
-                                    {{ $lowongan->expected_join_date ? $lowongan->expected_join_date->translatedFormat('d F Y') : '-' }}
+                                    {{ $rr->expected_join_date ? $rr->expected_join_date->translatedFormat('d F Y') : '-' }}
                                 </span>
                             </div>
                         </div>
@@ -238,9 +238,9 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Action button berdasarkan status -->
-                    @if($lowongan->status === 'Ready to Publish' && $totalCandidates === 0)
+                    @if($rr->status === 'Ready to Publish' && $totalCandidates === 0)
                         <!-- Tombol Edit Draft -->
-                        <a href="{{ route('rr.edit', $lowongan->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <a href="{{ route('rr.edit', $rr->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">edit</span>
                             <span>Edit Draft</span>
                         </a>
@@ -252,14 +252,14 @@
                         </button>
                     @endif
 
-                    @if($lowongan->status === 'Ready to Publish')
+                    @if($rr->status === 'Ready to Publish')
                         <button wire:click="publish" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">rocket_launch</span>
                             <span>Aktifkan Lowongan</span>
                         </button>
                     @endif
 
-                    @if($lowongan->status === 'Published')
+                    @if($rr->status === 'Published')
                         <!-- Tombol Nonaktifkan Lowongan -->
                         <button wire:click="unpublish" wire:confirm="Nonaktifkan lowongan pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">visibility_off</span>

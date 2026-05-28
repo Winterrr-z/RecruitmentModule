@@ -264,7 +264,7 @@
                             <tbody class="divide-y divide-surface-container">
                                 @foreach($mppLowongans as $l)
                                     @php
-                                        $hired = $l->candidates()->where('status', 'Hired')->count();
+                                        $hired = $l->candidates()->where('candidates.status', 'Hired')->count();
                                         $total = $l->candidates()->count();
                                     @endphp
                                     <tr class="hover:bg-surface-container-low/50 transition-colors text-body-md text-on-surface">

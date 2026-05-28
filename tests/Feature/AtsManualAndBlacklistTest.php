@@ -35,8 +35,19 @@ class AtsManualAndBlacklistTest extends TestCase
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $this->job = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $this->job = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Sales Staff',
             'departemen' => 'Sales',
             'status' => 'Published',
@@ -108,7 +119,7 @@ class AtsManualAndBlacklistTest extends TestCase
         ]);
 
         // Check active candidate auto-rejected
-        $this->assertEquals('Ditolak', $cand->fresh()->status);
+        $this->assertEquals('Blacklisted', $cand->fresh()->status);
 
         // 3. Test blacklist delete
         $blacklistRow = Blacklist::where('email', 'bad@example.com')->first();

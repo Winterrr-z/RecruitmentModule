@@ -1,6 +1,6 @@
-<div class="w-full px-gutter py-8">
+<div class="w-full px-gutter py-4">
     <!-- Hero Section -->
-    <div class="text-center max-w-3xl mx-auto mb-16 mt-8">
+    <div class="text-center max-w-3xl mx-auto mb-8 mt-4">
         <h1 class="text-display-lg font-extrabold text-on-surface leading-tight mb-4 tracking-tight">
             Mulai Karir Hebat Anda di <span class="text-primary">{{ config('company.name') }}</span>
         </h1>
@@ -10,39 +10,37 @@
     </div>
 
     <!-- Search & Filter Controls -->
-    <div class="bg-white rounded-md border border-surface-container-high p-6 shadow-[0_20px_40px_rgba(107,56,212,0.02)] mb-12">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+    <div class="bg-white rounded-md border border-surface-container-high p-3.5 shadow-[0_20px_40px_rgba(107,56,212,0.02)] mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
             <!-- Search Keyword -->
             <div class="relative md:col-span-6">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[22px]">search</span>
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
                 <input wire:model.live.debounce.300ms="search" 
                        type="text" 
-                       class="w-full h-12 pl-12 pr-4 bg-surface-container-low border border-transparent rounded-sm font-body-md text-body-md focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface"
+                       class="w-full h-10 pl-10 pr-4 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface"
                        placeholder="Cari jabatan atau departemen...">
             </div>
 
             <!-- Tipe Kerja Filter -->
             <div class="relative md:col-span-3">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">work</span>
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">work</span>
                 <select wire:model.live="selectedTipeKerja" 
-                        class="w-full h-12 pl-12 pr-10 bg-surface-container-low border border-transparent rounded-sm font-body-md text-body-md focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer appearance-none">
+                        class="w-full h-10 pl-10 pr-10 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer">
                     <option value="">Semua Tipe Kerja</option>
                     <option value="full-time">Full-time</option>
                     <option value="contract">Contract</option>
                 </select>
-                <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">keyboard_arrow_down</span>
             </div>
 
             <!-- Lokasi Filter -->
             <div class="relative md:col-span-3">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">location_on</span>
+                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">location_on</span>
                 <select wire:model.live="selectedLokasi" 
-                        class="w-full h-12 pl-12 pr-10 bg-surface-container-low border border-transparent rounded-sm font-body-md text-body-md focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer appearance-none">
+                        class="w-full h-10 pl-10 pr-10 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer">
                     <option value="">Semua Lokasi</option>
                     <option value="remote">Remote</option>
                     <option value="on-site">On-site</option>
                 </select>
-                <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">keyboard_arrow_down</span>
             </div>
         </div>
 

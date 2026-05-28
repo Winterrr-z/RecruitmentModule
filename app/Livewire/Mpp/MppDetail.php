@@ -67,20 +67,16 @@ class MppDetail extends Component
      */
     protected function loadMpp()
     {
-        $this->mpp = Mpp::with('lowongans')->findOrFail($this->mppId);
-        $this->mppLowongans = $this->mpp->lowongans;
+        $this->mpp = Mpp::with('recruitmentRequests')->findOrFail($this->mppId);
+        $this->mppLowongans = $this->mpp->recruitmentRequests;
         $this->hasLowongan = $this->mppLowongans->isNotEmpty();
 
         // Cari sisa kuota
-        $hiredCount = \App\Models\Candidate::whereHas('lowongan', function ($query) {
-            $query->where('mpp_id', $this->mpp->id);
-        })->where('status', 'Hired')->count();
+        $this->remainingQuota = $this->mpp->sisaKuota();
 
-        $this->remainingQuota = max(0, $this->mpp->jumlah_kebutuhan - $hiredCount);
-
-        // Cari apakah ada Lowongan di bawah MPP ini yang tidak berstatus Completed/Closed
-        $this->hasActiveRr = $this->mppLowongans->contains(function ($lowongan) {
-            return $lowongan->status !== 'Completed/Closed';
+        // Cari apakah ada RR di bawah MPP ini yang tidak berstatus Completed/Closed
+        $this->hasActiveRr = $this->mppLowongans->contains(function ($rr) {
+            return $rr->status !== 'Completed/Closed';
         });
     }
 

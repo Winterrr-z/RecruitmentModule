@@ -125,9 +125,15 @@ class AtsDashboard extends Component
                 'moved_at' => now(),
             ]);
 
+            $newStatus = 'In Progress';
+            if ($toStage->id == 1 || strtolower($toStage->nama) === 'applied') {
+                $newStatus = 'Applied';
+            }
+
             // Update candidate current stage
             $candidate->update([
                 'current_stage_id' => $toStage->id,
+                'status' => $newStatus,
             ]);
         });
 
@@ -135,14 +141,39 @@ class AtsDashboard extends Component
     }
 
     /**
-     * Reject candidate (status = 'Ditolak').
+     * Reject candidate (status = 'Rejected').
      */
     public function reject($id)
     {
         $candidate = Candidate::findOrFail($id);
-        $candidate->update([
-            'status' => 'Ditolak',
-        ]);
+        
+        $validationError = $this->validateCurrentStageRequirements($candidate);
+        if ($validationError) {
+            session()->flash('error', $validationError);
+            return;
+        }
+
+        $currentStage = $candidate->currentStage;
+        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
+
+        if (!$finalStage) {
+            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
+            return;
+        }
+
+        \DB::transaction(function () use ($candidate, $currentStage, $finalStage) {
+            if ($candidate->current_stage_id != $finalStage->id) {
+                CandidateMovement::create([
+                    'candidate_id' => $candidate->id,
+                    'from_stage_id' => $currentStage->id,
+                    'to_stage_id' => $finalStage->id,
+                    'moved_at' => now(),
+                ]);
+                $candidate->current_stage_id = $finalStage->id;
+            }
+            $candidate->status = 'Rejected';
+            $candidate->save();
+        });
 
         session()->flash('message', "Kandidat '{$candidate->nama}' berhasil ditolak.");
     }
@@ -167,7 +198,13 @@ class AtsDashboard extends Component
 
         $candidate = Candidate::findOrFail($this->blacklistCandidateId);
 
-        \DB::transaction(function () use ($candidate) {
+        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
+        if (!$finalStage) {
+            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
+            return;
+        }
+
+        \DB::transaction(function () use ($candidate, $finalStage) {
             // Create blacklist entry
             Blacklist::create([
                 'nama' => $candidate->nama,
@@ -176,10 +213,19 @@ class AtsDashboard extends Component
                 'alasan' => $this->blacklistAlasan,
             ]);
 
+            if ($candidate->current_stage_id != $finalStage->id) {
+                CandidateMovement::create([
+                    'candidate_id' => $candidate->id,
+                    'from_stage_id' => $candidate->current_stage_id,
+                    'to_stage_id' => $finalStage->id,
+                    'moved_at' => now(),
+                ]);
+                $candidate->current_stage_id = $finalStage->id;
+            }
+
             // Reject candidate
-            $candidate->update([
-                'status' => 'Ditolak',
-            ]);
+            $candidate->status = 'Blacklisted';
+            $candidate->save();
         });
 
         $this->showBlacklistModal = false;
@@ -190,7 +236,7 @@ class AtsDashboard extends Component
     }
 
     /**
-     * Approve candidate: find next stage by urutan, validate, and move.
+     * Approve candidate: now acts as "Hired", auto-moving to Final stage and setting status to Offered.
      */
     public function approve($id)
     {
@@ -203,33 +249,33 @@ class AtsDashboard extends Component
         }
 
         $currentStage = $candidate->currentStage;
-        
-        // Find next stage in sequence (first stage with urutan > current stage urutan)
-        $nextStage = Stage::where('urutan', '>', $currentStage->urutan)
-            ->orderBy('urutan', 'asc')
-            ->first();
+        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
 
-        if (!$nextStage) {
-            session()->flash('error', "Kandidat '{$candidate->nama}' sudah berada di stage paling akhir.");
+        if (!$finalStage) {
+            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
             return;
         }
 
-        \DB::transaction(function () use ($candidate, $currentStage, $nextStage) {
-            // Save movement history
-            CandidateMovement::create([
-                'candidate_id' => $candidate->id,
-                'from_stage_id' => $currentStage->id,
-                'to_stage_id' => $nextStage->id,
-                'moved_at' => now(),
-            ]);
+        \DB::transaction(function () use ($candidate, $currentStage, $finalStage) {
+            if ($candidate->current_stage_id != $finalStage->id) {
+                // Save movement history
+                CandidateMovement::create([
+                    'candidate_id' => $candidate->id,
+                    'from_stage_id' => $currentStage->id,
+                    'to_stage_id' => $finalStage->id,
+                    'moved_at' => now(),
+                ]);
 
-            // Update candidate current stage
-            $candidate->update([
-                'current_stage_id' => $nextStage->id,
-            ]);
+                // Update candidate current stage
+                $candidate->current_stage_id = $finalStage->id;
+            }
+
+            // Update candidate status to Offered
+            $candidate->status = 'Offered';
+            $candidate->save();
         });
 
-        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil dilanjutkan ke stage '{$nextStage->nama}'.");
+        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
     }
 
     public function selectStage($stageId)
@@ -249,6 +295,7 @@ class AtsDashboard extends Component
         // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
         $stageCounts = Candidate::when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
             ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
+            ->where('status', '!=', 'Blacklisted')
             ->selectRaw('current_stage_id, count(*) as count')
             ->groupBy('current_stage_id')
             ->pluck('count', 'current_stage_id')
@@ -259,6 +306,7 @@ class AtsDashboard extends Component
             ->when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
             ->when($this->selectedStageId, fn($q) => $q->where('current_stage_id', $this->selectedStageId))
             ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
+            ->where('status', '!=', 'Blacklisted')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

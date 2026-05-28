@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Rr;
 
-use App\Models\Lowongan;
+use App\Models\RecruitmentRequest;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -10,8 +10,8 @@ use Livewire\Attributes\Url;
 /**
  * Class RRIndex
  * 
- * Komponen Livewire untuk menampilkan daftar Recruitment Request (RR) / Lowongan.
- * Menangani pencarian, filter status, pagination, serta aksi publish dan close lowongan.
+ * Komponen Livewire untuk menampilkan daftar Recruitment Request (RR).
+ * Menangani pencarian, filter status, pagination, serta aksi publish dan close RR.
  *
  * @package App\Livewire
  */
@@ -26,7 +26,7 @@ class RRIndex extends Component
     public $search = '';
 
     /**
-     * @var string Filter status lowongan.
+     * @var string Filter status RR.
      */
     #[Url]
     public $status = '';
@@ -46,67 +46,100 @@ class RRIndex extends Component
     }
 
     /**
-     * Aktifkan lowongan (ubah status dari 'Ready to Publish' ke 'Published').
+     * Publish RR (ubah status dari 'Draft' ke 'Published').
+     * Akan otomatis membuat entri Lowongan untuk publik.
      *
      * @param int $id
      * @return void
      */
     public function publish($id)
     {
-        $lowongan = Lowongan::findOrFail($id);
-        if ($lowongan->status === 'Ready to Publish') {
-            $lowongan->update(['status' => 'Published']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil diaktifkan.');
+        $rr = RecruitmentRequest::findOrFail($id);
+        if ($rr->status === 'Draft' || $rr->status === 'Ready to Publish') {
+            $rr->update(['status' => 'Published']);
+
+            // Buat Lowongan otomatis
+            $rr->lowongan()->updateOrCreate(
+                ['recruitment_request_id' => $rr->id],
+                [
+                    'kuota' => $rr->kuota,
+                    'jabatan' => $rr->jabatan,
+                    'departemen' => $rr->departemen,
+                    'tipe_kerja' => $rr->tipe_kerja,
+                    'lokasi' => $rr->lokasi,
+                    'application_deadline' => $rr->application_deadline,
+                    'tampilkan_gaji' => $rr->tampilkan_gaji,
+                    'estimasi_gaji_min' => $rr->estimasi_gaji_min,
+                    'estimasi_gaji_max' => $rr->estimasi_gaji_max,
+                    'deskripsi_pekerjaan' => $rr->deskripsi_pekerjaan,
+                    'spesifikasi_kebutuhan' => $rr->spesifikasi_kebutuhan,
+                    'status' => 'Published'
+                ]
+            );
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dipublikasikan dan Lowongan telah dibuat.');
         }
     }
 
     /**
-     * Nonaktifkan lowongan (ubah status dari 'Published' ke 'Ready to Publish').
-     *
-     * @param int $id
-     * @return void
-     */
-    public function unpublish($id)
-    {
-        $lowongan = Lowongan::findOrFail($id);
-        if ($lowongan->status === 'Published') {
-            $lowongan->update(['status' => 'Ready to Publish']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil dinonaktifkan.');
-        }
-    }
-
-    /**
-     * Tutup lowongan (ubah status dari 'Published' ke 'Completed/Closed').
+     * Tutup RR (ubah status ke 'Completed/Closed').
+     * Akan otomatis menutup Lowongan publik.
      *
      * @param int $id
      * @return void
      */
     public function close($id)
     {
-        $lowongan = Lowongan::findOrFail($id);
-        if ($lowongan->status === 'Published') {
-            $lowongan->update(['status' => 'Completed/Closed']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil ditutup.');
+        $rr = RecruitmentRequest::findOrFail($id);
+        if ($rr->status !== 'Completed/Closed') {
+            $rr->update(['status' => 'Completed/Closed']);
+
+            // Tutup juga lowongan jika ada
+            if ($rr->lowongan) {
+                $rr->lowongan->update(['status' => 'Closed']);
+            }
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil ditutup.');
+        }
+     }
+
+    /**
+     * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
+     *
+     * @param int $id
+     * @return void
+     */
+    public function unpublish($id)
+    {
+        $rr = RecruitmentRequest::findOrFail($id);
+        if ($rr->status === 'Published') {
+            $rr->update(['status' => 'Ready to Publish']);
+
+            // Nonaktifkan lowongan terkait
+            if ($rr->lowongan) {
+                $rr->lowongan->update(['status' => 'Closed']);
+            }
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dinonaktifkan.');
         }
     }
 
     /**
-     * Hapus lowongan draft (Ready to Publish) jika tidak memiliki pelamar.
+     * Hapus RR draft jika tidak memiliki pelamar.
      *
      * @param int $id
      * @return void
      */
     public function delete($id)
     {
-        $lowongan = Lowongan::with('candidates')->findOrFail($id);
+        $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($id);
 
-        // Logika rr tidak dapat didelete ketika terdapat pelamar pada lowongan dan status tidak sama dengan draft.
-        if ($lowongan->candidates->count() > 0 || $lowongan->status !== 'Ready to Publish') {
-            session()->flash('error', 'Lowongan yang memiliki pelamar atau statusnya bukan Draft tidak dapat dihapus.');
+        if ($rr->hiredCount() > 0 || ($rr->status !== 'Draft' && $rr->status !== 'Ready to Publish')) {
+            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Draft tidak dapat dihapus.');
             return;
         }
 
-        $lowongan->delete();
+        $rr->delete();
         session()->flash('message', 'Recruitment Request berhasil dihapus.');
     }
 
@@ -117,15 +150,14 @@ class RRIndex extends Component
      */
     public function render()
     {
-        // Hitung statistik untuk overview
         $stats = [
-            'total_active' => Lowongan::where('status', 'Published')->count(),
-            'ready_to_publish' => Lowongan::where('status', 'Ready to Publish')->count(),
-            'completed' => Lowongan::where('status', 'Completed/Closed')->count(),
+            'total_active' => RecruitmentRequest::where('status', 'Published')->count(),
+            'ready_to_publish' => RecruitmentRequest::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
+            'completed' => RecruitmentRequest::where('status', 'Completed/Closed')->count(),
         ];
 
-        // Query lowongans dengan filter dan eager load count kandidat
-        $query = Lowongan::withCount('candidates');
+        // Query RR
+        $query = RecruitmentRequest::with('lowongan')->withCount('candidates');
 
         if ($this->status !== '') {
             if ($this->status === 'Completed/Closed') {
@@ -142,10 +174,12 @@ class RRIndex extends Component
             });
         }
 
-        $lowongans = $query->latest()->paginate(10);
+        $rrs = $query->orderByRaw("CASE WHEN lower(status) = 'completed/closed' THEN 1 ELSE 0 END ASC")
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
 
         return view('livewire.rr.rr-index', [
-            'lowongans' => $lowongans,
+            'rrs' => $rrs,
             'stats' => $stats
         ])->layout('layouts.app');
     }

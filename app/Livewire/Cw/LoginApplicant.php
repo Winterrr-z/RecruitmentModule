@@ -125,6 +125,6 @@ class LoginApplicant extends Component
     public function render()
     {
         return view('livewire.cw.login-applicant')
-            ->layout('layouts.guest');
+            ->layout('layouts.auth');
     }
 }

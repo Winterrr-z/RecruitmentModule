@@ -43,8 +43,19 @@ class OfferingWorkflowTest extends TestCase
             'status' => 'Approved',
         ]);
 
-        $this->lowongan = Lowongan::create([
+        $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $this->lowongan = Lowongan::create([
+            'recruitment_request_id' => $rr->id,
             'jabatan' => 'IT Support',
             'departemen' => 'IT',
             'status' => 'Published',
@@ -144,7 +155,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertSet('statusResponse', 'expired')
             ->assertSee('Tawaran Sudah Kedaluwarsa');
 
-        $this->assertEquals('Offering Expired', $this->candidate->fresh()->status);
+        $this->assertEquals('Expired', $this->candidate->fresh()->status);
         $this->assertNull($this->candidate->fresh()->offering_token);
     }
 
@@ -189,7 +200,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertSee('Tawaran Telah Ditolak');
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals('Ditolak', $this->candidate->status);
+        $this->assertEquals('Declined', $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
@@ -246,7 +257,7 @@ class OfferingWorkflowTest extends TestCase
         // Run the command
         Artisan::call('offerings:expire');
 
-        $this->assertEquals('Offering Expired', $expiredCandidate->fresh()->status);
+        $this->assertEquals('Expired', $expiredCandidate->fresh()->status);
         $this->assertNull($expiredCandidate->fresh()->offering_token);
 
         $this->assertEquals('Offered', $activeCandidate->fresh()->status);

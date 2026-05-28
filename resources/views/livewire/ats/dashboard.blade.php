@@ -64,12 +64,15 @@
     </div>
 
     <!-- Pipeline Stage Horizontal Pills -->
-    <div class="flex flex-wrap gap-2 mb-6 pb-2 border-b border-surface-container-high/40">
-        @foreach($stages as $stage)
+    <div class="flex flex-wrap items-center gap-1 mb-6 pb-2 border-b border-surface-container-high/40">
+        @foreach($stages as $index => $stage)
             @php
                 $isActive = $selectedStageId == $stage->id;
                 $count = $stageCounts[$stage->id] ?? 0;
             @endphp
+            @if($index > 0)
+                <span class="material-symbols-outlined text-on-surface-variant/35 text-[16px] mx-0 select-none shrink-0">chevron_right</span>
+            @endif
             <button wire:click="selectStage({{ $stage->id }})" 
                     class="px-5 py-2.5 rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 border font-semibold text-sm
                     {{ $isActive 
@@ -134,22 +137,55 @@
                             
                             <!-- Status Badge -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($candidate->status === 'Ditolak')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-error/10 text-error border border-error/20">
-                                        <span class="w-1.5 h-1.5 bg-error rounded-full"></span>
-                                        Ditolak
-                                    </span>
-                                @elseif($candidate->status === 'Applied')
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 border border-blue-500/20">
-                                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
-                                        Applied
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-700 border border-green-500/20">
-                                        <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
-                                        {{ $candidate->status }}
-                                    </span>
-                                @endif
+                                @switch($candidate->status)
+                                    @case('Rejected')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-950/20 text-red-950 border border-red-950/30">
+                                            <span class="w-1.5 h-1.5 bg-red-900 rounded-full"></span>
+                                            Rejected
+                                        </span>
+                                        @break
+                                    @case('Applied')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 border border-blue-500/20">
+                                            <span class="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
+                                            Applied
+                                        </span>
+                                        @break
+                                    @case('In Progress')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-surface-container">
+                                            <span class="w-1.5 h-1.5 bg-on-surface-variant/50 rounded-full"></span>
+                                            In Progress
+                                        </span>
+                                        @break
+                                    @case('Offered')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                                            <span class="w-1.5 h-1.5 bg-amber-600 rounded-full"></span>
+                                            Offered
+                                        </span>
+                                        @break
+                                    @case('Hired')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-700 border border-green-500/20">
+                                            <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
+                                            Hired
+                                        </span>
+                                        @break
+                                    @case('Declined')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-700 border border-red-500/20">
+                                            <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                                            Declined
+                                        </span>
+                                        @break
+                                    @case('Expired')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-700 border border-red-500/20">
+                                            <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                                            Expired
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-surface-container">
+                                            <span class="w-1.5 h-1.5 bg-on-surface-variant/50 rounded-full"></span>
+                                            {{ $candidate->status }}
+                                        </span>
+                                @endswitch
                             </td>
                             
                             <!-- Lowongan -->
@@ -164,44 +200,52 @@
                             </td>
                             
                             <!-- Pindah Tahap Dropdown -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <select onchange="confirm('Apakah Anda yakin ingin memindahkan kandidat ini ke stage yang dipilih?') ? @this.moveCandidate({{ $candidate->id }}, this.value) : this.selectedIndex = 0"
-                                        class="px-3 h-10 bg-surface-container border border-surface-container-high rounded-md focus:ring-2 focus:ring-primary/20 text-xs text-on-surface font-semibold cursor-pointer max-w-[150px]">
-                                    <option value="" disabled selected>Pilih Stage...</option>
-                                    @foreach($stages as $stageOption)
-                                        @if($stageOption->id != $candidate->current_stage_id)
-                                            <option value="{{ $stageOption->id }}">{{ $stageOption->nama }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+                                @if($candidate->current_stage_id == 2 || strtolower($candidate->currentStage?->nama) === 'final')
+                                    <span class="text-on-surface-variant/40">-</span>
+                                @else
+                                    <select onchange="confirm('Apakah Anda yakin ingin memindahkan kandidat ini ke stage yang dipilih?') ? @this.moveCandidate({{ $candidate->id }}, this.value) : this.selectedIndex = 0"
+                                            class="px-3 h-10 bg-surface-container border border-surface-container-high rounded-md focus:ring-2 focus:ring-primary/20 text-xs text-on-surface font-semibold cursor-pointer max-w-[150px]">
+                                        <option value="" disabled selected>Pilih Stage...</option>
+                                        @foreach($stages as $stageOption)
+                                            @if($stageOption->id != $candidate->current_stage_id)
+                                                <option value="{{ $stageOption->id }}">{{ $stageOption->nama }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                @endif
                             </td>
 
                             <!-- Aksi Buttons -->
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end gap-1.5">
-                                    <!-- Reject Action -->
-                                    <button wire:click="reject({{ $candidate->id }})" 
-                                            wire:confirm="Apakah Anda yakin ingin menolak kandidat {{ $candidate->nama }}?"
-                                            class="p-2 hover:bg-error/10 text-error rounded-md transition-colors" 
-                                            title="Reject (Tolak)">
-                                        <span class="material-symbols-outlined text-[20px]">cancel</span>
-                                    </button>
+                                @if(in_array(strtolower($candidate->status), ['hired', 'rejected', 'declined', 'expired', 'blacklisted']) || ($candidate->current_stage_id == 2 && strtolower($candidate->status) !== 'in progress'))
+                                    <span class="text-on-surface-variant/40 pr-6">-</span>
+                                @else
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <!-- Reject Action -->
+                                        <button wire:click="reject({{ $candidate->id }})" 
+                                                wire:confirm="Apakah Anda yakin ingin menolak kandidat {{ $candidate->nama }}?"
+                                                class="p-2 hover:bg-error/10 text-error rounded-md transition-colors" 
+                                                title="Reject (Tolak)">
+                                            <span class="material-symbols-outlined text-[20px]">cancel</span>
+                                        </button>
 
-                                    <!-- Blacklist Action -->
-                                    <button wire:click="confirmBlacklist({{ $candidate->id }})" 
-                                            class="p-2 hover:bg-black/10 text-on-surface rounded-md transition-colors" 
-                                            title="Blacklist (Daftar Hitam)">
-                                        <span class="material-symbols-outlined text-[20px]">block</span>
-                                    </button>
+                                        <!-- Blacklist Action -->
+                                        <button wire:click="confirmBlacklist({{ $candidate->id }})" 
+                                                class="p-2 hover:bg-black/10 text-on-surface rounded-md transition-colors" 
+                                                title="Blacklist (Daftar Hitam)">
+                                            <span class="material-symbols-outlined text-[20px]">block</span>
+                                        </button>
 
-                                    <!-- Approve / Lanjutkan Action -->
-                                    <button wire:click="approve({{ $candidate->id }})" 
-                                            wire:confirm="Apakah Anda yakin ingin memindahkan kandidat {{ $candidate->nama }} ke tahap berikutnya?"
-                                            class="p-2 hover:bg-green-500/10 text-green-600 rounded-md transition-colors" 
-                                            title="Lanjutkan Tahap (Approve)">
-                                        <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                                    </button>
-                                </div>
+                                        <!-- Approve / Hired Action -->
+                                        <button wire:click="approve({{ $candidate->id }})" 
+                                                wire:confirm="Apakah Anda yakin ingin meng-hire kandidat {{ $candidate->nama }}?"
+                                                class="p-2 hover:bg-green-500/10 text-green-600 rounded-md transition-colors" 
+                                                title="Hired">
+                                            <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                                        </button>
+                                    </div>
+                                @endif
                             </td>
                         </tr>
                     @empty

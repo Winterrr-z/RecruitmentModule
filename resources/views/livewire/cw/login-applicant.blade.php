@@ -1,18 +1,18 @@
-<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 px-4">
+<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center py-6 px-4">
     <div class="w-full max-w-md">
 
         {{-- Card --}}
-        <div class="bg-white rounded-2xl shadow-[0_20px_60px_rgba(107,56,212,0.08)] border border-surface-container-high px-8 py-10">
+        <div class="bg-white rounded-2xl shadow-[0_20px_60px_rgba(107,56,212,0.08)] border border-surface-container-high px-6 py-6">
 
             {{-- Header --}}
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
-                    <span class="material-symbols-outlined text-primary text-[28px]">login</span>
-                </div>
-                <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold leading-tight">
-                    Masuk Akun Pelamar
+            <div class="text-center mb-6">
+                <a href="{{ route('careers') }}" class="inline-flex items-center justify-center mb-3 hover:opacity-80 transition-opacity">
+                    <img src="https://lh3.googleusercontent.com/aida/ADBb0ugrpLiJy26Io_mLDAQUQEnf730xr_rABFyyY9ICKsaSPA5_GH1W8-QK1fD0RYxjtYsrzgxiLqamtB5Cf7PHSU2VVk-26EclV5EbaORiivGaTvJaDE89sPUodINDL5bX3qnXtwACKPwFJXWkJbiN7pI5K01QjstbO5c1JVQz0Jm3F0f4WyfPpHri7TSjpW7g0ybWdcDeq5FdFZNOE0vVonSrcR27cT44HXIFCkDQuHadqH2jtq-eCa8vl_BA" alt="Human First Logo" class="h-12 w-auto">
+                </a>
+                <h1 class="font-headline-lg text-[24px] text-on-surface font-bold leading-tight">
+                    Login to Human First
                 </h1>
-                <p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                <p class="font-body-md text-sm text-on-surface-variant mt-0.5">
                     Silakan masuk untuk melanjutkan lamaran Anda.
                 </p>
             </div>
@@ -38,7 +38,7 @@
             @endif
 
             {{-- Form --}}
-            <form wire:submit="login" class="space-y-5" novalidate>
+            <form wire:submit="login" class="space-y-4" novalidate>
 
                 {{-- Email --}}
                 <div>
@@ -116,7 +116,7 @@
             </form>
 
             {{-- Divider --}}
-            <div class="flex items-center gap-3 my-6">
+            <div class="flex items-center gap-3 my-4">
                 <div class="flex-1 h-px bg-surface-container-high"></div>
                 <span class="text-xs text-on-surface-variant/50 font-semibold uppercase tracking-wider">atau</span>
                 <div class="flex-1 h-px bg-surface-container-high"></div>
@@ -132,15 +132,6 @@
             </p>
 
         </div>
-
-        {{-- Back to jobs --}}
-        <p class="text-center mt-6 text-sm text-on-surface-variant/70">
-            <a href="{{ route('careers') }}"
-               class="inline-flex items-center gap-1 hover:text-primary transition-colors no-underline">
-                <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-                Kembali ke daftar lowongan
-            </a>
-        </p>
 
     </div>
 </div>

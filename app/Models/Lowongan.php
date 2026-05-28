@@ -2,33 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lowongan extends Model
 {
+    use HasFactory;
+
     protected $table = 'lowongans';
 
     protected $fillable = [
-        'mpp_id',
+        'recruitment_request_id',
+        'kuota',
         'jabatan',
         'departemen',
-        'estimasi_gaji_min',
-        'estimasi_gaji_max',
-        'expected_join_date',
-        'deskripsi_pekerjaan',
-        'spesifikasi_kebutuhan',
         'tipe_kerja',
         'lokasi',
         'application_deadline',
         'tampilkan_gaji',
+        'estimasi_gaji_min',
+        'estimasi_gaji_max',
+        'deskripsi_pekerjaan',
+        'spesifikasi_kebutuhan',
         'status',
-        'kuota',
     ];
 
     protected $casts = [
-        'expected_join_date' => 'date',
         'application_deadline' => 'date',
         'tampilkan_gaji' => 'boolean',
         'estimasi_gaji_min' => 'integer',
@@ -36,9 +37,9 @@ class Lowongan extends Model
         'kuota' => 'integer',
     ];
 
-    public function mpp(): BelongsTo
+    public function recruitmentRequest(): BelongsTo
     {
-        return $this->belongsTo(Mpp::class, 'mpp_id');
+        return $this->belongsTo(RecruitmentRequest::class, 'recruitment_request_id');
     }
 
     public function candidates(): HasMany

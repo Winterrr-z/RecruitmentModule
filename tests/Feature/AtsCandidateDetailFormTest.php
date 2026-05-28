@@ -36,12 +36,25 @@ class AtsCandidateDetailFormTest extends TestCase
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $this->job = Lowongan::create([
+        $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
             'jabatan' => 'IT Engineer',
             'departemen' => 'IT',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
+            'deskripsi_pekerjaan' => 'Job description',
+            'spesifikasi_kebutuhan' => 'Job requirements',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+
+        $this->job = Lowongan::create([
+            'recruitment_request_id' => $rr->id,
+            'jabatan' => 'IT Engineer',
+            'departemen' => 'IT',
+            'status' => 'Published',
             'deskripsi_pekerjaan' => 'Job description',
             'spesifikasi_kebutuhan' => 'Job requirements',
             'tipe_kerja' => 'full-time',

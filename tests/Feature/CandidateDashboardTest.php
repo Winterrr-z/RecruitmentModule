@@ -44,8 +44,19 @@ class CandidateDashboardTest extends TestCase
             'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
         ]);
 
-        $lowongan = Lowongan::create([
+        $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
+            'jabatan' => 'Test Jabatan',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+        $lowongan = Lowongan::create([
+            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
             'jabatan' => 'Developer',
             'departemen' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
@@ -92,6 +103,6 @@ class CandidateDashboardTest extends TestCase
             ->get(route('candidate.dashboard'))
             ->assertSee('Developer')
             ->assertSee('Applied')
-            ->assertSee('Rejected');
+            ->assertSee('Tidak Lolos');
     }
 }

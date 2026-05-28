@@ -90,6 +90,16 @@ if (app()->environment(['local', 'testing'])) {
         return redirect()->route('careers');
     })->name('dev.login');
 
+    Route::get('/dev/login-applicant', function () {
+        $user = User::where('role', 'applicant')->first() ?? User::factory()->create([
+            'name'  => 'Pelamar Demo',
+            'email' => 'pelamar@humanfirst.com',
+            'role'  => 'applicant',
+        ]);
+        Auth::login($user);
+        return redirect()->route('candidate.dashboard');
+    })->name('dev.login.applicant');
+
     Route::get('/dev/logout', function () {
         Auth::logout();
         return redirect()->route('careers');

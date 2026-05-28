@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Rr;
 
-use App\Models\Lowongan;
+use App\Models\RecruitmentRequest;
 use App\Models\Candidate;
 use App\Models\Stage;
 use Livewire\Component;
@@ -10,7 +10,7 @@ use Livewire\Component;
 /**
  * Class RRDetail
  * 
- * Komponen Livewire untuk menampilkan detail spesifik dari Recruitment Request (RR) / Lowongan.
+ * Komponen Livewire untuk menampilkan detail spesifik dari Recruitment Request (RR).
  * Menampilkan detail posisi, pengaturan publikasi, deskripsi pekerjaan, spesifikasi kebutuhan,
  * informasi MPP terhubung, serta statistik pelamar per stage.
  *
@@ -19,12 +19,12 @@ use Livewire\Component;
 class RRDetail extends Component
 {
     /**
-     * @var int ID dari lowongan (RR) yang sedang dilihat.
+     * @var int ID dari RR yang sedang dilihat.
      */
     public $rrId;
 
     /**
-     * Inisialisasi komponen dengan mppId/lowonganId.
+     * Inisialisasi komponen dengan rrId.
      *
      * @param int $id
      * @return void
@@ -35,63 +35,74 @@ class RRDetail extends Component
     }
 
     /**
-     * Publikasikan lowongan (ubah status dari 'Ready to Publish' ke 'Published').
+     * Publikasikan RR (ubah status dari 'Draft' ke 'Published').
      *
      * @return void
      */
     public function publish()
     {
-        $lowongan = Lowongan::findOrFail($this->rrId);
-        if ($lowongan->status === 'Ready to Publish') {
-            $lowongan->update(['status' => 'Published']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil diaktifkan.');
+        $rr = RecruitmentRequest::findOrFail($this->rrId);
+        if ($rr->status === 'Draft' || $rr->status === 'Ready to Publish') {
+            $rr->update(['status' => 'Published']);
+
+            // Buat Lowongan otomatis
+            $rr->lowongan()->updateOrCreate(
+                ['recruitment_request_id' => $rr->id],
+                [
+                    'kuota' => $rr->kuota,
+                    'jabatan' => $rr->jabatan,
+                    'departemen' => $rr->departemen,
+                    'tipe_kerja' => $rr->tipe_kerja,
+                    'lokasi' => $rr->lokasi,
+                    'application_deadline' => $rr->application_deadline,
+                    'tampilkan_gaji' => $rr->tampilkan_gaji,
+                    'estimasi_gaji_min' => $rr->estimasi_gaji_min,
+                    'estimasi_gaji_max' => $rr->estimasi_gaji_max,
+                    'deskripsi_pekerjaan' => $rr->deskripsi_pekerjaan,
+                    'spesifikasi_kebutuhan' => $rr->spesifikasi_kebutuhan,
+                    'status' => 'Published'
+                ]
+            );
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dipublikasikan.');
         }
     }
 
     /**
-     * Nonaktifkan lowongan (ubah status dari 'Published' ke 'Ready to Publish').
-     *
-     * @return void
-     */
-    public function unpublish()
-    {
-        $lowongan = Lowongan::findOrFail($this->rrId);
-        if ($lowongan->status === 'Published') {
-            $lowongan->update(['status' => 'Ready to Publish']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil dinonaktifkan.');
-        }
-    }
-
-    /**
-     * Tutup lowongan (ubah status dari 'Published' ke 'Completed/Closed').
+     * Tutup RR (ubah status ke 'Completed/Closed').
      *
      * @return void
      */
     public function close()
     {
-        $lowongan = Lowongan::findOrFail($this->rrId);
-        if ($lowongan->status === 'Published') {
-            $lowongan->update(['status' => 'Completed/Closed']);
-            session()->flash('message', 'Lowongan "' . $lowongan->jabatan . '" berhasil ditutup.');
+        $rr = RecruitmentRequest::findOrFail($this->rrId);
+        if ($rr->status !== 'Completed/Closed') {
+            $rr->update(['status' => 'Completed/Closed']);
+
+            // Tutup lowongan juga
+            if ($rr->lowongan) {
+                $rr->lowongan->update(['status' => 'Closed']);
+            }
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil ditutup.');
         }
     }
 
     /**
-     * Hapus lowongan draft (Ready to Publish) jika tidak memiliki pelamar.
+     * Hapus RR draft.
      *
      * @return void|\Illuminate\Http\RedirectResponse
      */
     public function delete()
     {
-        $lowongan = Lowongan::with('candidates')->findOrFail($this->rrId);
+        $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($this->rrId);
 
-        // Logika rr tidak dapat didelete ketika terdapat pelamar pada lowongan dan status tidak sama dengan draft.
-        if ($lowongan->candidates->count() > 0 || $lowongan->status !== 'Ready to Publish') {
-            session()->flash('error', 'Lowongan yang memiliki pelamar atau statusnya bukan Draft tidak dapat dihapus.');
+        if ($rr->hiredCount() > 0 || ($rr->status !== 'Draft' && $rr->status !== 'Ready to Publish')) {
+            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Draft tidak dapat dihapus.');
             return;
         }
 
-        $lowongan->delete();
+        $rr->delete();
         session()->flash('message', 'Recruitment Request berhasil dihapus.');
 
         return redirect()->route('rr.index');
@@ -104,26 +115,28 @@ class RRDetail extends Component
      */
     public function render()
     {
-        $lowongan = Lowongan::with('mpp')->findOrFail($this->rrId);
+        $rr = RecruitmentRequest::with('mpp', 'lowongan')->findOrFail($this->rrId);
+
+        $lowonganId = $rr->lowongan?->id;
 
         // Ambil metrik kandidat
-        $totalCandidates = Candidate::where('lowongan_id', $this->rrId)->count();
-        $hiredCandidates = Candidate::where('lowongan_id', $this->rrId)->where('status', 'Hired')->count();
-        $rejectedCandidates = Candidate::where('lowongan_id', $this->rrId)->where('status', 'Ditolak')->count();
-        $activeCandidates = Candidate::where('lowongan_id', $this->rrId)->whereNotIn('status', ['Hired', 'Ditolak'])->count();
+        $totalCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->count() : 0;
+        $hiredCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', 'Hired')->count() : 0;
+        $rejectedCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', 'Rejected')->count() : 0;
+        $activeCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->whereNotIn('status', ['Hired', 'Rejected', 'Declined', 'Expired'])->count() : 0;
 
         // Ambil persebaran kandidat per stage
-        $stages = Stage::orderBy('urutan')->get()->map(function ($stage) {
+        $stages = Stage::orderBy('urutan')->get()->map(function ($stage) use ($lowonganId) {
             return [
                 'nama' => $stage->nama,
-                'count' => Candidate::where('lowongan_id', $this->rrId)
+                'count' => $lowonganId ? Candidate::where('lowongan_id', $lowonganId)
                     ->where('current_stage_id', $stage->id)
-                    ->count()
+                    ->count() : 0
             ];
         });
 
         return view('livewire.rr.rr-detail', [
-            'lowongan' => $lowongan,
+            'rr' => $rr,
             'totalCandidates' => $totalCandidates,
             'hiredCandidates' => $hiredCandidates,
             'rejectedCandidates' => $rejectedCandidates,

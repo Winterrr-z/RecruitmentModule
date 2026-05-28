@@ -58,8 +58,20 @@ class AtsDashboardTest extends TestCase
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $this->job1 = Lowongan::create([
+        $rr1 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp1->id,
+            'jabatan' => 'Software Engineer',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Job description',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 5,
+        ]);
+
+        $this->job1 = Lowongan::create([
+            'recruitment_request_id' => $rr1->id,
             'jabatan' => 'Software Engineer',
             'departemen' => 'IT',
             'status' => 'Published',
@@ -72,8 +84,20 @@ class AtsDashboardTest extends TestCase
             'kuota' => 5,
         ]);
 
-        $this->job2 = Lowongan::create([
+        $rr2 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp2->id,
+            'jabatan' => 'HR Manager',
+            'departemen' => 'HR',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Job description',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'on-site',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+
+        $this->job2 = Lowongan::create([
+            'recruitment_request_id' => $rr2->id,
             'jabatan' => 'HR Manager',
             'departemen' => 'HR',
             'status' => 'Published',
@@ -146,7 +170,7 @@ class AtsDashboardTest extends TestCase
             ->call('reject', $this->candidate->id)
             ->assertSee("Kandidat 'John Doe' berhasil ditolak.");
 
-        $this->assertEquals('Ditolak', $this->candidate->fresh()->status);
+        $this->assertEquals('Rejected', $this->candidate->fresh()->status);
     }
 
     public function test_can_blacklist_candidate()
@@ -160,7 +184,7 @@ class AtsDashboardTest extends TestCase
             ->assertSet('showBlacklistModal', false)
             ->assertSee("Kandidat 'John Doe' berhasil dimasukkan ke daftar hitam (blacklist).");
 
-        $this->assertEquals('Ditolak', $this->candidate->fresh()->status);
+        $this->assertEquals('Blacklisted', $this->candidate->fresh()->status);
         $this->assertDatabaseHas('blacklist', [
             'nama' => 'John Doe',
             'email' => 'john@example.com',
@@ -201,18 +225,16 @@ class AtsDashboardTest extends TestCase
 
     public function test_can_approve_and_advance_candidate_to_next_stage()
     {
-        // Applied (1) -> HR Interview (urutan: 2, ID: 3) -> Final (3, ID: 2)
         // Check current stage is 1 (Applied)
         $this->assertEquals(1, $this->candidate->current_stage_id);
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsDashboard::class)
             ->call('approve', $this->candidate->id)
-            ->assertSee("Kandidat 'John Doe' berhasil dilanjutkan ke stage 'HR Interview'.");
+            ->assertSee("Kandidat 'John Doe' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
 
-        // Next stage in order is HR Interview (urutan 2, custom created Stage)
-        $hrStage = Stage::where('nama', 'HR Interview')->first();
-        $this->assertEquals($hrStage->id, $this->candidate->fresh()->current_stage_id);
+        $this->assertEquals(2, $this->candidate->fresh()->current_stage_id);
+        $this->assertEquals('Offered', $this->candidate->fresh()->status);
     }
 
     public function test_dashboard_displays_manual_candidate_button()

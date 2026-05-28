@@ -29,8 +29,8 @@ class ExpireOfferings extends Command
     {
         $now = now();
 
-        // Find candidates where status = 'Offered' or 'Applied', token is not null, and token is expired
-        $expiredCandidates = Candidate::whereIn('status', ['Applied', 'Offered'])
+        // Find candidates where status is 'Applied', 'In Progress', or 'Offered', token is not null, and token is expired
+        $expiredCandidates = Candidate::whereIn('status', ['Applied', 'In Progress', 'Offered'])
             ->whereNotNull('offering_token')
             ->where('offering_token_expires_at', '<', $now)
             ->get();
@@ -40,7 +40,7 @@ class ExpireOfferings extends Command
         if ($count > 0) {
             foreach ($expiredCandidates as $candidate) {
                 $candidate->update([
-                    'status' => 'Offering Expired',
+                    'status' => 'Expired',
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);

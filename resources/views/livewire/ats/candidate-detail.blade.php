@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->nama) === 'final') && $candidate->status === 'Applied' && $candidate->lowongan && $candidate->lowongan->kuota > 0)
+        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->nama) === 'final') && in_array($candidate->status, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->kuota > 0)
             <a href="{{ route('ats.offering.send', ['candidateId' => $candidate->id]) }}" 
                class="inline-flex items-center justify-center gap-2 px-5 h-11 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)] text-sm">
                 <span class="material-symbols-outlined text-[20px]">mail</span>
@@ -62,19 +62,47 @@
                     <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold">
                         {{ $candidate->currentStage->nama }}
                     </span>
-                    @if($candidate->status === 'Ditolak')
-                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-error/10 text-error border border-error/20 rounded-full text-xs font-bold">
-                            Ditolak
-                        </span>
-                    @elseif($candidate->status === 'Applied')
-                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 text-blue-700 border border-blue-500/20 rounded-full text-xs font-bold">
-                            Applied
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 text-green-700 border border-green-500/20 rounded-full text-xs font-bold">
-                            {{ $candidate->status }}
-                        </span>
-                    @endif
+                    @switch($candidate->status)
+                        @case('Rejected')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-950/20 text-red-950 border border-red-950/30 rounded-full text-xs font-bold">
+                                Rejected
+                            </span>
+                            @break
+                        @case('Applied')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-500/10 text-blue-700 border border-blue-500/20 rounded-full text-xs font-bold">
+                                Applied
+                            </span>
+                            @break
+                        @case('In Progress')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-surface-container-high text-on-surface-variant border border-surface-container rounded-full text-xs font-bold">
+                                In Progress
+                            </span>
+                            @break
+                        @case('Offered')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-full text-xs font-bold">
+                                Offered
+                            </span>
+                            @break
+                        @case('Hired')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 text-green-700 border border-green-500/20 rounded-full text-xs font-bold">
+                                Hired
+                            </span>
+                            @break
+                        @case('Declined')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 text-red-700 border border-red-500/20 rounded-full text-xs font-bold">
+                                Declined
+                            </span>
+                            @break
+                        @case('Expired')
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-500/10 text-red-700 border border-red-500/20 rounded-full text-xs font-bold">
+                                Expired
+                            </span>
+                            @break
+                        @default
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-surface-container-high text-on-surface-variant border border-surface-container rounded-full text-xs font-bold">
+                                {{ $candidate->status }}
+                            </span>
+                    @endswitch
                 </div>
             </div>
 

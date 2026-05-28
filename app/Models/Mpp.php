@@ -3,34 +3,15 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-/**
- * Class Mpp
- * 
- * Model untuk merepresentasikan tabel 'mpps' (Manpower Planning).
- * Menyimpan data rencana kebutuhan tenaga kerja dari setiap departemen.
- * Mendukung sistem status dinamis berdasarkan waktu, aktivitas, dan fulfillment.
- *
- * @package App\Models
- * @property int $id
- * @property string $nama_plan
- * @property string $departemen
- * @property string $jabatan
- * @property int $jumlah_kebutuhan
- * @property int|null $estimasi_gaji_min
- * @property int|null $estimasi_gaji_max
- * @property int $sla_hari
- * @property \Carbon\Carbon|null $target_waktu_absolut
- * @property string $status
- * @property string|null $note
- * @property \Carbon\Carbon|null $last_activity_at
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- */
 class Mpp extends Model
 {
+    use HasFactory;
+
     protected $table = 'mpps';
 
     protected $fillable = [
@@ -56,78 +37,76 @@ class Mpp extends Model
         'last_activity_at' => 'datetime',
     ];
 
-    // ─── Relationships ────────────────────────────────────────
-
-    public function lowongans(): HasMany
+    public function recruitmentRequests(): HasMany
     {
-        return $this->hasMany(Lowongan::class, 'mpp_id');
+        return $this->hasMany(RecruitmentRequest::class, 'mpp_id');
     }
 
-    // ─── Status Helpers ───────────────────────────────────────
-
-    /**
-     * Mendapatkan jumlah kandidat yang sudah Hired melalui RR/Lowongan.
-     */
-    public function getHiredCount(): int
+    public function lowongans(): HasManyThrough
     {
-        return Candidate::whereIn('lowongan_id', $this->lowongans()->pluck('id'))
-            ->where('status', 'Hired')
-            ->count();
+        return $this->hasManyThrough(
+            Lowongan::class,
+            RecruitmentRequest::class,
+            'mpp_id',
+            'recruitment_request_id',
+            'id',
+            'id'
+        );
     }
 
-    /**
-     * Cek apakah kuota MPP sudah terpenuhi (Filled) melalui RR.
-     */
+    public function totalHired(): int
+    {
+        return Candidate::whereHas('lowongan.recruitmentRequest', function ($q) {
+            $q->where('mpp_id', $this->id);
+        })->where('status', 'Hired')->count();
+    }
+
+    public function sisaKuota(): int
+    {
+        return max(0, $this->jumlah_kebutuhan - $this->totalHired());
+    }
+
     public function isFilled(): bool
     {
-        return $this->getHiredCount() >= $this->jumlah_kebutuhan;
+        return $this->totalHired() >= $this->jumlah_kebutuhan;
     }
 
-    /**
-     * Cek apakah MPP memiliki kandidat yang aktif.
-     * Kandidat dianggap aktif jika statusnya BUKAN Rejected, Hired, atau Withdrawn.
-     */
     public function hasActiveCandidates(): bool
     {
-        return Candidate::whereIn('lowongan_id', $this->lowongans()->pluck('id'))
+        $lowonganIds = Lowongan::whereHas('recruitmentRequest', function ($q) {
+            $q->where('mpp_id', $this->id);
+        })->pluck('id');
+
+        return Candidate::whereIn('lowongan_id', $lowonganIds)
             ->whereNotIn('status', ['Rejected', 'Hired', 'Withdrawn'])
             ->exists();
     }
 
-    /**
-     * Cek apakah MPP memiliki Lowongan (RR) yang berstatus Published.
-     */
     public function hasPublishedRr(): bool
     {
-        return $this->lowongans()->where('status', 'Published')->exists();
+        return $this->recruitmentRequests()->where('status', 'Published')->exists();
     }
 
-    /**
-     * Mendapatkan tanggal aktivitas terakhir dari seluruh sumber terkait MPP.
-     * Sumber: MPP updated_at, Lowongan created_at, Candidate created_at, CandidateMovement moved_at.
-     */
     public function getLastActivityDate(): Carbon
     {
         $dates = collect();
-
-        // MPP own last_activity_at or updated_at
         $dates->push($this->last_activity_at ?? $this->updated_at);
 
-        // Latest lowongan created
-        $latestLowongan = $this->lowongans()->max('created_at');
-        if ($latestLowongan) {
-            $dates->push(Carbon::parse($latestLowongan));
+        $latestRr = $this->recruitmentRequests()->max('created_at');
+        if ($latestRr) {
+            $dates->push(Carbon::parse($latestRr));
         }
 
-        // Latest candidate created via lowongans
-        $lowonganIds = $this->lowongans()->pluck('id');
+        $lowonganIds = Lowongan::whereHas('recruitmentRequest', function ($q) {
+            $q->where('mpp_id', $this->id);
+        })->pluck('id');
+
         if ($lowonganIds->isNotEmpty()) {
             $latestCandidate = Candidate::whereIn('lowongan_id', $lowonganIds)->max('created_at');
             if ($latestCandidate) {
                 $dates->push(Carbon::parse($latestCandidate));
             }
 
-            // Latest candidate movement
             $candidateIds = Candidate::whereIn('lowongan_id', $lowonganIds)->pluck('id');
             if ($candidateIds->isNotEmpty()) {
                 $latestMovement = CandidateMovement::whereIn('candidate_id', $candidateIds)->max('moved_at');
@@ -140,51 +119,35 @@ class Mpp extends Model
         return $dates->filter()->max() ?? $this->updated_at;
     }
 
-    /**
-     * Menghitung status dinamis MPP berdasarkan prioritas:
-     * 1. Closed (eksplisit via tombol Tutup Plan)
-     * 2. Filled (kuota terpenuhi via RR)
-     * 3. Critical (>100% terjalani ATAU 2 minggu tanpa aktivitas)
-     * 4. Urgent (>=90% terjalani ATAU <1 minggu deadline)
-     * 5. Need Attention (1 minggu tanpa aktivitas ATAU 51-89% + <=1 bulan deadline)
-     * 6. In Progress (default)
-     */
     public function getComputedStatus(): string
     {
-        // 1. Closed — status eksplisit dari tombol "Tutup Plan"
         if (strtolower($this->status) === 'closed') {
             return 'Closed';
         }
 
-        // 2. Filled — kuota terpenuhi melalui RR
         if ($this->isFilled()) {
             return 'Filled';
         }
 
-        // Hitung persentase waktu dan sisa hari
         $now = now();
         $created = Carbon::parse($this->created_at);
         $target = Carbon::parse($this->target_waktu_absolut);
         $totalDays = max(1, $created->diffInDays($target));
         $elapsedDays = $created->diffInDays($now);
         $percent = ($elapsedDays / $totalDays) * 100;
-        $daysRemaining = $now->diffInDays($target, false); // negatif jika overdue
+        $daysRemaining = $now->diffInDays($target, false);
 
-        // Hitung hari sejak aktivitas terakhir
         $lastActivity = $this->getLastActivityDate();
         $daysSinceActivity = $lastActivity->diffInDays($now);
 
-        // 3. Critical — overdue (>100%) ATAU 2 minggu tanpa aktivitas
         if ($percent > 100 || $daysSinceActivity >= 14) {
             return 'Critical';
         }
 
-        // 4. Urgent — >=90% terjalani ATAU <7 hari deadline
         if ($percent >= 90 || $daysRemaining < 7) {
             return 'Urgent';
         }
 
-        // 5. Need Attention — 1 minggu tanpa aktivitas ATAU (51-89% DAN <=30 hari deadline)
         if ($daysSinceActivity >= 7) {
             return 'Need Attention';
         }
@@ -192,14 +155,9 @@ class Mpp extends Model
             return 'Need Attention';
         }
 
-        // 6. In Progress — default
         return 'In Progress';
     }
 
-    /**
-     * Mendapatkan badge info untuk rendering di view.
-     * Mengembalikan array dengan key: label, color, bg, icon.
-     */
     public function getStatusBadge(): array
     {
         $status = $this->getComputedStatus();
@@ -257,4 +215,3 @@ class Mpp extends Model
         };
     }
 }
-

@@ -28,7 +28,7 @@ class OfferingResponse extends Component
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
             \DB::transaction(function () {
                 $this->candidate->update([
-                    'status' => 'Offering Expired',
+                    'status' => 'Expired',
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -51,7 +51,7 @@ class OfferingResponse extends Component
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
             \DB::transaction(function () {
                 $this->candidate->update([
-                    'status' => 'Offering Expired',
+                    'status' => 'Expired',
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -78,7 +78,7 @@ class OfferingResponse extends Component
         if ($candidate->offering_token_expires_at && $candidate->offering_token_expires_at->isPast()) {
             \DB::transaction(function () use ($candidate) {
                 $candidate->update([
-                    'status' => 'Offering Expired',
+                    'status' => 'Expired',
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -104,7 +104,17 @@ class OfferingResponse extends Component
         \DB::transaction(function () use ($candidate, $choice) {
             if ($choice === 'terima') {
                 $candidate->status = 'Hired';
+            } else {
+                $candidate->status = 'Declined';
+            }
 
+            // Clear offering token fields
+            $candidate->offering_token = null;
+            $candidate->offering_token_expires_at = null;
+            $candidate->save();
+
+            // ONLY process lowongan/mpp completion if accepted
+            if ($choice === 'terima') {
                 $lowongan = $candidate->lowongan;
                 if ($lowongan) {
                     $lowongan->kuota = max(0, $lowongan->kuota - 1);
@@ -112,24 +122,23 @@ class OfferingResponse extends Component
                     if ($lowongan->kuota == 0) {
                         $lowongan->status = 'Completed/Closed';
                         $lowongan->save();
-
-                        $mpp = $lowongan->mpp;
-                        if ($mpp) {
-                            $mpp->status = 'Completed/Closed';
-                            $mpp->save();
+                        
+                        $rr = $lowongan->recruitmentRequest;
+                        if ($rr) {
+                            $rr->status = 'Completed/Closed';
+                            $rr->save();
+                            
+                            $mpp = $rr->mpp;
+                            if ($mpp && $mpp->sisaKuota() <= 0) {
+                                $mpp->status = 'Completed/Closed';
+                                $mpp->save();
+                            }
                         }
                     } else {
                         $lowongan->save();
                     }
                 }
-            } else {
-                $candidate->status = 'Ditolak';
             }
-
-            // Clear offering token fields
-            $candidate->offering_token = null;
-            $candidate->offering_token_expires_at = null;
-            $candidate->save();
         });
     }
 

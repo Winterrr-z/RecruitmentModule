@@ -79,20 +79,20 @@
             <div class="flex flex-col items-center justify-center p-12 text-center bg-surface-container-lowest rounded-md border border-dashed border-outline-variant/50 shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.04)]">
                 <span class="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4">group_add</span>
                 <h3 class="text-title-md font-title-md text-on-surface mb-2">Belum Ada Manpower Planning</h3>
-                <p class="text-label-sm font-label-sm text-on-surface-variant max-w-md mb-6">
-                    Mulai rencanakan kebutuhan tenaga kerja baru untuk departemen Anda dengan membuat manpower plan pertama.
-                </p>
-                <a href="{{ route('mpp.create') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
-                    <span class="material-symbols-outlined text-[20px]">add</span>
-                    <span>Buat Plan Pertama</span>
-                </a>
             </div>
         @endif
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($mpps as $mpp)
-                <div class="group relative bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] hover:shadow-[0px_40px_80px_-15px_rgba(107,56,212,0.1)] hover:-translate-y-1 transition-all duration-300 text-on-surface">
-                    @php $badge = $mpp->getStatusBadge(); @endphp
+                @php 
+                    $computedStatus = $mpp->getComputedStatus();
+                    $isCompleted = $computedStatus === 'Closed' || $computedStatus === 'Filled';
+                    $badge = $mpp->getStatusBadge();
+                @endphp
+                <div class="group relative p-8 rounded-md border transition-all duration-300 text-on-surface
+                    {{ $isCompleted 
+                        ? 'bg-surface-container-low border-surface-container/60 opacity-70 grayscale shadow-none' 
+                        : 'bg-surface-container-lowest border-surface-container/30 shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] hover:shadow-[0px_40px_80px_-15px_rgba(107,56,212,0.1)] hover:-translate-y-1' }}">
                     <div class="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 {{ $badge['bg'] }} {{ $badge['color'] }} rounded-md text-[11px] font-bold z-10">
                         <span class="w-2 h-2 {{ $badge['dotColor'] }} rounded-full animate-pulse"></span>
                         {{ $badge['label'] }}
@@ -153,6 +153,13 @@
                 </div>
             @endforeach
         </div>
+
+        {{-- Pagination --}}
+        @if($mpps->hasPages())
+            <div class="mt-8 px-2">
+                {{ $mpps->links() }}
+            </div>
+        @endif
     @endif
     </div>
 </div>
