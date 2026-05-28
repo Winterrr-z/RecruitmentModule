@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Applicant Portal - Human First</title>
+    <title>Applicant Portal - {{ config('company.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex font-body-md">
@@ -13,8 +13,8 @@
         <!-- Logo and Branding -->
         <div class="p-gutter mb-8">
             <a class="flex items-center gap-3 active:scale-95 transition-transform group no-underline" href="/">
-                <img alt="Human First Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0ugrpLiJy26Io_mLDAQUQEnf730xr_rABFyyY9ICKsaSPA5_GH1W8-QK1fD0RYxjtYsrzgxiLqamtB5Cf7PHSU2VVk-26EclV5EbaORiivGaTvJaDE89sPUodINDL5bX3qnXtwACKPwFJXWkJbiN7pI5K01QjstbO5c1JVQz0Jm3F0f4WyfPpHri7TSjpW7g0ybWdcDeq5FdFZNOE0vVonSrcR27cT44HXIFCkDQuHadqH2jtq-eCa8vl_BA"/>
-                <span class="font-display text-lg font-bold text-primary tracking-tight">Human First</span>
+                <img alt="{{ config('company.name') }} Logo" class="h-8 w-auto" src="{{ config('company.logo') }}"/>
+                <span class="font-display text-lg font-bold text-primary tracking-tight">{{ config('company.name') }}</span>
             </a>
         </div>
 
@@ -73,15 +73,15 @@
         </header>
 
         <!-- Dynamic Content Section -->
-        <section class="flex-grow px-gutter py-section-padding-desktop max-w-7xl mx-auto w-full">
+        <section class="flex-grow px-gutter py-section-padding-desktop w-full">
             {{ $slot }}
         </section>
 
         <!-- Footer -->
         <footer class="bg-surface-container-low dark:bg-inverse-surface border-t border-surface-container-high py-8 mt-12 w-full">
-            <div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-7xl mx-auto gap-6 text-sm text-on-surface-variant/70">
+            <div class="flex flex-col md:flex-row justify-between items-center px-gutter w-full gap-6 text-sm text-on-surface-variant/70">
                 <div class="font-bold text-primary opacity-80">
-                    Human First
+                    {{ config('company.name') }}
                 </div>
                 <div class="flex flex-wrap justify-center gap-6">
                     <a class="text-on-surface-variant dark:text-outline-variant hover:text-primary no-underline transition-colors" href="#">Privacy Policy</a>
@@ -89,7 +89,7 @@
                     <a class="text-on-surface-variant dark:text-outline-variant hover:text-primary no-underline transition-colors" href="#">Cookie Settings</a>
                 </div>
                 <div>
-                    &copy; {{ date('Y') }} Human First. All rights reserved.
+                    &copy; {{ date('Y') }} {{ config('company.name') }}. All rights reserved.
                 </div>
             </div>
         </footer>

@@ -1,11 +1,8 @@
-<div class="max-w-container-max-width mx-auto px-gutter py-8">
+<div class="w-full px-gutter py-8">
     <!-- Hero Section -->
     <div class="text-center max-w-3xl mx-auto mb-16 mt-8">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-primary/10 text-primary font-bold text-xs uppercase tracking-wider mb-4">
-            Peluang Karir
-        </span>
         <h1 class="text-display-lg font-extrabold text-on-surface leading-tight mb-4 tracking-tight">
-            Mulai Karir Hebat Anda di <span class="text-primary">Human First</span>
+            Mulai Karir Hebat Anda di <span class="text-primary">{{ config('company.name') }}</span>
         </h1>
         <p class="text-body-lg text-on-surface-variant/80">
             Temukan posisi yang sesuai dengan bakat dan passion Anda. Mari bersama-sama membangun masa depan yang bermakna dan berdampak positif.

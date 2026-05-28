@@ -4,8 +4,8 @@
 
     <!-- Header Section -->
     <div class="mb-8">
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Dashboard</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant/70">Ringkasan metrik rekrutmen terkini.</p>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Halo <span class="font-extrabold text-on-surface">{{ Auth::user()->name }}</span>!</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant/70">Berikut adalah ringkasan metrik rekrutmen terkini.</p>
     </div>
 
     <!-- Main Responsive Grid -->
@@ -53,8 +53,8 @@
         <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-surface-container/30 flex flex-col justify-between h-[420px]">
             <div class="flex items-center justify-between pb-4 border-b border-surface-container-high/40 mb-4">
                 <div>
-                    <h3 class="text-title-md font-headline-lg text-on-surface">Status Kandidat per Lowongan</h3>
-                    <p class="text-body-md text-xs text-on-surface-variant/70">Distribusi tahapan kandidat per lowongan aktif</p>
+                    <h3 class="text-title-md font-headline-lg text-on-surface">Status Lowongan</h3>
+                    <p class="text-body-md text-xs text-on-surface-variant/70">Distribusi tahapan kandidat per lowongan</p>
                 </div>
                 
                 @if (count($activeLowongans) > 1)
@@ -134,8 +134,8 @@
         <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-surface-container/30 flex flex-col justify-between h-[420px]">
             <div class="flex items-center justify-between pb-3 border-b border-surface-container-high/40 mb-3">
                 <div>
-                    <h3 class="text-title-md font-headline-lg text-on-surface">Kalender Interview</h3>
-                    <p class="text-body-md text-xs text-on-surface-variant/70">Jadwal wawancara pada bulan ini</p>
+                    <h3 class="text-title-md font-headline-lg text-on-surface">Kalender</h3>
+                    <p class="text-body-md text-xs text-on-surface-variant/70">Jadwal pada bulan ini</p>
                 </div>
                 
                 <!-- Month Navigator -->
@@ -215,8 +215,8 @@
         <!-- Widget 6: Bar Chart Kandidat per Stage (Global) -->
         <div class="lg:col-span-2 bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-surface-container/30 flex flex-col justify-between h-[420px] mt-2">
             <div class="pb-4 border-b border-surface-container-high/40 mb-4">
-                <h3 class="text-title-md font-headline-lg text-on-surface">Kandidat per Stage (Global)</h3>
-                <p class="text-body-md text-xs text-on-surface-variant/70">Akumulasi jumlah kandidat aktif di setiap tahapan rekrutmen</p>
+                <h3 class="text-title-md font-headline-lg text-on-surface">Stage Kandidat</h3>
+                <p class="text-body-md text-xs text-on-surface-variant/70">Jumlah kandidat di setiap tahapan rekrutmen</p>
             </div>
 
             <!-- Bar Chart Container -->

@@ -1,14 +1,14 @@
-<div>
+<div class="max-w-3xl mx-auto w-full">
     <!-- Content Header -->
-    <div class="mb-8">
-        <h2 class="font-headline-lg text-headline-lg text-on-surface flex items-center gap-3">
+    <!-- <div class="mb-8 text-center">
+        <h2 class="font-headline-lg text-headline-lg text-on-surface flex items-center justify-center gap-3">
             <span class="material-symbols-outlined text-[32px] text-primary">account_circle</span>
             <span>Profil Saya</span>
         </h2>
         <p class="font-body-md text-body-md text-on-surface-variant/70 mt-1">Informasi detail profil akun HR Anda di sistem rekrutmen.</p>
-    </div>
+    </div> -->
 
-    <div class="max-w-3xl space-y-6">
+    <div class="space-y-6">
 
         <!-- Profile Header Card -->
         <div class="bg-surface-container-lowest rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 overflow-hidden">

@@ -25,7 +25,7 @@
     </div>
 
     <!-- Search & Filter Controls -->
-    <div class="mb-8 p-6 bg-surface-container-lowest rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 flex flex-col sm:flex-row gap-4">
+    <div class="mb-4 p-6 bg-surface-container-lowest rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 flex flex-col sm:flex-row gap-4">
         <!-- Search Input -->
         <div class="relative flex-1">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>

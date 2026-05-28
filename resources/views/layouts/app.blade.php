@@ -24,7 +24,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
     <!-- Block Overlay for mobile -->
     <div class="lg:hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface p-8 text-center text-on-surface">
         <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 shadow-md">
@@ -39,7 +39,7 @@
     <!-- SideNavBar -->
 <aside class="hidden lg:flex fixed left-0 top-0 flex-col py-8 gap-4 bg-surface-container-low/50 backdrop-blur-xl h-full w-72 rounded-r-sm z-40">
     <div class="flex items-center gap-3 px-8 mb-8">
-        <img alt="Human First Company Logo" class="h-12 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArvIhduHmMzrhk2FNidLA8cUpVK9DgP2amH6bhd_Oj219BIP1iwGUvq8yJLBIXMdB7By_NaH2-1weYeSLF04ZdRDcMDQ5p4PWQjLH1AbFHbS52Hguy5K8L4cJptKFqS9-Pdp7u1k4rCWhrxquGspZDgILG0MxUEk8tIDNgK2Rn7p9v_g5oF9tSNcqmt5VC0qo-QgP76kcY-oTg2FssGWorMJuHsk2hVaKMlZB9OPvxY0DDEE_Rw4HndUeJZ4mgcBDNfGIatlCYTSkU">
+        <img alt="{{ config('company.name') }} Company Logo" class="h-12 w-auto" src="{{ config('company.logo') }}">
         <span class="font-headline-lg text-headline-lg text-primary tracking-tight">ATT Group</span>
     </div>
     <nav class="flex flex-col gap-2 px-4">
@@ -110,22 +110,19 @@
         </div>
     </a>
 </aside>
-    <main class="hidden lg:block min-h-screen ml-72">
+    <main class="hidden lg:flex lg:flex-col min-h-screen ml-72 flex-grow">
     <!-- Header -->
-    <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
+    <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
         <div class="flex items-center gap-4">
             <span class="font-headline-lg text-headline-lg text-primary tracking-tight">{{ $headerTitle }}</span>
         </div>
         <div class="flex items-center gap-6">
-            <div class="relative group">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search </span>
-                <input class="pl-12 pr-6 h-12 bg-surface-container-low border-none rounded-md w-64 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md" placeholder="Cari Fitur" type="text">
-            </div>
+            <livewire:global-search />
             <button class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95"><span class="material-symbols-outlined">notifications</span></button>
         </div>
     </header>
     <!-- Akhir Header -->
-    <div class="p-gutter max-w-container-max-width mx-auto">
+    <div class="p-gutter w-full pb-8">
         {{ $slot }}
     </div>
 </main>

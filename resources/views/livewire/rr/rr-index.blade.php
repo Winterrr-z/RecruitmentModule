@@ -25,7 +25,7 @@
     </div>
 
     <!-- Stats/Filter Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
         <div class="bg-surface-container-lowest rounded-md p-6 shadow-[0_30px_40px_rgba(107,56,212,0.03)] border border-surface-container-high flex flex-col justify-between">
             <div class="text-on-surface-variant font-label-sm text-label-sm uppercase mb-2">Total Active</div>
             <div class="font-display-lg text-display-lg text-primary">{{ $stats['total_active'] }}</div>
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Table & Grid Controls -->
-    <div class="mb-8 p-6 bg-surface-container-lowest rounded-md border border-surface-container-high shadow-[0_30px_40px_rgba(107,56,212,0.02)] flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="mb-4 p-6 bg-surface-container-lowest rounded-md border border-surface-container-high shadow-[0_30px_40px_rgba(107,56,212,0.02)] flex flex-col md:flex-row justify-between items-center gap-6">
         <!-- Search Input -->
         <div class="relative w-full md:w-96">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[22px]">search</span>

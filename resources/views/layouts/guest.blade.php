@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Careers - Human First</title>
+    <title>Careers - {{ config('company.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md">
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white/80 dark:bg-surface-container/80 backdrop-blur-md border-b border-surface-container-high shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <div class="max-w-container-max-width mx-auto px-gutter h-20 flex items-center justify-between">
+        <div class="w-full px-gutter h-20 flex items-center justify-between">
             <a href="{{ route('careers') }}" class="flex items-center gap-3 group no-underline">
                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-105 transition-all">
                     <span class="material-symbols-outlined text-primary text-[24px]">diversity_3</span>
                 </div>
-                <span class="font-headline-lg text-title-md text-primary tracking-tight font-extrabold transition-colors">Human First</span>
+                <span class="font-headline-lg text-title-md text-primary tracking-tight font-extrabold transition-colors">{{ config('company.name') }}</span>
             </a>
             
             @unless(request()->routeIs('hr.login') || request()->routeIs('hr.password.request') || request()->routeIs('password.reset'))
@@ -39,11 +39,11 @@
     @unless(request()->routeIs('hr.login') || request()->routeIs('hr.password.request') || request()->routeIs('password.reset'))
     <!-- Footer -->
     <footer class="bg-surface-container-low border-t border-surface-container-high py-8 mt-20">
-        <div class="max-w-container-max-width mx-auto px-gutter">
+        <div class="w-full px-gutter">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div class="flex items-center gap-2.5">
                     <span class="material-symbols-outlined text-primary text-[20px]">diversity_3</span>
-                    <span class="font-bold text-on-surface">Human First</span>
+                    <span class="font-bold text-on-surface">{{ config('company.name') }}</span>
                 </div>
                 <div class="flex gap-6 text-sm">
                     <a href="#" class="text-on-surface-variant/70 hover:text-primary transition-colors no-underline">Hubungi Kami</a>
@@ -53,8 +53,8 @@
             </div>
             <hr class="my-6 border-surface-container-high">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-on-surface-variant/50">
-                <p>&copy; {{ date('Y') }} Human First. All rights reserved.</p>
-                <p>Designed to put people first.</p>
+                <p>&copy; {{ date('Y') }} {{ config('company.name') }}. All rights reserved.</p>
+                <p>{{ config('company.about') }}</p>
             </div>
         </div>
     </footer>

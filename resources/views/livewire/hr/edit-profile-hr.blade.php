@@ -1,4 +1,4 @@
-<div>
+<div class="max-w-3xl mx-auto w-full">
     <!-- Content Header -->
     <div class="mb-8">
         <div class="flex items-center gap-3 mb-1">
@@ -14,7 +14,7 @@
     </div>
 
     <!-- Profile Form -->
-    <div class="bg-surface-container-lowest rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 overflow-hidden max-w-3xl">
+    <div class="bg-surface-container-lowest rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 overflow-hidden">
         <form wire:submit.prevent="save" class="p-8 space-y-8" novalidate>
             <!-- Section 0: Foto Profil -->
             <div>
