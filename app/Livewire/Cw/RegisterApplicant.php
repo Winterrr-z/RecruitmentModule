@@ -43,8 +43,12 @@ class RegisterApplicant extends Component
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => [
                 'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
                 'confirmed',
-                Password::min(8)->mixedCase()->numbers(),
             ],
         ];
     }
@@ -57,15 +61,15 @@ class RegisterApplicant extends Component
     protected function messages(): array
     {
         return [
-            'name.required'          => 'Nama lengkap wajib diisi.',
-            'email.required'         => 'Alamat email wajib diisi.',
-            'email.email'            => 'Format email tidak valid.',
-            'email.unique'           => 'Email ini sudah terdaftar.',
-            'password.required'      => 'Kata sandi wajib diisi.',
-            'password.confirmed'     => 'Konfirmasi kata sandi tidak cocok.',
-            'password.min'           => 'Kata sandi minimal 8 karakter.',
-            'password.mixed_case'    => 'Kata sandi harus mengandung huruf besar dan huruf kecil.',
-            'password.numbers'       => 'Kata sandi harus mengandung setidaknya satu angka.',
+            'name.required'      => 'Nama lengkap wajib diisi.',
+            'email.required'     => 'Alamat email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Email ini sudah terdaftar.',
+            'password.required'  => 'Kata sandi wajib diisi.',
+            'password.string'    => 'Kata sandi harus berupa teks.',
+            'password.min'       => 'Kata sandi minimal 8 karakter.',
+            'password.regex'     => 'Kata sandi harus mengandung huruf besar, huruf kecil, dan angka.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
         ];
     }
 

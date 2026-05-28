@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Cw;
+namespace App\Livewire\Hr;
 
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Auth;
@@ -8,15 +8,15 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 
 /**
- * Class LoginApplicant
+ * Class LoginHr
  *
- * Form login untuk pelamar.
- * Dilengkapi rate-limiting (max 5 percobaan/menit per email+IP)
- * dan pesan sisa percobaan saat mendekati batas.
+ * Form login khusus untuk HR.
+ * Dilengkapi rate-limiting (max 5 percobaan/menit)
+ * dan hanya mengizinkan user dengan role 'hr' untuk masuk.
  *
- * @package App\Livewire
+ * @package App\Livewire\Hr
  */
-class LoginApplicant extends Component
+class LoginHr extends Component
 {
     /** @var string Alamat email. */
     public string $email = '';
@@ -30,7 +30,7 @@ class LoginApplicant extends Component
     /** @var string|null Pesan error autentikasi. */
     public ?string $authError = null;
 
-    /** @var int|null Sisa percobaan login (ditampilkan jika ≤ 2). */
+    /** @var int|null Sisa percobaan login. */
     public ?int $attemptsLeft = null;
 
     // Batas maksimum percobaan & durasi lockout (detik)
@@ -38,7 +38,7 @@ class LoginApplicant extends Component
     private const DECAY_SECONDS = 60;
 
     /**
-     * Reset error saat field email / password diubah.
+     * Reset error saat email / password diubah.
      */
     public function updatedEmail(): void
     {
@@ -57,11 +57,11 @@ class LoginApplicant extends Component
      */
     private function throttleKey(): string
     {
-        return 'login:' . Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
+        return 'login:hr:' . Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 
     /**
-     * Proses login pelamar.
+     * Proses login HR.
      */
     public function login()
     {
@@ -87,11 +87,11 @@ class LoginApplicant extends Component
         // Percobaan autentikasi
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             $user = Auth::user();
-
-            // Periksa apakah user memiliki role applicant
-            if ($user->role !== 'applicant') {
+            
+            // Periksa apakah user memiliki role HR
+            if ($user->role !== 'hr') {
                 Auth::logout();
-                $this->authError = 'Halaman ini khusus pelamar. Silakan login melalui portal HR.';
+                $this->authError = 'Akses ditolak. Akun ini tidak terdaftar sebagai HR.';
                 $this->password = '';
                 return;
             }
@@ -100,7 +100,7 @@ class LoginApplicant extends Component
             if (request()->hasSession()) {
                 request()->session()->regenerate();
             }
-            return redirect()->intended(route('candidate.dashboard'));
+            return redirect()->intended(route('dashboard'));
         }
 
         // Gagal — catat hit & hitung sisa
@@ -124,7 +124,7 @@ class LoginApplicant extends Component
      */
     public function render()
     {
-        return view('livewire.cw.login-applicant')
+        return view('livewire.hr.login-hr')
             ->layout('layouts.guest');
     }
 }

@@ -17,7 +17,8 @@
                 <span class="font-headline-lg text-title-md text-primary tracking-tight font-extrabold transition-colors">Human First</span>
             </a>
             
-            <nav class="flex items-center gap-8">
+            @unless(request()->routeIs('hr.login') || request()->routeIs('hr.password.request') || request()->routeIs('password.reset'))
+            <nav class="flex items-center gap-4 sm:gap-8">
                 <a href="{{ route('careers') }}" class="text-body-md font-bold text-on-surface-variant hover:text-primary transition-colors no-underline relative py-2 {{ request()->routeIs('careers') ? 'text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary' : '' }}">
                     Lowongan
                 </a>
@@ -26,6 +27,7 @@
                     <span>Login/Dashboard</span>
                 </a>
             </nav>
+            @endunless
         </div>
     </header>
 
@@ -34,6 +36,7 @@
         {{ $slot }}
     </main>
 
+    @unless(request()->routeIs('hr.login') || request()->routeIs('hr.password.request') || request()->routeIs('password.reset'))
     <!-- Footer -->
     <footer class="bg-surface-container-low border-t border-surface-container-high py-8 mt-20">
         <div class="max-w-container-max-width mx-auto px-gutter">
@@ -55,5 +58,6 @@
             </div>
         </div>
     </footer>
+    @endunless
 </body>
 </html>

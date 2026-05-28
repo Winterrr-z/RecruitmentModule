@@ -25,14 +25,25 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+    <!-- Block Overlay for mobile -->
+    <div class="lg:hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface p-8 text-center text-on-surface">
+        <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 shadow-md">
+            <span class="material-symbols-outlined text-primary text-[40px]">desktop_mac</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface font-extrabold mb-3">Akses Khusus Desktop</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-sm">
+            Maaf, halaman dashboard dan manajemen HR hanya dapat diakses melalui komputer atau desktop web untuk kenyamanan dan keamanan optimal.
+        </p>
+    </div>
+
     <!-- SideNavBar -->
-<aside class="fixed left-0 top-0 flex flex-col py-8 gap-4 bg-surface-container-low/50 backdrop-blur-xl h-full w-72 rounded-r-sm z-40">
+<aside class="hidden lg:flex fixed left-0 top-0 flex-col py-8 gap-4 bg-surface-container-low/50 backdrop-blur-xl h-full w-72 rounded-r-sm z-40">
     <div class="flex items-center gap-3 px-8 mb-8">
         <img alt="Human First Company Logo" class="h-12 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArvIhduHmMzrhk2FNidLA8cUpVK9DgP2amH6bhd_Oj219BIP1iwGUvq8yJLBIXMdB7By_NaH2-1weYeSLF04ZdRDcMDQ5p4PWQjLH1AbFHbS52Hguy5K8L4cJptKFqS9-Pdp7u1k4rCWhrxquGspZDgILG0MxUEk8tIDNgK2Rn7p9v_g5oF9tSNcqmt5VC0qo-QgP76kcY-oTg2FssGWorMJuHsk2hVaKMlZB9OPvxY0DDEE_Rw4HndUeJZ4mgcBDNfGIatlCYTSkU">
         <span class="font-headline-lg text-headline-lg text-primary tracking-tight">ATT Group</span>
     </div>
     <nav class="flex flex-col gap-2 px-4">
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="dashboard">
+        <a class="{{ request()->routeIs('dashboard') ? 'bg-primary-container text-on-primary-container font-semibold scale-102' : 'text-on-surface-variant hover:text-primary hover:bg-primary/10' }} rounded-md px-6 py-3 flex items-center gap-4 transition-all" href="{{ route('dashboard') }}">
             <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
@@ -74,22 +85,32 @@
                 </a>
             </div>
         </div>
-        <div class="mt-auto pt-8">
-        <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="settings">
-            <span class="material-symbols-outlined" data-icon="settings">settings</span>
-            <span class="font-body-md text-body-md">Settings</span>
-        </a>
-    </div>
+        <div class="mt-auto pt-8 flex flex-col gap-1">
+            <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="settings">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="font-body-md text-body-md">Settings</span>
+            </a>
+            <a href="{{ route('candidate.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-on-surface-variant hover:text-error px-6 py-3 flex items-center gap-4 hover:bg-error-container/10 rounded-md transition-all">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="font-body-md text-body-md">Keluar</span>
+            </a>
+        </div>
     </nav>
-    <a href="#" class="group transition-all hover:bg-primary/10 mt-auto px-6 py-4 mx-2 rounded-md flex items-center gap-4 cursor-pointer">
-        <img alt="HR Manager Avatar" class="w-12 h-12 rounded-full object-cover ring-2 ring-transparent group-hover:ring-primary/30 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtrw3TdnlyRJ0xaTgf9Qw1SGrevR9PkjyzpDw6BuH5NxfOdfkT6lPMG5Z8xOH_8RLHJFv9tEKBsSXIeeVyxuitfL1L7pP-bQpRt_IyVOurQEltdXmaoJq1ps3SorLaFX4AiRc-flieEevRDiLn6l5yK6G5aaxxSJw1vkwdgc1FZ5q3NwiyqOE0AHkamVHUjgTHHV32NjWyuy8wi5pBoFcueKt72iB3QBolcesRDXwTX-WNpaQttAb7hdt5FIdWaupTU7_bJW1tb4_h">
+    <a href="{{ route('hr.profile') }}" class="group transition-all hover:bg-primary/10 mt-auto px-6 py-4 mx-2 rounded-md flex items-center gap-4 cursor-pointer">
+        <div class="w-12 h-12 rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-primary/30 transition-all bg-primary/10 flex items-center justify-center">
+            @if(auth()->check() && auth()->user()->profile_photo_path)
+                <img alt="{{ auth()->user()->name }}" class="w-full h-full object-cover" src="{{ Storage::url(auth()->user()->profile_photo_path) }}">
+            @else
+                <span class="material-symbols-outlined text-primary text-[24px]">person</span>
+            @endif
+        </div>
         <div>
-            <p class="font-title-md text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Admin Utama</p>
-            <p class="font-label-sm text-xs text-on-surface-variant uppercase tracking-widest">HR Manager</p>
+            <p class="font-title-md text-sm font-bold text-on-surface group-hover:text-primary transition-colors">{{ auth()->check() ? auth()->user()->name : 'Admin Utama' }}</p>
+            <p class="font-label-sm text-xs text-on-surface-variant uppercase tracking-widest">{{ auth()->check() ? (auth()->user()->job_title ?? 'HR Staff') : 'HR Manager' }}</p>
         </div>
     </a>
 </aside>
-    <main class="min-h-screen ml-72">
+    <main class="hidden lg:block min-h-screen ml-72">
     <!-- Header -->
     <header class="sticky top-4 z-50 flex justify-between items-center px-8 py-4 max-w-container-max-width mx-auto bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md rounded-md mt-4 w-[calc(100%-2rem)] shadow-[0_20px_40px_rgba(107,56,212,0.06)]">
         <div class="flex items-center gap-4">
@@ -98,7 +119,7 @@
         <div class="flex items-center gap-6">
             <div class="relative group">
                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search </span>
-                <input class="pl-12 pr-6 h-12 bg-surface-container-low border-none rounded-md w-64 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md" placeholder="Cari" type="text">
+                <input class="pl-12 pr-6 h-12 bg-surface-container-low border-none rounded-md w-64 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md" placeholder="Cari Fitur" type="text">
             </div>
             <button class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95"><span class="material-symbols-outlined">notifications</span></button>
         </div>
@@ -108,6 +129,63 @@
         {{ $slot }}
     </div>
 </main>
-    <!-- Bottom nav mobile -->
+
+    <!-- Hidden Logout Form -->
+    <form id="logout-form" action="{{ route('candidate.logout') }}" method="POST" class="hidden">
+        @csrf
+    </form>
+
+    <!-- Global Flash Message Toast -->
+    @if(session()->has('message') || session()->has('success') || session()->has('error'))
+    <div id="global-toast" class="fixed top-6 right-6 z-[9999] flex items-center w-full max-w-sm p-4 rounded-lg shadow-lg border transition-all duration-500 transform translate-y-0 opacity-100 {{ session()->has('error') ? 'bg-red-50 text-red-800 border-red-100 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' : 'bg-green-50 text-green-800 border-green-100 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' }}" role="alert">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg {{ session()->has('error') ? 'text-red-500 bg-red-100 dark:bg-red-800/40 dark:text-red-300' : 'text-green-500 bg-green-100 dark:bg-green-800/40 dark:text-green-300' }}">
+            <span class="material-symbols-outlined text-[20px]">{{ session()->has('error') ? 'warning' : 'check_circle' }}</span>
+        </div>
+        <div class="ms-3 text-sm font-semibold">{{ session('message') ?? session('success') ?? session('error') }}</div>
+        <button type="button" onclick="document.getElementById('global-toast').remove()" class="ms-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8 transition-colors {{ session()->has('error') ? 'text-red-500 hover:bg-red-200/50 dark:hover:bg-red-800/20' : 'text-green-500 hover:bg-green-200/50 dark:hover:bg-green-800/20' }}" aria-label="Close">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+    </div>
+    <script>
+        setTimeout(function() {
+            var toast = document.getElementById('global-toast');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-1rem)';
+                setTimeout(function() {
+                    toast.remove();
+                }, 500);
+            }
+        }, 5000);
+    </script>
+    @endif
+
+    <!-- Idle Timeout Script (30 Menit) -->
+    @auth
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let idleTimer;
+            const idleTimeout = 30 * 60 * 1000; // 30 menit
+
+            function resetTimer() {
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(logoutUser, idleTimeout);
+            }
+
+            function logoutUser() {
+                var form = document.getElementById('logout-form');
+                if (form) form.submit();
+            }
+
+            // Reset timer on activity
+            const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+            events.forEach(function (event) {
+                document.addEventListener(event, resetTimer, true);
+            });
+
+            resetTimer();
+        });
+    </script>
+    @endauth
 </body>
 </html>

@@ -52,6 +52,11 @@ class Candidate extends Model
         return $this->hasMany(CandidateMovement::class, 'candidate_id');
     }
 
+    public function movements(): HasMany
+    {
+        return $this->hasMany(CandidateMovement::class, 'candidate_id');
+    }
+
     public function interviewSchedules(): HasMany
     {
         return $this->hasMany(InterviewSchedule::class, 'candidate_id');

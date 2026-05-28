@@ -37,7 +37,19 @@
         </div>
     </div>
 
-    <!-- Blacklist List Table -->
+    <!-- Blacklist Table Container with Loading State -->
+    <div class="relative min-h-[300px]">
+        <!-- Loading overlay -->
+        <div wire:loading.delay.longer class="absolute inset-0 bg-white/50 dark:bg-surface/50 backdrop-blur-xs flex items-center justify-center z-50 rounded-lg">
+            <div class="flex items-center gap-3 px-5 py-3 bg-surface-container-lowest text-primary font-bold rounded-lg border border-surface-container-high shadow-lg">
+                <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span class="text-sm font-semibold">Memuat data...</span>
+            </div>
+        </div>
+
     <div class="bg-surface-container-lowest rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -101,6 +113,7 @@
                 {{ $blacklistList->links() }}
             </div>
         @endif
+    </div>
     </div>
 
     <!-- Add Blacklist Modal -->

@@ -31,10 +31,13 @@ Route::get('/careers', App\Livewire\Cw\PublicJobList::class)->name('careers');
 Route::get('/blacklist-info', fn() => view('blacklist-info'))->name('blacklist.info');
 
 // ---------------------------------------------------------------------------
-// Applicant Auth (Registrasi & Login)
+// Applicant & HR Auth (Registrasi & Login)
 // ---------------------------------------------------------------------------
 Route::get('/register', App\Livewire\Cw\RegisterApplicant::class)->name('candidate.register');
 Route::get('/login', App\Livewire\Cw\LoginApplicant::class)->name('candidate.login');
+Route::get('/hr/login', App\Livewire\Hr\LoginHr::class)->name('hr.login');
+Route::get('/hr/forgot-password', App\Livewire\Hr\ForgotPasswordHr::class)->name('hr.password.request');
+Route::get('/hr/reset-password/{token}', App\Livewire\Hr\ResetPasswordHr::class)->name('password.reset');
 Route::get('/login-redirect', fn() => redirect()->route('candidate.login'))->name('login');
 Route::post('/logout', function () { Auth::logout(); return redirect('/'); })->name('candidate.logout');
 
@@ -42,7 +45,11 @@ Route::post('/logout', function () { Auth::logout(); return redirect('/'); })->n
 // Candidate area (pelamar yang sudah login)
 // ---------------------------------------------------------------------------
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', App\Livewire\Cw\CandidateDashboard::class)->name('candidate.dashboard');
+    Route::get('/candidate/dashboard', App\Livewire\Cw\CandidateDashboard::class)->name('candidate.dashboard');
+    Route::get('/dashboard', App\Livewire\DashboardIndex::class)->name('dashboard');
+    Route::get('/profile', App\Livewire\Hr\ProfileHr::class)->name('hr.profile');
+    Route::get('/profile/edit', App\Livewire\Hr\EditProfileHr::class)->name('hr.profile.edit');
+    Route::get('/profile/change-password', App\Livewire\Hr\ChangePasswordHr::class)->name('hr.profile.password');
     Route::get('/jobs', App\Livewire\Cw\CandidateJobList::class)->name('candidate.jobs');
     Route::get('/jobs/{id}', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.jobs.show');
     Route::get('/jobs/{id}/apply', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.apply');
