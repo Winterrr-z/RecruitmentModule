@@ -86,13 +86,9 @@
             </div>
         </div>
         <div class="mt-auto pt-8 flex flex-col gap-1">
-            <a class="text-on-surface-variant hover:text-primary px-6 py-3 flex items-center gap-4 hover:bg-primary/10 rounded-md transition-all" href="settings">
+            <a class="{{ request()->routeIs('hr.settings') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-6 py-3 flex items-center gap-4 rounded-md transition-all" href="{{ route('hr.settings') }}">
                 <span class="material-symbols-outlined" data-icon="settings">settings</span>
                 <span class="font-body-md text-body-md">Settings</span>
-            </a>
-            <a href="{{ route('candidate.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-on-surface-variant hover:text-error px-6 py-3 flex items-center gap-4 hover:bg-error-container/10 rounded-md transition-all">
-                <span class="material-symbols-outlined">logout</span>
-                <span class="font-body-md text-body-md">Keluar</span>
             </a>
         </div>
     </nav>
@@ -118,7 +114,17 @@
         </div>
         <div class="flex items-center gap-6">
             <livewire:global-search />
-            <button class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95"><span class="material-symbols-outlined">notifications</span></button>
+            <a href="{{ route('hr.notifications') }}" class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95 relative">
+                <span class="material-symbols-outlined">notifications</span>
+                @php
+                    $unreadNotifications = Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count() : 0;
+                @endphp
+                @if($unreadNotifications > 0)
+                    <span class="absolute top-0 right-0 bg-error text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                        {{ $unreadNotifications > 9 ? '9+' : $unreadNotifications }}
+                    </span>
+                @endif
+            </a>
         </div>
     </header>
     <!-- Akhir Header -->
@@ -128,7 +134,7 @@
 </main>
 
     <!-- Hidden Logout Form -->
-    <form id="logout-form" action="{{ route('candidate.logout') }}" method="POST" class="hidden">
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
         @csrf
     </form>
 

@@ -3,9 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Candidate;
-use App\Models\Lowongan;
-use App\Models\Mpp;
 use Illuminate\Http\Request;
+use illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class OfferingResponse extends Component
@@ -26,7 +25,7 @@ class OfferingResponse extends Component
 
         // Check if token is expired
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
-            \DB::transaction(function () {
+            DB::transaction(function () {
                 $this->candidate->update([
                     'status' => 'Expired',
                     'offering_token' => null,
@@ -49,7 +48,7 @@ class OfferingResponse extends Component
 
         // Re-verify expiration before action
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
-            \DB::transaction(function () {
+            DB::transaction(function () {
                 $this->candidate->update([
                     'status' => 'Expired',
                     'offering_token' => null,
@@ -76,7 +75,7 @@ class OfferingResponse extends Component
         }
 
         if ($candidate->offering_token_expires_at && $candidate->offering_token_expires_at->isPast()) {
-            \DB::transaction(function () use ($candidate) {
+            DB::transaction(function () use ($candidate) {
                 $candidate->update([
                     'status' => 'Expired',
                     'offering_token' => null,
@@ -101,7 +100,7 @@ class OfferingResponse extends Component
      */
     protected function processCandidateResponse($candidate, $choice)
     {
-        \DB::transaction(function () use ($candidate, $choice) {
+        DB::transaction(function () use ($candidate, $choice) {
             if ($choice === 'terima') {
                 $candidate->status = 'Hired';
             } else {
@@ -151,6 +150,6 @@ class OfferingResponse extends Component
             $this->statusResponse = 'success_reject';
         }
 
-        return view('livewire.offering-response')->layout('layouts.guest');
+        return view('livewire.offering-response');
     }
 }

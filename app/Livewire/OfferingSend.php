@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Candidate;
-use App\Models\Lowongan;
 use App\Mail\OfferingLetterMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use illuminate\support\Facades\DB;
 use Livewire\Component;
+use livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class OfferingSend extends Component
 {
     public $candidateId;
@@ -79,7 +81,7 @@ class OfferingSend extends Component
         $token = hash_hmac('sha256', $this->candidate->id . now()->timestamp . Str::random(40), config('app.key'));
         $expiresAt = now()->addDays(3);
 
-        \DB::transaction(function () use ($token, $expiresAt) {
+        DB::transaction(function () use ($token, $expiresAt) {
             $this->candidate->update([
                 'status' => 'Offered',
                 'offering_token' => $token,
@@ -100,6 +102,6 @@ class OfferingSend extends Component
 
     public function render()
     {
-        return view('livewire.offering-send')->layout('layouts.app');
+        return view('livewire.offering-send');
     }
 }

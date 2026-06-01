@@ -3,8 +3,8 @@
 namespace App\Livewire\Mpp;
 
 use App\Models\Mpp;
-use App\Models\Lowongan;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class MppDetail
@@ -14,6 +14,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.app')]
 class MppDetail extends Component
 {
     /**
@@ -121,7 +122,6 @@ class MppDetail extends Component
     {
         $this->loadMpp();
 
-        return view('livewire.mpp.mpp-detail')
-            ->layout('layouts.app');
+        return view('livewire.mpp.mpp-detail');
     }
 }

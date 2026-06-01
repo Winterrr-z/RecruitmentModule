@@ -6,6 +6,7 @@ use App\Livewire\Mpp\MppIndex;
 use App\Livewire\Mpp\MppDetail;
 use App\Livewire\Rr\RRIndex;
 use App\Livewire\Rr\RRForm;
+use App\Livewire\Rr\RRDetail;
 use App\Livewire\Cw\CareerJobList;
 use App\Models\User;
 
@@ -39,7 +40,15 @@ Route::get('/hr/login', App\Livewire\Hr\LoginHr::class)->name('hr.login');
 Route::get('/hr/forgot-password', App\Livewire\Hr\ForgotPasswordHr::class)->name('hr.password.request');
 Route::get('/hr/reset-password/{token}', App\Livewire\Hr\ResetPasswordHr::class)->name('password.reset');
 Route::get('/login-redirect', fn() => redirect()->route('candidate.login'))->name('login');
-Route::post('/logout', function () { Auth::logout(); return redirect('/'); })->name('candidate.logout');
+Route::post('/logout', function () {
+    $role = Auth::user()?->role; // simpan role sebelum logout
+    Auth::logout();
+    
+    if ($role === 'hr') {
+        return redirect()->route('hr.login');
+    }
+    return redirect()->route('careers');
+})->name('logout');
 
 // ---------------------------------------------------------------------------
 // Candidate area (pelamar yang sudah login)
@@ -50,6 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', App\Livewire\Hr\ProfileHr::class)->name('hr.profile');
     Route::get('/profile/edit', App\Livewire\Hr\EditProfileHr::class)->name('hr.profile.edit');
     Route::get('/profile/change-password', App\Livewire\Hr\ChangePasswordHr::class)->name('hr.profile.password');
+    Route::get('/settings', App\Livewire\Hr\SettingsHr::class)->name('hr.settings');
+    Route::get('/notifications', App\Livewire\Hr\NotificationsHr::class)->name('hr.notifications');
     Route::get('/jobs', App\Livewire\Cw\CandidateJobList::class)->name('candidate.jobs');
     Route::get('/jobs/{id}', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.jobs.show');
     Route::get('/jobs/{id}/apply', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.apply');
@@ -87,7 +98,7 @@ if (app()->environment(['local', 'testing'])) {
             'role'  => 'hr',
         ]);
         Auth::login($user);
-        return redirect()->route('careers');
+        return redirect()->route('dashboard');
     })->name('dev.login');
 
     Route::get('/dev/login-applicant', function () {
@@ -107,8 +118,11 @@ if (app()->environment(['local', 'testing'])) {
 }
 
 // ---------------------------------------------------------------------------
-// Root — redirect ke halaman careers
+// Root — redirect ke dashboard untuk HR, careers untuk yang lain
 // ---------------------------------------------------------------------------
 Route::get('/', function () {
+    if (Auth::check() && Auth::user()->role === 'hr') {
+        return redirect()->route('dashboard');
+    }
     return redirect()->route('careers');
 });

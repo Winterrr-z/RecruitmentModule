@@ -3,20 +3,21 @@
 namespace App\Livewire\Mpp;
 
 use App\Models\Mpp;
-use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Layout;
+
 
 /**
  * Class MppIndex
- * 
+ *
  * Komponen Livewire untuk menampilkan daftar Manpower Planning (MPP).
  * Menangani fungsi CRUD termasuk pembuatan, pengeditan (melalui modal),
  * penghapusan, dan pemformatan data seperti gaji dan kalkulasi target waktu.
  *
  * @package App\Livewire
  */
+#[Layout('layouts.app')]
 class MppIndex extends Component
 {
     use WithPagination;
@@ -116,7 +117,6 @@ class MppIndex extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        return view('livewire.mpp.index', compact('departments', 'mpps'))
-            ->layout('layouts.app');
+        return view('livewire.mpp.index', compact('departments', 'mpps'));
     }
 }

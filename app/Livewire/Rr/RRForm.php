@@ -4,8 +4,8 @@ namespace App\Livewire\Rr;
 
 use App\Models\Mpp;
 use App\Models\RecruitmentRequest;
-use Carbon\Carbon;
 use Livewire\Component;
+use livewire\Attributes\Layout;
 
 /**
  * Class RRForm
@@ -15,6 +15,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.app')]
 class RRForm extends Component
 {
     /**
@@ -316,6 +317,6 @@ class RRForm extends Component
 
         return view('livewire.rr.rr-form', [
             'mppsDropdown' => $mppsDropdown
-        ])->layout('layouts.app');
+        ]);
     }
 }

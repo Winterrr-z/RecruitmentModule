@@ -5,7 +5,9 @@ namespace App\Livewire\Ats;
 use App\Models\Stage;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class AtsStageConfig extends Component
 {
     // List of stages
@@ -309,6 +311,6 @@ class AtsStageConfig extends Component
         $finalUrutan = Stage::where('id', 2)->value('urutan') ?? 2;
         return view('livewire.ats.stage-config', [
             'finalUrutan' => $finalUrutan,
-        ])->layout('layouts.app');
+        ]);
     }
 }

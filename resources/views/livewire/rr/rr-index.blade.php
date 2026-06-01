@@ -77,9 +77,9 @@
         <div class="flex flex-col items-center justify-center p-12 text-center bg-surface-container-lowest rounded-md border border-dashed border-outline-variant/50 shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.04)]">
             <span class="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4">description</span>
             <h3 class="text-title-md font-title-md text-on-surface mb-2">Belum Ada Recruitment Request</h3>
-            <p class="text-label-sm font-label-sm text-on-surface-variant max-w-md mb-6">
+            {{-- <p class="text-label-sm font-label-sm text-on-surface-variant max-w-md mb-6">
                 Tidak ada data lowongan pekerjaan yang ditemukan dengan kriteria saat ini.
-            </p>
+            </p> --}}
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,7 +87,7 @@
                 @php
                     $isCompleted = in_array(strtolower($rr->status), ['completed/closed', 'completed', 'closed']);
                 @endphp
-                <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex flex-col justify-between text-on-surface
+                <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex-col justify-between text-on-surface
                     {{ $isCompleted 
                         ? 'bg-surface-container-low border-surface-container/60 opacity-70 grayscale shadow-none' 
                         : 'bg-surface-container-lowest border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.04)] hover:shadow-[0px_35px_60px_-15px_rgba(107,56,212,0.08)] hover:-translate-y-1' }}">

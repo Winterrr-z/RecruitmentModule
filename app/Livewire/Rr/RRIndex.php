@@ -6,6 +6,7 @@ use App\Models\RecruitmentRequest;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Layout;
 
 /**
  * Class RRIndex
@@ -15,6 +16,7 @@ use Livewire\Attributes\Url;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.app')]
 class RRIndex extends Component
 {
     use WithPagination;
@@ -157,7 +159,7 @@ class RRIndex extends Component
         ];
 
         // Query RR
-        $query = RecruitmentRequest::with('lowongan')->withCount('candidates');
+        $query = RecruitmentRequest::with('lowongan', 'mpp')->withCount('candidates');
 
         if ($this->status !== '') {
             if ($this->status === 'Completed/Closed') {
@@ -181,6 +183,6 @@ class RRIndex extends Component
         return view('livewire.rr.rr-index', [
             'rrs' => $rrs,
             'stats' => $stats
-        ])->layout('layouts.app');
+        ]);
     }
 }
