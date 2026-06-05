@@ -28,6 +28,9 @@ class MppIndex extends Component
     /** @var string Departemen terpilih untuk filter. */
     public $selectedDepartment = '';
 
+    public $status = '';
+    public $sortBy = 'newest';
+
     /**
      * Reset pagination page when search keyword is updated.
      */
@@ -55,8 +58,8 @@ class MppIndex extends Component
     {
         $mpp = Mpp::findOrFail($id);
         $status = $mpp->getComputedStatus();
-        if ($status === 'Closed' || $status === 'Filled') {
-            session()->flash('error', 'Tidak dapat menghapus MPP plan yang sudah closed atau filled.');
+        if ($status === 'Closed' || $status === 'Completed') {
+            session()->flash('error', 'Tidak dapat menghapus MPP plan yang sudah closed atau completed.');
             return;
         }
         
@@ -74,6 +77,8 @@ class MppIndex extends Component
     {
         $this->search = '';
         $this->selectedDepartment = '';
+        $this->status = '';
+        $this->sortBy = 'newest';
     }
 
     /**
@@ -113,9 +118,23 @@ class MppIndex extends Component
             $query->where('departemen', $this->selectedDepartment);
         }
 
-        $mpps = $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= jumlah_kebutuhan THEN 1 ELSE 0 END ASC")
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+        if (!empty($this->status)) {
+            if ($this->status === 'completed') {
+                $query->havingRaw('hired_count >= jumlah_kebutuhan');
+            } else {
+                $query->where('status', $this->status);
+            }
+        }
+
+        $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= jumlah_kebutuhan THEN 1 ELSE 0 END ASC");
+
+        if ($this->sortBy === 'oldest') {
+            $query->orderBy('created_at', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $mpps = $query->paginate(12);
 
         return view('livewire.mpp.index', compact('departments', 'mpps'));
     }

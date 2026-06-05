@@ -15,6 +15,7 @@ class AtsCandidateDetail extends Component
     public $schedules = [];
     public $scorecards = [];
     public $totalWeightedScore = 0;
+    public $notes = [];
 
     public function mount($candidateId)
     {
@@ -25,7 +26,24 @@ class AtsCandidateDetail extends Component
             ->orderBy('moved_at', 'desc')
             ->get();
         
+        foreach ($this->movements as $movement) {
+            $this->notes[$movement->id] = $movement->interviewer_notes;
+        }
+        
         $this->loadStageRequirements();
+    }
+
+    public function saveNote($movementId)
+    {
+        $movement = \App\Models\CandidateMovement::findOrFail($movementId);
+        $movement->update(['interviewer_notes' => $this->notes[$movementId] ?? null]);
+        session()->flash('message', 'Catatan berhasil disimpan.');
+        
+        // Refresh movements
+        $this->movements = $this->candidate->candidateMovements()
+            ->with('fromStage', 'toStage')
+            ->orderBy('moved_at', 'desc')
+            ->get();
     }
 
     public function loadStageRequirements()

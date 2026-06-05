@@ -12,7 +12,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('careers') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span class="material-symbols-outlined">home</span>
                     <span>Kembali ke Portal Karir</span>
                 </a>
@@ -32,7 +32,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('careers') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span class="material-symbols-outlined">home</span>
                     <span>Kembali ke Portal Karir</span>
                 </a>
@@ -52,7 +52,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('careers') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span>Kembali ke Portal Karir</span>
                 </a>
             </div>
@@ -71,7 +71,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('careers') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span>Kembali ke Portal Karir</span>
                 </a>
             </div>
@@ -119,7 +119,7 @@
                 <p>Yth. <strong>{{ $candidate->nama }}</strong>,</p>
                 <p>Kami menyampaikan apresiasi setinggi-tingginya atas partisipasi Anda dalam rangkaian proses seleksi di perusahaan kami. Kami sangat terkesan dengan kapabilitas dan potensi kontribusi yang dapat Anda berikan.</p>
                 <p>Melalui surat ini, kami secara resmi menawarkan Anda untuk bergabung bersama tim kami pada posisi jabatan di atas. Kami meyakini bahwa bakat Anda akan sangat mendukung visi perkembangan perusahaan.</p>
-                <p>Dengan mengeklik tombol <strong>Terima Tawaran</strong> di bawah ini, Anda menyatakan kesediaan untuk melanjutkan ke tahap administrasi penerimaan karyawan baru. Jika Anda memilih <strong>Tolak Tawaran</strong>, status lamaran Anda akan dialihkan ke bank talenta kami.</p>
+                <p>Dengan mengeklik tombol <strong>Terima Tawaran</strong> di bawah ini, Anda menyatakan kesediaan untuk melanjutkan ke tahap administrasi penerimaan karyawan baru. Jika Anda memilih <strong>Tolak Tawaran</strong>, anda menyatakan menolak menjadi karyawan baru kami.</p>
                 <p>Salam hangat,</p>
                 <p><strong>Team HR Recruitment</strong></p>
             </div>

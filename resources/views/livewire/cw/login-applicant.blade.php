@@ -7,10 +7,10 @@
             {{-- Header --}}
             <div class="text-center mb-6">
                 <a href="{{ route('careers') }}" class="inline-flex items-center justify-center mb-3 hover:opacity-80 transition-opacity">
-                    <img src="https://lh3.googleusercontent.com/aida/ADBb0ugrpLiJy26Io_mLDAQUQEnf730xr_rABFyyY9ICKsaSPA5_GH1W8-QK1fD0RYxjtYsrzgxiLqamtB5Cf7PHSU2VVk-26EclV5EbaORiivGaTvJaDE89sPUodINDL5bX3qnXtwACKPwFJXWkJbiN7pI5K01QjstbO5c1JVQz0Jm3F0f4WyfPpHri7TSjpW7g0ybWdcDeq5FdFZNOE0vVonSrcR27cT44HXIFCkDQuHadqH2jtq-eCa8vl_BA" alt="Human First Logo" class="h-12 w-auto">
+                    <img src="{{ asset(config('company.logo')) }}" alt="{{ config('company.name') }} Logo" class="h-12 w-auto">
                 </a>
                 <h1 class="font-headline-lg text-[24px] text-on-surface font-bold leading-tight">
-                    Login to Human First
+                    Login to {{ config('company.name') }}
                 </h1>
                 <p class="font-body-md text-sm text-on-surface-variant mt-0.5">
                     Silakan masuk untuk melanjutkan lamaran Anda.

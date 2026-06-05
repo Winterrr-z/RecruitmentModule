@@ -9,6 +9,27 @@
         </p>
     </div>
 
+    {{-- ===== KANDIDAT HIRED BANNER ===== --}}
+    @if($hiredApplications->isNotEmpty())
+        <div class="mb-12 bg-gradient-to-r from-primary via-primary/90 to-primary-container p-8 rounded-2xl shadow-xl border border-primary/20 relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg shrink-0">
+                    <span class="material-symbols-outlined text-[40px] text-primary">celebration</span>
+                </div>
+                <div class="text-white flex-1 text-center md:text-left">
+                    <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Selamat! Anda Diterima 🎉</h2>
+                    <p class="text-white/80 font-medium">
+                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->lowongan?->jabatan ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- ===== LAMARAN AKTIF ===== --}}
     <section class="mb-12">
         <div class="flex items-center gap-3 mb-6">
@@ -88,6 +109,30 @@
                                 @endif
                             </div>
                         </div>
+
+                        {{-- Offering Actions --}}
+                        @if($candidate->offering_token && (!$candidate->offering_token_expires_at || !$candidate->offering_token_expires_at->isPast()))
+                            <div class="w-full mt-4 bg-green-50 border border-green-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+                                <p class="text-sm font-extrabold text-green-700 text-center flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[20px]">stars</span>
+                                    Selamat! Ada Penawaran Baru
+                                </p>
+                                <a href="{{ route('offering.response', ['token' => $candidate->offering_token]) }}" target="_blank" class="w-full py-3 bg-white text-primary font-bold text-sm rounded-lg border border-primary/20 hover:bg-primary/5 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                    Lihat Surat Penawaran
+                                </a>
+                                <div class="grid grid-cols-2 gap-3 mt-1">
+                                    <button wire:click="respondOffering({{ $candidate->id }}, 'terima')" wire:confirm="Apakah Anda yakin ingin MENERIMA tawaran ini?" class="py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-lg shadow-md transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'terima')">Terima Tawaran</span>
+                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'terima')" class="flex items-center gap-1"><span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span> Memproses...</span>
+                                    </button>
+                                    <button wire:click="respondOffering({{ $candidate->id }}, 'tolak')" wire:confirm="Apakah Anda yakin ingin MENOLAK tawaran ini? Keputusan tidak dapat diubah." class="py-3 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'tolak')">Tolak Tawaran</span>
+                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'tolak')" class="flex items-center gap-1"><span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span> Memproses...</span>
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>

@@ -1,16 +1,6 @@
 <div>
-    <!-- Flash Message Notification -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'Manpower Planning', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -25,27 +15,38 @@
     </div>
 
     <!-- Search & Filter Controls -->
-    <div class="mb-4 p-6 bg-surface-container-lowest rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 flex flex-col sm:flex-row gap-4">
-        <!-- Search Input -->
-        <div class="relative flex-1">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-            <input wire:model.live.debounce.300ms="search" 
-                   type="text" 
-                   placeholder="Cari berdasarkan nama plan, jabatan, atau departemen..." 
-                   class="w-full pl-12 pr-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface">
-        </div>
-        
-        <!-- Department Filter -->
-        <div class="w-full sm:w-64">
-            <select wire:model.live="selectedDepartment" 
-                    class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface cursor-pointer">
-                <option value="">Semua Departemen</option>
-                @foreach($departments as $dept)
-                    <option value="{{ $dept }}">{{ $dept }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
+    <x-advanced-filter searchPlaceholder="Cari berdasarkan nama plan, jabatan, atau departemen..." searchModel="search">
+        <x-slot:filters>
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Departemen</label>
+                <select wire:model.live="selectedDepartment" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="">Semua Departemen</option>
+                    @foreach($departments as $dept)
+                        <option value="{{ $dept }}">{{ $dept }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Status</label>
+                <select wire:model.live="status" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Closed">Closed</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Urutkan</label>
+                <select wire:model.live="sortBy" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="newest">Terbaru (Latest)</option>
+                    <option value="oldest">Terlama (Oldest)</option>
+                </select>
+            </div>
+        </x-slot:filters>
+    </x-advanced-filter>
 
     <!-- Cards Grid Container with Loading State -->
     <div class="relative min-h-[300px]">
@@ -140,14 +141,11 @@
                     </div>
                     <!-- Action Menu -->
                     @php $computedStatus = $mpp->getComputedStatus(); @endphp
-                    @if($computedStatus !== 'Closed' && $computedStatus !== 'Filled')
+                    @if($computedStatus !== 'Closed' && $computedStatus !== 'Completed')
                         <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
                             <a href="{{ route('mpp.edit', $mpp->id) }}" class="p-2 hover:bg-surface-container-low rounded-md transition-colors text-on-surface-variant block">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </a>
-                            <button wire:click="delete({{ $mpp->id }})" wire:confirm="Apakah Anda yakin ingin menghapus manpower plan ini?" class="p-2 hover:bg-error/10 rounded-md transition-colors text-error">
-                                <span class="material-symbols-outlined text-[20px]">delete</span>
-                            </button>
                         </div>
                     @endif
                 </div>

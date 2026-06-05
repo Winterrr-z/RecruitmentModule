@@ -1,27 +1,16 @@
 <div>
+    <x-breadcrumb :items="[
+        ['label' => 'Recruitment Request', 'url' => route('rr.index')],
+        ['label' => $rr->jabatan ?? 'Detail RR', 'url' => null]
+    ]" />
+    
     <!-- Main Detail Content -->
     <div class="px-gutter py-8 max-w-screen-xl mx-auto space-y-8">
         
-        <!-- Flash Message Notification -->
-        @if (session()->has('message'))
-            <div class="p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-green-600">check_circle</span>
-                    <span class="font-body-md">{{ session('message') }}</span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-        @endif
+        <x-toast-alert />
 
         <!-- Hero Title Section -->
         <section class="space-y-4">
-            <nav class="flex items-center gap-2 mb-2" aria-label="Breadcrumb">
-                <a href="{{ route('rr.index') }}" class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors">Recruitment Request</a>
-                <span class="material-symbols-outlined text-[16px] text-on-surface-variant/50">chevron_right</span>
-                <span class="text-label-sm font-label-sm text-primary font-bold uppercase tracking-wider">RR Detail</span>
-            </nav>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->jabatan }}</h1>

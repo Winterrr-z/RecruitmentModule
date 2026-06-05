@@ -103,20 +103,31 @@ class DatabaseSeeder extends Seeder
         // 3. Seed MPPs, RRs, Lowongans, and Candidates
         Mpp::factory()->count(15)->create()->each(function ($mpp) use ($applicants, $stagesArray) {
             
-            // Buat 1 atau 2 Recruitment Request untuk setiap MPP
-            $rrs = RecruitmentRequest::factory()->count(rand(1, 2))->create([
-                'mpp_id' => $mpp->id,
-            ]);
+            // Buat 1 atau 2 Recruitment Request untuk setiap MPP, dengan membagi kuota
+            $rrsCount = rand(1, 2);
+            $sisaKuota = $mpp->jumlah_kebutuhan;
 
-            foreach ($rrs as $rr) {
-                // Jika RR dipublikasi, otomatis buat Lowongan
-                if ($rr->status === 'Published' || $rr->status === 'Completed/Closed') {
+            for ($i = 0; $i < $rrsCount; $i++) {
+                if ($sisaKuota <= 0) break;
+
+                $kuotaRR = rand(1, min(5, $sisaKuota));
+                $sisaKuota -= $kuotaRR;
+
+                $rr = RecruitmentRequest::factory()->create([
+                    'mpp_id' => $mpp->id,
+                    'kuota' => $kuotaRR,
+                ]);
+
+                // Jika RR dipublikasi atau closed, otomatis buat Lowongan
+                if (in_array($rr->status, ['Published', 'Completed', 'Closed'])) {
+                    $lowonganStatus = $rr->status === 'Published' ? 'Published' : $rr->status;
+
                     $lowongan = Lowongan::factory()->create([
                         'recruitment_request_id' => $rr->id,
                         'jabatan' => $mpp->jabatan,
                         'departemen' => $mpp->departemen,
                         'kuota' => $rr->kuota,
-                        'status' => $rr->status === 'Published' ? 'Published' : 'Completed/Closed',
+                        'status' => $lowonganStatus,
                     ]);
 
                     // Generate candidates for this lowongan
@@ -138,13 +149,34 @@ class DatabaseSeeder extends Seeder
 
                         if ($maxStageIndex > 0) {
                             for ($i = 1; $i <= $maxStageIndex; $i++) {
+                                $currentLoopStage = $stagesArray[$i];
+                                
                                 CandidateMovement::create([
                                     'candidate_id' => $candidate->id,
                                     'from_stage_id' => $stagesArray[$i - 1]->id,
-                                    'to_stage_id' => $stagesArray[$i]->id,
+                                    'to_stage_id' => $currentLoopStage->id,
                                     'moved_at' => now()->subDays(rand(1, 5) * (count($stagesArray) - $i)),
                                     'interviewer_notes' => rand(0, 1) ? 'Catatan hasil tahapan yang baik' : null,
                                 ]);
+
+                                // Jika stage ini butuh scorecard, buatkan draf / hasil penilaiannya
+                                if ($currentLoopStage->butuh_scorecard) {
+                                    $kriteriaList = [
+                                        ['nama' => 'Problem Solving & Logic', 'bobot' => 40],
+                                        ['nama' => 'Technical Knowledge', 'bobot' => 40],
+                                        ['nama' => 'Communication Skill', 'bobot' => 20],
+                                    ];
+
+                                    foreach ($kriteriaList as $k) {
+                                        Scorecard::create([
+                                            'candidate_id' => $candidate->id,
+                                            'stage_id' => $currentLoopStage->id,
+                                            'kriteria' => $k['nama'],
+                                            'bobot' => $k['bobot'],
+                                            'nilai' => rand(65, 95), // Nilai acak antara 65 - 95
+                                        ]);
+                                    }
+                                }
                             }
                         }
                     });

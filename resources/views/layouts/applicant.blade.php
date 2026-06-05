@@ -13,7 +13,7 @@
         <!-- Logo and Branding -->
         <div class="p-gutter mb-8">
             <a class="flex items-center gap-3 active:scale-95 transition-transform group no-underline" href="/">
-                <img alt="{{ config('company.name') }} Logo" class="h-8 w-auto" src="{{ config('company.logo') }}"/>
+                <img alt="{{ config('company.name') }} Logo" class="h-8 w-auto" src="{{ asset(config('company.logo')) }}"/>
                 <span class="font-display text-lg font-bold text-primary tracking-tight">{{ config('company.name') }}</span>
             </a>
         </div>
@@ -30,13 +30,13 @@
             </a>
 
             <!-- Logout Link -->
-            <a href="{{ route('candidate.logout') }}" 
+            <a href="{{ route('logout') }}" 
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
                class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-error-container/10 hover:text-error transition-colors rounded-lg font-medium no-underline">
                 <span class="material-symbols-outlined text-error">logout</span>
                 <span>Keluar</span>
             </a>
-            <form id="logout-form" action="{{ route('candidate.logout') }}" method="POST" class="hidden">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                 @csrf
             </form>
         </nav>
@@ -95,30 +95,7 @@
         </footer>
     </main>
 
-    <!-- Global Flash Message Toast -->
-    @if(session()->has('message') || session()->has('success') || session()->has('error'))
-    <div id="global-toast" class="fixed top-6 right-6 z-[9999] flex items-center w-full max-w-sm p-4 rounded-lg shadow-lg border transition-all duration-500 transform translate-y-0 opacity-100 {{ session()->has('error') ? 'bg-red-50 text-red-800 border-red-100 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' : 'bg-green-50 text-green-800 border-green-100 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' }}" role="alert">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg {{ session()->has('error') ? 'text-red-500 bg-red-100 dark:bg-red-800/40 dark:text-red-300' : 'text-green-500 bg-green-100 dark:bg-green-800/40 dark:text-green-300' }}">
-            <span class="material-symbols-outlined text-[20px]">{{ session()->has('error') ? 'warning' : 'check_circle' }}</span>
-        </div>
-        <div class="ms-3 text-sm font-semibold">{{ session('message') ?? session('success') ?? session('error') }}</div>
-        <button type="button" onclick="document.getElementById('global-toast').remove()" class="ms-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8 transition-colors {{ session()->has('error') ? 'text-red-500 hover:bg-red-200/50 dark:hover:bg-red-800/20' : 'text-green-500 hover:bg-green-200/50 dark:hover:bg-green-800/20' }}" aria-label="Close">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-        </button>
-    </div>
-    <script>
-        setTimeout(function() {
-            var toast = document.getElementById('global-toast');
-            if (toast) {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-1rem)';
-                setTimeout(function() {
-                    toast.remove();
-                }, 500);
-            }
-        }, 5000);
-    </script>
-    @endif
+    <x-toast-alert />
 
     <!-- Idle Timeout Script (30 Menit) -->
     @auth

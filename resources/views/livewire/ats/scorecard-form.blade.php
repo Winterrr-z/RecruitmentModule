@@ -1,5 +1,8 @@
-<div class="max-w-3xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
-    <!-- Header -->
+<div>
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->nama ?? 'Detail Kandidat', 'url' => route('ats.candidate.detail', ['candidateId' => $candidate->id])], ['label' => 'Scorecard', 'url' => null]]" />
+    
+    <div class="max-w-3xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
+        <!-- Header -->
     <div class="mb-6 pb-4 border-b border-surface-container-high/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h3 class="text-headline-lg text-on-surface mb-1">Isi Scorecard Evaluasi</h3>
@@ -37,11 +40,11 @@
                         <span class="text-sm font-bold text-primary block">{{ $item['bobot'] }}%</span>
                     </div>
 
-                    <!-- Score 1-10 (Editable) -->
+                    <!-- Score 1-100 (Editable) -->
                     <div class="w-full sm:w-32">
-                        <label class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Nilai (1-10) <span class="text-error">*</span></label>
-                        <input type="number" min="1" max="10" wire:model.blur="kriteriaList.{{ $index }}.nilai" 
-                               placeholder="1 - 10"
+                        <label class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Nilai (1-100) <span class="text-error">*</span></label>
+                        <input type="number" min="1" max="100" wire:model.blur="kriteriaList.{{ $index }}.nilai" 
+                               placeholder="1 - 100"
                                class="w-full px-3 h-10 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-xs font-semibold text-on-surface @error('kriteriaList.'.$index.'.nilai') border-error @enderror">
                         @error('kriteriaList.'.$index.'.nilai')
                             <p class="mt-1 text-[10px] text-error font-semibold flex items-center gap-0.5">
@@ -110,4 +113,5 @@
             </button>
         </div>
     </form>
+    </div>
 </div>

@@ -40,7 +40,7 @@ Route::get('/hr/login', App\Livewire\Hr\LoginHr::class)->name('hr.login');
 Route::get('/hr/forgot-password', App\Livewire\Hr\ForgotPasswordHr::class)->name('hr.password.request');
 Route::get('/hr/reset-password/{token}', App\Livewire\Hr\ResetPasswordHr::class)->name('password.reset');
 Route::get('/login-redirect', fn() => redirect()->route('candidate.login'))->name('login');
-Route::post('/logout', function () {
+Route::match(['get', 'post'], '/logout', function () {
     $role = Auth::user()?->role; // simpan role sebelum logout
     Auth::logout();
     
@@ -70,7 +70,8 @@ Route::middleware(['auth'])->group(function () {
 // ATS area (Applicant Tracking System)
 // ---------------------------------------------------------------------------
 Route::middleware(['auth'])->prefix('ats')->group(function () {
-    Route::get('/', App\Livewire\Ats\AtsDashboard::class)->name('ats.dashboard');
+    Route::get('/', App\Livewire\Ats\AtsPipeline::class)->name('ats.dashboard');
+    Route::get('/candidates', App\Livewire\Ats\AtsAllCandidates::class)->name('ats.candidates');
     Route::get('/stages', App\Livewire\Ats\AtsStageConfig::class)->name('ats.stages');
     Route::get('/blacklist', App\Livewire\Ats\AtsBlacklist::class)->name('ats.blacklist');
     Route::get('/manual/{lowonganId?}', App\Livewire\Ats\AtsManualCandidate::class)->name('ats.candidate.manual');
@@ -94,7 +95,9 @@ if (app()->environment(['local', 'testing'])) {
     Route::get('/dev/login', function () {
         $user = User::first() ?? User::factory()->create([
             'name'  => 'Admin Utama',
-            'email' => 'admin@humanfirst.com',
+            'email' => 'raja.wijayaaa@gmail.com',
+            'job_title' => 'HR Manager',
+            'departemen' => 'Human Capital and General Affairs',
             'role'  => 'hr',
         ]);
         Auth::login($user);
@@ -104,17 +107,45 @@ if (app()->environment(['local', 'testing'])) {
     Route::get('/dev/login-applicant', function () {
         $user = User::where('role', 'applicant')->first() ?? User::factory()->create([
             'name'  => 'Pelamar Demo',
-            'email' => 'pelamar@humanfirst.com',
+            'email' => 'pelamar@email.com',
             'role'  => 'applicant',
         ]);
         Auth::login($user);
         return redirect()->route('candidate.dashboard');
     })->name('dev.login.applicant');
 
+
     Route::get('/dev/logout', function () {
         Auth::logout();
         return redirect()->route('careers');
     })->name('dev.logout');
+
+    Route::get('/dev/simulate/hired', function () {
+        if (!Auth::check() || Auth::user()->role !== 'applicant') return "Login sebagai pelamar dulu!";
+        $candidate = \App\Models\Candidate::where('user_id', Auth::id())->first();
+        if (!$candidate) return "Pelamar ini belum melamar lowongan apa pun.";
+        
+        $candidate->update([
+            'status' => 'Hired',
+            'offering_token' => null,
+            'offering_token_expires_at' => null,
+        ]);
+        return redirect()->route('candidate.dashboard')->with('success', 'Simulasi: Status diubah menjadi Hired.');
+    });
+    Route::get('/dev/simulate/offering', function () {
+        if (!Auth::check() || Auth::user()->role !== 'applicant') return "Login sebagai pelamar dulu!";
+        $candidate = \App\Models\Candidate::where('user_id', Auth::id())->where('status', '!=', 'Hired')->first();
+        if (!$candidate) return "Pelamar tidak memiliki lamaran aktif.";
+        
+        $finalStage = \App\Models\Stage::where('nama', 'Final')->first();
+        $candidate->update([
+            'status' => 'In Progress',
+            'current_stage_id' => $finalStage ? $finalStage->id : $candidate->current_stage_id,
+            'offering_token' => \Illuminate\Support\Str::random(40),
+            'offering_token_expires_at' => now()->addDays(3),
+        ]);
+        return redirect()->route('candidate.dashboard')->with('success', 'Simulasi: Penawaran (Offering) telah diberikan.');
+    });
 }
 
 // ---------------------------------------------------------------------------

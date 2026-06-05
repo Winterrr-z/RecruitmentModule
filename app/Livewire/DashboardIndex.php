@@ -77,7 +77,7 @@ class DashboardIndex extends Component
     {
         if ($this->activeLowongans->isNotEmpty()) {
             $this->currentLowonganIndex = ($this->currentLowonganIndex + 1) % $this->activeLowongans->count();
-            $this->dispatch('refreshDonutChart', data: $this->getCurrentLowonganChartData());
+            $this->dispatch('refresh-donut-chart', data: $this->getCurrentLowonganChartData());
         }
     }
 
@@ -85,7 +85,7 @@ class DashboardIndex extends Component
     {
         if ($this->activeLowongans->isNotEmpty()) {
             $this->currentLowonganIndex = ($this->currentLowonganIndex - 1 + $this->activeLowongans->count()) % $this->activeLowongans->count();
-            $this->dispatch('refreshDonutChart', data: $this->getCurrentLowonganChartData());
+            $this->dispatch('refresh-donut-chart', data: $this->getCurrentLowonganChartData());
         }
     }
 

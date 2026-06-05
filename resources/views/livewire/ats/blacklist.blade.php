@@ -1,16 +1,6 @@
 <div>
-    <!-- Flash Notifications -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => 'Blacklist', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header & Top Controls -->
     <div class="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-6">
@@ -18,24 +8,13 @@
             <h2 class="font-headline-lg text-headline-lg text-on-surface">Blacklist Pelamar</h2>
             <p class="font-body-md text-body-md text-on-surface-variant/70">Daftar pelamar yang ditangguhkan dan diblokir dari lowongan pekerjaan</p>
         </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-            <!-- Search Input -->
-            <div class="relative w-full sm:w-64">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-                <input wire:model.live.debounce.300ms="search" 
-                       type="text" 
-                       placeholder="Cari nama, email, atau telepon..." 
-                       class="w-full pl-12 pr-6 h-12 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface">
-            </div>
-
-            <!-- Add Blacklist Button -->
-            <button wire:click="openAddModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-error text-white font-bold rounded-md hover:bg-red-700 transition-all active:scale-95 shadow-[0_4px_12px_rgba(218,26,26,0.18)]">
-                <span class="material-symbols-outlined text-[20px]">block</span>
-                <span>Tambah Blacklist</span>
-            </button>
-        </div>
+        <button wire:click="openAddModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-error text-white font-bold rounded-md hover:bg-red-700 transition-all active:scale-95 shadow-[0_4px_12px_rgba(218,26,26,0.18)]">
+            <span class="material-symbols-outlined text-[20px]">block</span>
+            <span>Tambah Blacklist</span>
+        </button>
     </div>
+
+    <x-advanced-filter searchPlaceholder="Cari nama, email, atau telepon..." searchModel="search" />
 
     <!-- Blacklist Table Container with Loading State -->
     <div class="relative min-h-[300px]">
@@ -241,7 +220,7 @@
                 <!-- Alasan -->
                 <div>
                     <label for="alasan" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Blacklist <span class="text-error">*</span></label>
-                    <textarea id="alasan" wire:model="alasan" rows="4"
+                    <textarea id="alasan" wire:model="alasan" rows="2"
                               placeholder="Tuliskan alasan pemblokiran secara detail..."
                               class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('alasan') border-error @enderror"></textarea>
                     @error('alasan')

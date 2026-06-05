@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class AtsDashboardTest extends TestCase
+class AtsPipelineTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -63,7 +63,9 @@ class AtsDashboardTest extends TestCase
             'jabatan' => 'Software Engineer',
             'departemen' => 'IT',
             'status' => 'Published',
+            'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
             'deskripsi_pekerjaan' => 'Job description',
+            'spesifikasi_kebutuhan' => 'Job requirements',
             'tipe_kerja' => 'full-time',
             'lokasi' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
@@ -72,6 +74,7 @@ class AtsDashboardTest extends TestCase
 
         $this->job1 = Lowongan::create([
             'recruitment_request_id' => $rr1->id,
+            'mpp_id' => $mpp1->id,
             'jabatan' => 'Software Engineer',
             'departemen' => 'IT',
             'status' => 'Published',
@@ -89,7 +92,9 @@ class AtsDashboardTest extends TestCase
             'jabatan' => 'HR Manager',
             'departemen' => 'HR',
             'status' => 'Published',
+            'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
             'deskripsi_pekerjaan' => 'Job description',
+            'spesifikasi_kebutuhan' => 'Job requirements',
             'tipe_kerja' => 'full-time',
             'lokasi' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
@@ -98,6 +103,7 @@ class AtsDashboardTest extends TestCase
 
         $this->job2 = Lowongan::create([
             'recruitment_request_id' => $rr2->id,
+            'mpp_id' => $mpp2->id,
             'jabatan' => 'HR Manager',
             'departemen' => 'HR',
             'status' => 'Published',
@@ -131,7 +137,7 @@ class AtsDashboardTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('ats.dashboard'))
             ->assertSuccessful()
-            ->assertSeeLivewire(\App\Livewire\Ats\AtsDashboard::class);
+            ->assertSeeLivewire(\App\Livewire\Ats\AtsPipeline::class);
     }
 
     public function test_can_filter_by_stage_and_job()
@@ -147,7 +153,7 @@ class AtsDashboardTest extends TestCase
         ]);
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             // By default selected stage is 1 (Applied)
             ->assertSee('John Doe')
             ->assertDontSee('Jane Smith')
@@ -166,7 +172,7 @@ class AtsDashboardTest extends TestCase
     public function test_can_reject_candidate()
     {
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('reject', $this->candidate->id)
             ->assertSee("Kandidat 'John Doe' berhasil ditolak.");
 
@@ -176,7 +182,7 @@ class AtsDashboardTest extends TestCase
     public function test_can_blacklist_candidate()
     {
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('confirmBlacklist', $this->candidate->id)
             ->assertSet('showBlacklistModal', true)
             ->set('blacklistAlasan', 'Melanggar kode etik')
@@ -199,7 +205,7 @@ class AtsDashboardTest extends TestCase
 
         // Attempt move without scorecard -> should fail validation
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('moveCandidate', $this->candidate->id, 2)
             ->assertSee("Kandidat 'John Doe' tidak dapat dipindahkan karena tahap saat ini ('Applied') membutuhkan scorecard yang belum diisi.");
 
@@ -216,7 +222,7 @@ class AtsDashboardTest extends TestCase
 
         // Attempt move again -> should succeed
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('moveCandidate', $this->candidate->id, 2)
             ->assertSee("Kandidat 'John Doe' berhasil dipindahkan ke stage 'Final'.");
 
@@ -225,14 +231,16 @@ class AtsDashboardTest extends TestCase
 
     public function test_can_approve_and_advance_candidate_to_next_stage()
     {
+        // Applied (1) -> HR Interview (urutan: 2, ID: 3) -> Final (3, ID: 2)
         // Check current stage is 1 (Applied)
         $this->assertEquals(1, $this->candidate->current_stage_id);
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('approve', $this->candidate->id)
             ->assertSee("Kandidat 'John Doe' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
 
+        // Next stage in order is Final (since approve moves to Final stage directly with status Offered)
         $this->assertEquals(2, $this->candidate->fresh()->current_stage_id);
         $this->assertEquals('Offered', $this->candidate->fresh()->status);
     }
@@ -241,20 +249,20 @@ class AtsDashboardTest extends TestCase
     {
         // When no lowongan is selected, it shows the alert button but not the link
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->assertSee('Input Kandidat')
             ->assertDontSee(route('ats.candidate.manual', $this->job1->id));
 
         // When lowongan is selected, it shows the direct link
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class, ['selectedLowonganId' => $this->job1->id])
+            ->test(\App\Livewire\Ats\AtsPipeline::class, ['selectedLowonganId' => $this->job1->id])
             ->assertSee(route('ats.candidate.manual', $this->job1->id));
     }
 
     public function test_dashboard_displays_candidate_detail_link()
     {
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsDashboard::class)
+            ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->assertSee(route('ats.candidate.detail', ['candidateId' => $this->candidate->id]));
     }
 }

@@ -1,4 +1,5 @@
 <div>
+    <x-breadcrumb :items="[['label' => 'Manpower Planning', 'url' => route('mpp.index')], ['label' => isset($mppId) ? 'Edit' : 'Tambah', 'url' => null]]" />
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>

@@ -96,10 +96,10 @@ class AtsScorecardForm extends Component
             return;
         }
 
-        // 2. Validate scores (nilai must be between 1 and 10)
+        // 2. Validate scores (nilai must be between 1 and 100)
         foreach ($this->kriteriaList as $index => $item) {
-            if (!isset($item['nilai']) || $item['nilai'] === '' || (int)$item['nilai'] < 1 || (int)$item['nilai'] > 10) {
-                $this->addError("kriteriaList.{$index}.nilai", 'Nilai harus berkisar antara 1-10.');
+            if (!isset($item['nilai']) || $item['nilai'] === '' || (int)$item['nilai'] < 1 || (int)$item['nilai'] > 100) {
+                $this->addError("kriteriaList.{$index}.nilai", 'Nilai harus berkisar antara 1-100.');
                 return;
             }
         }

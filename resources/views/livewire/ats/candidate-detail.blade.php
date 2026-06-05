@@ -1,28 +1,6 @@
 <div>
-    <!-- Flash Notifications -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="mb-6 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-error">warning</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-error hover:text-error/80 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->nama ?? 'Detail Kandidat', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header & Back button -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -195,8 +173,23 @@
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-on-surface-variant/80">
                                         {{ $m->moved_at ? $m->moved_at->format('d M Y H:i') : '-' }}
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-on-surface-variant/80">
-                                        {{ $m->interviewer_notes ?: '-' }}
+                                    <td class="px-4 py-3 text-sm text-on-surface-variant/80 min-w-[250px]">
+                                        @php
+                                            $isPassed = $m->to_stage_id !== $candidate->current_stage_id || !in_array($candidate->status, ['Applied', 'In Progress', 'Offered']);
+                                        @endphp
+                                        
+                                        @if($isPassed)
+                                            <div class="w-full text-xs p-2 bg-surface-container-low border border-surface-container-high/50 text-on-surface-variant/80 rounded-sm min-h-[38px] cursor-not-allowed">
+                                                {{ $m->interviewer_notes ?: 'Tidak ada catatan.' }}
+                                            </div>
+                                        @else
+                                            <form wire:submit.prevent="saveNote({{ $m->id }})" class="flex items-start gap-2">
+                                                <textarea wire:model="notes.{{ $m->id }}" rows="2" class="w-full text-xs p-2 rounded-sm bg-surface border border-surface-container-high focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/40" placeholder="Tulis catatan untuk stage ini..."></textarea>
+                                                <button type="submit" class="p-1.5 rounded-sm bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors mt-0.5" title="Simpan Catatan">
+                                                    <span class="material-symbols-outlined text-[16px]">save</span>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
@@ -238,7 +231,7 @@
                                 <tr class="border-b border-surface-container-high bg-surface-container-low/40">
                                     <th class="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-on-surface-variant">Kriteria</th>
                                     <th class="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-on-surface-variant text-center">Bobot</th>
-                                    <th class="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-on-surface-variant text-center">Nilai (1-10)</th>
+                                    <th class="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-on-surface-variant text-center">Nilai (1-100)</th>
                                     <th class="px-4 py-3 font-bold text-[11px] uppercase tracking-wider text-on-surface-variant text-right">Nilai Berbobot</th>
                                 </tr>
                             </thead>

@@ -10,18 +10,7 @@
         </div>
     </div>
 
-    <!-- Alert Messages -->
-    @if (session()->has('error'))
-        <div class="mb-6 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-error">warning</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-error hover:text-error/80 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-toast-alert />
 
     <div class="max-w-2xl bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
         <div>

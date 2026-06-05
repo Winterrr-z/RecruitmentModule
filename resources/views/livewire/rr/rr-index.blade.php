@@ -1,16 +1,6 @@
 <div>
-    <!-- Flash Message Notification -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'Recruitment Request', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -41,24 +31,27 @@
     </div>
 
     <!-- Table & Grid Controls -->
-    <div class="mb-4 p-6 bg-surface-container-lowest rounded-md border border-surface-container-high shadow-[0_30px_40px_rgba(107,56,212,0.02)] flex flex-col md:flex-row justify-between items-center gap-6">
-        <!-- Search Input -->
-        <div class="relative w-full md:w-96">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[22px]">search</span>
-            <input wire:model.live.debounce.300ms="search" class="w-full h-12 pl-12 pr-4 bg-surface-container-low border-none rounded-md font-body-md text-body-md focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all" placeholder="Cari jabatan atau departemen..." type="text">
-        </div>
-        <!-- Status Filter Dropdown -->
-        <div class="relative w-full md:w-64">
-            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[22px]">filter_list</span>
-            <select wire:model.live="status" class="w-full h-12 pl-12 pr-10 bg-surface-container-low border-none rounded-md font-body-md text-body-md focus:ring-2 focus:ring-primary-container focus:bg-surface-container-lowest transition-all appearance-none cursor-pointer text-on-surface-variant">
-                <option value="">Semua Status</option>
-                <option value="Ready to Publish">Ready to Publish</option>
-                <option value="Published">Published</option>
-                <option value="Completed/Closed">Completed</option>
-            </select>
-            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">keyboard_arrow_down</span>
-        </div>
-    </div>
+    <x-advanced-filter searchPlaceholder="Cari jabatan atau departemen..." searchModel="search">
+        <x-slot:filters>
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Status</label>
+                <select wire:model.live="status" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="">Semua Status</option>
+                    <option value="Ready to Publish">Ready to Publish</option>
+                    <option value="Published">Published</option>
+                    <option value="Completed/Closed">Completed</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Urutkan</label>
+                <select wire:model.live="sortBy" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="newest">Terbaru (Latest)</option>
+                    <option value="oldest">Terlama (Oldest)</option>
+                </select>
+            </div>
+        </x-slot:filters>
+    </x-advanced-filter>
 
     <!-- Cards Grid Container with Loading State -->
     <div class="relative min-h-[300px]">
@@ -77,9 +70,6 @@
         <div class="flex flex-col items-center justify-center p-12 text-center bg-surface-container-lowest rounded-md border border-dashed border-outline-variant/50 shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.04)]">
             <span class="material-symbols-outlined text-[64px] text-on-surface-variant/30 mb-4">description</span>
             <h3 class="text-title-md font-title-md text-on-surface mb-2">Belum Ada Recruitment Request</h3>
-            {{-- <p class="text-label-sm font-label-sm text-on-surface-variant max-w-md mb-6">
-                Tidak ada data lowongan pekerjaan yang ditemukan dengan kriteria saat ini.
-            </p> --}}
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,7 +77,7 @@
                 @php
                     $isCompleted = in_array(strtolower($rr->status), ['completed/closed', 'completed', 'closed']);
                 @endphp
-                <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex-col justify-between text-on-surface
+                <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex flex-col justify-between text-on-surface
                     {{ $isCompleted 
                         ? 'bg-surface-container-low border-surface-container/60 opacity-70 grayscale shadow-none' 
                         : 'bg-surface-container-lowest border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.04)] hover:shadow-[0px_35px_60px_-15px_rgba(107,56,212,0.08)] hover:-translate-y-1' }}">
@@ -166,14 +156,6 @@
                                         <span class="material-symbols-outlined text-[16px]">edit</span>
                                         <span>Edit</span>
                                     </a>
-                                @endif
-
-                                <!-- Tombol Hapus (Draft & Tanpa Pelamar) -->
-                                @if($rr->status === 'Ready to Publish' && $rr->candidates_count === 0)
-                                    <button wire:click="delete({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menghapus Recruitment Request ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/10 text-error font-label-sm text-xs font-semibold hover:bg-error/20 transition-all active:scale-95">
-                                        <span class="material-symbols-outlined text-[16px]">delete</span>
-                                        <span>Hapus</span>
-                                    </button>
                                 @endif
 
                                 <!-- Tombol Aktifkan -->

@@ -11,14 +11,20 @@ use App\Models\Scorecard;
 use App\Models\InterviewSchedule;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Url;
 
-class AtsDashboard extends Component
+class AtsPipeline extends Component
 {
     use WithPagination;
 
     // Filters & States
+    #[Url]
     public $selectedLowonganId = null;
+    
+    #[Url]
     public $selectedStageId = null;
+    
+    #[Url]
     public $search = '';
 
     // Blacklist Modal States
@@ -43,10 +49,16 @@ class AtsDashboard extends Component
     public function mount($selectedLowonganId = null)
     {
         $this->selectedLowonganId = $selectedLowonganId;
-        // Default: set selected stage to first stage by urutan
-        $firstStage = Stage::orderBy('urutan', 'asc')->first();
-        if ($firstStage) {
-            $this->selectedStageId = $firstStage->id;
+        
+        // Cek session untuk stage terakhir
+        if (session()->has('pipeline_selected_stage')) {
+            $this->selectedStageId = session()->get('pipeline_selected_stage');
+        } else {
+            // Default: set selected stage to first stage by urutan
+            $firstStage = Stage::orderBy('urutan', 'asc')->first();
+            if ($firstStage) {
+                $this->selectedStageId = $firstStage->id;
+            }
         }
     }
 
@@ -62,6 +74,7 @@ class AtsDashboard extends Component
 
     public function updatedSelectedStageId()
     {
+        session()->put('pipeline_selected_stage', $this->selectedStageId);
         $this->resetPage();
     }
 
@@ -281,6 +294,7 @@ class AtsDashboard extends Component
     public function selectStage($stageId)
     {
         $this->selectedStageId = $stageId;
+        session()->put('pipeline_selected_stage', $stageId);
         $this->resetPage();
     }
 
@@ -310,7 +324,7 @@ class AtsDashboard extends Component
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('livewire.ats.dashboard', [
+        return view('livewire.ats.ats-pipeline', [
             'lowongans' => $lowongans,
             'stages' => $stages,
             'stageCounts' => $stageCounts,

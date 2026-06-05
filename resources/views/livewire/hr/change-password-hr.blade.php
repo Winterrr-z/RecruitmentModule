@@ -1,4 +1,6 @@
-<div class="max-w-xl mx-auto w-full">
+<div>
+    <x-breadcrumb :items="[['label' => 'Profile', 'url' => route('hr.profile')], ['label' => 'Change Password', 'url' => null]]" />
+    <div class="max-w-xl mx-auto w-full">
     <!-- Content Header -->
     <div class="mb-8">
         <div class="flex items-center gap-3 mb-1">
@@ -102,5 +104,6 @@
                 </button>
             </div>
         </form>
+    </div>
     </div>
 </div>

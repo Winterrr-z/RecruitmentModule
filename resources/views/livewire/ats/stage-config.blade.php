@@ -1,28 +1,6 @@
 <div>
-    <!-- Flash Notifications -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="mb-6 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-error">warning</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-error hover:text-error/80 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'Config Stage', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -184,10 +162,10 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-4"
-             class="relative bg-surface-container-lowest rounded-md w-full max-w-lg p-8 mx-4 shadow-[0_24px_48px_-12px_rgba(107,56,212,0.18)] border border-surface-container-high/50 z-10">
+             class="relative bg-surface-container-lowest rounded-md w-full max-w-lg flex flex-col max-h-[90vh] mx-4 shadow-[0_24px_48px_-12px_rgba(107,56,212,0.18)] border border-surface-container-high/50 z-10">
             
             <!-- Modal Header -->
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-surface-container-high/50">
+            <div class="flex items-center justify-between p-6 pb-4 border-b border-surface-container-high/50 shrink-0">
                 <h3 class="text-title-md font-headline-lg text-on-surface">
                     {{ $isEdit ? 'Ubah Stage Rekrutmen' : 'Tambah Stage Rekrutmen Baru' }}
                 </h3>
@@ -197,9 +175,10 @@
             </div>
 
             <!-- Modal Content (Form) -->
-            <form wire:submit.prevent="save" class="space-y-6">
-                <!-- Nama Stage -->
-                <div>
+            <form wire:submit.prevent="save" class="flex flex-col overflow-hidden min-h-0">
+                <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1">
+                    <!-- Nama Stage -->
+                    <div>
                     <label for="nama" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Stage <span class="text-error">*</span></label>
                     <input type="text" id="nama" wire:model="nama" 
                            placeholder="Contoh: Technical Test, HR Interview"
@@ -352,8 +331,10 @@
                     </div>
                 @endif
 
+                </div>
+
                 <!-- Actions -->
-                <div class="flex justify-end gap-3 pt-6 border-t border-surface-container-high/50">
+                <div class="flex justify-end gap-3 p-6 border-t border-surface-container-high/50 shrink-0">
                     <button type="button" @click="show = false" 
                             class="px-5 h-12 border border-outline/35 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-all active:scale-95 font-semibold text-sm">
                         Batal

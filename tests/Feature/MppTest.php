@@ -86,4 +86,146 @@ class MppTest extends TestCase
             'status' => 'approved',
         ]);
     }
+
+    public function test_cannot_edit_closed_mpp()
+    {
+        $mpp = Mpp::create([
+            'nama_plan' => 'Closed Plan',
+            'departemen' => 'IT',
+            'jabatan' => 'Developer',
+            'jumlah_kebutuhan' => 1,
+            'sla_hari' => 30,
+            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'status' => 'Closed',
+        ]);
+
+        Livewire::test(\App\Livewire\Mpp\MppForm::class, ['id' => $mpp->id])
+            ->assertRedirect(route('mpp.index'));
+    }
+
+    public function test_cannot_delete_closed_mpp()
+    {
+        $mpp = Mpp::create([
+            'nama_plan' => 'Closed Plan to Delete',
+            'departemen' => 'IT',
+            'jabatan' => 'Developer',
+            'jumlah_kebutuhan' => 1,
+            'sla_hari' => 30,
+            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'status' => 'Closed',
+        ]);
+
+        Livewire::test(\App\Livewire\Mpp\MppIndex::class)
+            ->call('delete', $mpp->id);
+
+        $this->assertDatabaseHas('mpps', ['id' => $mpp->id]);
+    }
+
+    public function test_cannot_edit_completed_mpp()
+    {
+        $mpp = Mpp::create([
+            'nama_plan' => 'Filled Plan',
+            'departemen' => 'IT',
+            'jabatan' => 'Developer',
+            'jumlah_kebutuhan' => 1,
+            'sla_hari' => 30,
+            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'status' => 'approved',
+        ]);
+
+        $rr = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $mpp->id,
+            'jabatan' => 'Developer',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+
+        $lowongan = \App\Models\Lowongan::create([
+            'recruitment_request_id' => $rr->id,
+            'jabatan' => 'Developer',
+            'departemen' => 'IT',
+            'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
+            'deskripsi_pekerjaan' => 'Kerja Developer',
+            'spesifikasi_kebutuhan' => 'Minimal S1',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'on-site',
+            'application_deadline' => now()->addDays(10)->format('Y-m-d'),
+            'status' => 'Published',
+            'kuota' => 1,
+        ]);
+
+        \App\Models\Candidate::create([
+            'lowongan_id' => $lowongan->id,
+            'nama' => 'John Doe',
+            'email' => 'john@doe.com',
+            'telepon' => '1234567890',
+            'current_stage_id' => 1,
+            'status' => 'Hired',
+        ]);
+
+        $this->assertEquals('Completed', $mpp->getComputedStatus());
+
+        Livewire::test(\App\Livewire\Mpp\MppForm::class, ['id' => $mpp->id])
+            ->assertRedirect(route('mpp.index'));
+    }
+
+    public function test_cannot_delete_completed_mpp()
+    {
+        $mpp = Mpp::create([
+            'nama_plan' => 'Filled Plan to Delete',
+            'departemen' => 'IT',
+            'jabatan' => 'Developer',
+            'jumlah_kebutuhan' => 1,
+            'sla_hari' => 30,
+            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'status' => 'approved',
+        ]);
+
+        $rr = \App\Models\RecruitmentRequest::create([
+            'mpp_id' => $mpp->id,
+            'jabatan' => 'Developer',
+            'departemen' => 'IT',
+            'status' => 'Published',
+            'deskripsi_pekerjaan' => 'Test Desc',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'kuota' => 1,
+        ]);
+
+        $lowongan = \App\Models\Lowongan::create([
+            'recruitment_request_id' => $rr->id,
+            'jabatan' => 'Developer',
+            'departemen' => 'IT',
+            'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
+            'deskripsi_pekerjaan' => 'Kerja Developer',
+            'spesifikasi_kebutuhan' => 'Minimal S1',
+            'tipe_kerja' => 'full-time',
+            'lokasi' => 'on-site',
+            'application_deadline' => now()->addDays(10)->format('Y-m-d'),
+            'status' => 'Published',
+            'kuota' => 1,
+        ]);
+
+        \App\Models\Candidate::create([
+            'lowongan_id' => $lowongan->id,
+            'nama' => 'John Doe',
+            'email' => 'john@doe.com',
+            'telepon' => '1234567890',
+            'current_stage_id' => 1,
+            'status' => 'Hired',
+        ]);
+
+        $this->assertEquals('Completed', $mpp->getComputedStatus());
+
+        Livewire::test(\App\Livewire\Mpp\MppIndex::class)
+            ->call('delete', $mpp->id);
+
+        $this->assertDatabaseHas('mpps', ['id' => $mpp->id]);
+    }
 }

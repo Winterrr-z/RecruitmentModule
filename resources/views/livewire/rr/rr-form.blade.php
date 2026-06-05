@@ -1,4 +1,5 @@
 <div>
+    <x-breadcrumb :items="[['label' => 'Recruitment Request', 'url' => route('rr.index')], ['label' => isset($rrId) ? 'Edit' : 'Tambah', 'url' => null]]" />
     <!-- Content Header -->
     <div class="mb-8">
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
@@ -61,12 +62,17 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Lowongan (Sesuai MPP)</label>
+                                <label for="kuota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Lowongan <span class="text-error">*</span></label>
                                 <div class="relative">
-                                    <input type="text" value="{{ $kuota ? $kuota . ' Orang' : '' }}" placeholder="Otomatis terisi dari MPP" disabled 
-                                           class="w-full h-12 px-6 bg-surface-container-low/70 border-none rounded-md text-body-md text-on-surface-variant/80 cursor-not-allowed">
-                                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40 text-[18px] pointer-events-none">lock</span>
+                                    <input type="number" id="kuota" wire:model="kuota" min="1" placeholder="Masukkan kuota lowongan" 
+                                           class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/20 transition-all @error('kuota') ring-2 ring-error/20 @enderror">
                                 </div>
+                                @if($selectedMppId)
+                                    <p class="text-xs text-on-surface-variant/60 mt-1">Isi kuota berdasarkan sisa kebutuhan MPP</p>
+                                @endif
+                                @error('kuota')
+                                    <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
+                                @enderror
                             </div>
                             <div>
                                 <label class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Expected Join Date</label>
@@ -196,7 +202,7 @@
                     <button type="submit" 
                             class="w-full flex items-center justify-center gap-2 h-14 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
                         <span class="material-symbols-outlined text-[20px]">save</span>
-                        <span>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan sebagai Draft' }}</span>
+                        <span>{{ $isEdit ? 'Simpan Perubahan' : 'Buat Recruitment Request' }}</span>
                     </button>
                     <a href="{{ route('rr.index') }}" 
                        class="w-full flex items-center justify-center h-14 border border-surface-container-high bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-bold rounded-md transition-colors active:scale-95">

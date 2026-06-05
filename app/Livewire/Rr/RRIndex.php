@@ -34,6 +34,12 @@ class RRIndex extends Component
     public $status = '';
 
     /**
+     * @var string Filter sortBy.
+     */
+    #[Url]
+    public $sortBy = 'newest';
+
+    /**
      * Reset pagination page ketika pencarian atau filter diubah.
      *
      * @param string $property
@@ -42,7 +48,7 @@ class RRIndex extends Component
      */
     public function updating($property, $value)
     {
-        if (in_array($property, ['search', 'status'])) {
+        if (in_array($property, ['search', 'status', 'sortBy'])) {
             $this->resetPage();
         }
     }
@@ -93,7 +99,7 @@ class RRIndex extends Component
     public function close($id)
     {
         $rr = RecruitmentRequest::findOrFail($id);
-        if ($rr->status !== 'Completed/Closed') {
+        if ($rr->status !== 'Completed/Closed' && $rr->status !== 'Closed' && $rr->status !== 'Completed') {
             $rr->update(['status' => 'Completed/Closed']);
 
             // Tutup juga lowongan jika ada
@@ -136,8 +142,8 @@ class RRIndex extends Component
     {
         $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($id);
 
-        if ($rr->hiredCount() > 0 || ($rr->status !== 'Draft' && $rr->status !== 'Ready to Publish')) {
-            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Draft tidak dapat dihapus.');
+        if ($rr->hiredCount() > 0 || $rr->status !== 'Ready to Publish') {
+            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Ready to Publish tidak dapat dihapus.');
             return;
         }
 
@@ -155,15 +161,15 @@ class RRIndex extends Component
         $stats = [
             'total_active' => RecruitmentRequest::where('status', 'Published')->count(),
             'ready_to_publish' => RecruitmentRequest::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
-            'completed' => RecruitmentRequest::where('status', 'Completed/Closed')->count(),
+            'completed' => RecruitmentRequest::whereIn('status', ['Completed/Closed', 'Completed', 'Closed'])->count(),
         ];
 
         // Query RR
         $query = RecruitmentRequest::with('lowongan', 'mpp')->withCount('candidates');
 
         if ($this->status !== '') {
-            if ($this->status === 'Completed/Closed') {
-                $query->whereIn('status', ['Completed/Closed', 'Completed', 'Closed', 'completed', 'closed']);
+            if (in_array($this->status, ['Completed/Closed', 'Completed', 'Closed'])) {
+                $query->whereIn('status', ['Completed/Closed', 'Completed', 'Closed']);
             } else {
                 $query->whereRaw('lower(status) = ?', [strtolower($this->status)]);
             }
@@ -176,9 +182,15 @@ class RRIndex extends Component
             });
         }
 
-        $rrs = $query->orderByRaw("CASE WHEN lower(status) = 'completed/closed' THEN 1 ELSE 0 END ASC")
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
+        $query->orderByRaw("CASE WHEN lower(status) IN ('completed/closed', 'completed', 'closed') THEN 1 ELSE 0 END ASC");
+
+        if ($this->sortBy === 'oldest') {
+            $query->orderBy('created_at', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $rrs = $query->paginate(12);
 
         return view('livewire.rr.rr-index', [
             'rrs' => $rrs,

@@ -1,28 +1,6 @@
 <div>
-    <!-- Flash Notifications -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="mb-6 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-error">warning</span>
-                <span class="font-body-md text-sm font-semibold">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-error hover:text-error/80 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'Pipeline', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Content Header & Top Controls -->
     <div class="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-6">
@@ -30,62 +8,66 @@
             <h2 class="font-headline-lg text-headline-lg text-on-surface">Pipeline Pelamar (ATS)</h2>
             <p class="font-body-md text-body-md text-on-surface-variant/70">Kelola pelamar pekerjaan dan pantau pergerakan rekrutmen</p>
         </div>
-        
-        <!-- Filters Row -->
-        <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-            <!-- Input Kandidat Manual Button -->
-            <a href="{{ route('ats.candidate.manual', $selectedLowonganId) }}" 
-               class="inline-flex items-center justify-center gap-2 px-5 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)] text-sm"
-               title="Input kandidat secara manual">
-                <span class="material-symbols-outlined text-[20px]">person_add</span>
-                <span class="whitespace-nowrap">Input Kandidat</span>
-            </a>
+        <a href="{{ route('ats.candidate.manual', $selectedLowonganId) }}" 
+           class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
+            <span class="material-symbols-outlined text-[20px]">person_add</span>
+            <span>Input Kandidat</span>
+        </a>
+    </div>
 
-            <!-- Lowongan Select Dropdown -->
-            <div class="relative w-full sm:w-64">
-                <select wire:model.live="selectedLowonganId" 
-                        class="w-full px-4 h-12 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface cursor-pointer">
+    <!-- Pipeline Stage Chevron Navigation -->
+    <div class="mb-8 w-full overflow-x-auto pb-4 custom-scrollbar">
+        <div class="flex items-center min-w-max gap-1 p-1">
+            @foreach($stages as $index => $stage)
+                @php
+                    $isActive = $selectedStageId == $stage->id;
+                    $count = $stageCounts[$stage->id] ?? 0;
+                    
+                    if ($loop->first && $loop->last) {
+                        $polygon = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
+                        $pl = 'pl-6';
+                        $pr = 'pr-6';
+                    } elseif ($loop->first) {
+                        $polygon = 'polygon(0 0, calc(100% - 1.25rem) 0, 100% 50%, calc(100% - 1.25rem) 100%, 0 100%)';
+                        $pl = 'pl-6';
+                        $pr = 'pr-9';
+                    } elseif ($loop->last) {
+                        $polygon = 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 1.25rem 50%)';
+                        $pl = 'pl-9';
+                        $pr = 'pr-6';
+                    } else {
+                        $polygon = 'polygon(0 0, calc(100% - 1.25rem) 0, 100% 50%, calc(100% - 1.25rem) 100%, 0 100%, 1.25rem 50%)';
+                        $pl = 'pl-9';
+                        $pr = 'pr-9';
+                    }
+                @endphp
+                <button wire:click="selectStage({{ $stage->id }})" 
+                        class="relative h-12 flex items-center justify-center gap-2 {{ $pl }} {{ $pr }} text-sm font-bold transition-all duration-450
+                        {{ $isActive 
+                            ? 'bg-primary text-white scale-[1.15] shadow-md z-10' 
+                            : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:scale-[1.05] hover:z-20 hover:shadow-md z-0' }}"
+                        style="clip-path: {{ $polygon }};">
+                    <span class="whitespace-nowrap">{{ $stage->nama }}</span>
+                    <span class="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] {{ $isActive ? 'bg-white/20 text-white' : 'bg-surface-container-highest text-on-surface-variant/80' }}">
+                        {{ $count }}
+                    </span>
+                </button>
+            @endforeach
+        </div>
+    </div>
+    <x-advanced-filter searchPlaceholder="Cari kandidat di pipeline..." searchModel="search">
+        <x-slot:filters>
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lowongan</label>
+                <select wire:model.live="selectedLowonganId" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Lowongan</option>
                     @foreach($lowongans as $job)
-                        <option value="{{ $job->id }}">{{ $job->jabatan }} ({{ $job->departemen }})</option>
+                        <option value="{{ $job->id }}">{{ $job->jabatan }}</option>
                     @endforeach
                 </select>
             </div>
-
-            <!-- Search Input -->
-            <div class="relative w-full sm:w-64">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-                <input wire:model.live.debounce.300ms="search" 
-                       type="text" 
-                       placeholder="Cari nama atau email..." 
-                       class="w-full pl-12 pr-6 h-12 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface">
-            </div>
-        </div>
-    </div>
-
-    <!-- Pipeline Stage Horizontal Pills -->
-    <div class="flex flex-wrap items-center gap-1 mb-6 pb-2 border-b border-surface-container-high/40">
-        @foreach($stages as $index => $stage)
-            @php
-                $isActive = $selectedStageId == $stage->id;
-                $count = $stageCounts[$stage->id] ?? 0;
-            @endphp
-            @if($index > 0)
-                <span class="material-symbols-outlined text-on-surface-variant/35 text-[16px] mx-0 select-none shrink-0">chevron_right</span>
-            @endif
-            <button wire:click="selectStage({{ $stage->id }})" 
-                    class="px-5 py-2.5 rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 border font-semibold text-sm
-                    {{ $isActive 
-                        ? 'bg-primary text-white border-primary shadow-[0_4px_12px_rgba(107,56,212,0.2)]' 
-                        : 'bg-surface-container-lowest text-on-surface-variant border-surface-container-high/40 hover:bg-surface-container/60' }}">
-                <span>{{ $stage->nama }}</span>
-                <span class="px-2 py-0.5 rounded-full text-xs {{ $isActive ? 'bg-white/20 text-white' : 'bg-surface-container text-on-surface-variant/80' }}">
-                    {{ $count }}
-                </span>
-            </button>
-        @endforeach
-    </div>
-
+        </x-slot:filters>
+    </x-advanced-filter>
     <!-- Candidate List Table Container with Loading State -->
     <div class="relative min-h-[300px]">
         <!-- Loading overlay -->
@@ -104,20 +86,20 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="border-b border-surface-container-high bg-surface-container-low/40">
-                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Kandidat</th>
+                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant sticky left-0 z-10 bg-gray-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Kandidat</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Email</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Status</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Lowongan</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Tanggal Melamar</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Pindah Tahap</th>
-                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant text-right">Aksi</th>
+                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-surface-container/30">
                     @forelse($candidates as $candidate)
-                        <tr class="hover:bg-surface/30 transition-colors group">
+                        <tr x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
                             <!-- Nama Kandidat -->
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                 <a href="{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}" class="flex items-center gap-3 group/item">
                                     <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm group-hover/item:bg-primary group-hover/item:text-white transition-colors">
                                         {{ strtoupper(substr($candidate->nama, 0, 2)) }}
@@ -204,7 +186,7 @@
                                 @if($candidate->current_stage_id == 2 || strtolower($candidate->currentStage?->nama) === 'final')
                                     <span class="text-on-surface-variant/40">-</span>
                                 @else
-                                    <select onchange="confirm('Apakah Anda yakin ingin memindahkan kandidat ini ke stage yang dipilih?') ? @this.moveCandidate({{ $candidate->id }}, this.value) : this.selectedIndex = 0"
+                                    <select @click.stop onchange="confirm('Apakah Anda yakin ingin memindahkan kandidat ini ke stage yang dipilih?') ? @this.moveCandidate({{ $candidate->id }}, this.value) : this.selectedIndex = 0"
                                             class="px-3 h-10 bg-surface-container border border-surface-container-high rounded-md focus:ring-2 focus:ring-primary/20 text-xs text-on-surface font-semibold cursor-pointer max-w-[150px]">
                                         <option value="" disabled selected>Pilih Stage...</option>
                                         @foreach($stages as $stageOption)
@@ -223,7 +205,7 @@
                                 @else
                                     <div class="flex items-center justify-end gap-1.5">
                                         <!-- Reject Action -->
-                                        <button wire:click="reject({{ $candidate->id }})" 
+                                        <button @click.stop wire:click="reject({{ $candidate->id }})" 
                                                 wire:confirm="Apakah Anda yakin ingin menolak kandidat {{ $candidate->nama }}?"
                                                 class="p-2 hover:bg-error/10 text-error rounded-md transition-colors" 
                                                 title="Reject (Tolak)">
@@ -231,14 +213,14 @@
                                         </button>
 
                                         <!-- Blacklist Action -->
-                                        <button wire:click="confirmBlacklist({{ $candidate->id }})" 
+                                        <button @click.stop wire:click="confirmBlacklist({{ $candidate->id }})" 
                                                 class="p-2 hover:bg-black/10 text-on-surface rounded-md transition-colors" 
                                                 title="Blacklist (Daftar Hitam)">
                                             <span class="material-symbols-outlined text-[20px]">block</span>
                                         </button>
 
                                         <!-- Approve / Hired Action -->
-                                        <button wire:click="approve({{ $candidate->id }})" 
+                                        <button @click.stop wire:click="approve({{ $candidate->id }})" 
                                                 wire:confirm="Apakah Anda yakin ingin meng-hire kandidat {{ $candidate->nama }}?"
                                                 class="p-2 hover:bg-green-500/10 text-green-600 rounded-md transition-colors" 
                                                 title="Hired">

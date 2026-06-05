@@ -68,7 +68,7 @@ class RRTest extends TestCase
         $this->assertDatabaseHas('recruitment_requests', [
             'mpp_id' => $mpp->id,
             'jabatan' => 'Accountant',
-            'status' => 'Draft',
+            'status' => 'Ready to Publish',
             'tipe_kerja' => 'full-time',
             'lokasi' => 'on-site',
         ]);
@@ -114,7 +114,7 @@ class RRTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
 
         $this->actingAs($user)
-            ->get(route('rr.show', $lowongan->id))
+            ->get(route('rr.show', $rr_temp->id))
             ->assertSuccessful()
             ->assertSeeLivewire(\App\Livewire\Rr\RRDetail::class);
     }

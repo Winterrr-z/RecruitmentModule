@@ -170,13 +170,13 @@ class AtsCandidateDetailFormTest extends TestCase
             ],
         ]);
 
-        // 1. Validation error: scores must be between 1 and 10
+        // 1. Validation error: scores must be between 1 and 100
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsScorecardForm::class, [
                 'candidateId' => $this->candidate->id,
                 'stageId' => 1,
             ])
-            ->set('kriteriaList.0.nilai', 15) // invalid score (> 10)
+            ->set('kriteriaList.0.nilai', 150) // invalid score (> 100)
             ->call('save')
             ->assertHasErrors(['kriteriaList.0.nilai']);
 

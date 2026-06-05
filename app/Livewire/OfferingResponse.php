@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Candidate;
 use Illuminate\Http\Request;
-use illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class OfferingResponse extends Component
@@ -150,6 +150,6 @@ class OfferingResponse extends Component
             $this->statusResponse = 'success_reject';
         }
 
-        return view('livewire.offering-response');
+        return view('livewire.offering-response')->layout('layouts.guest');
     }
 }

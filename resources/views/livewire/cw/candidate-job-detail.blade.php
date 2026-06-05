@@ -88,12 +88,25 @@
             
             @if (auth()->check())
                 @if (auth()->user()->role === 'applicant')
-                    {{-- Form Lamaran --}}
-                    <div class="bg-white rounded-2xl p-6 border border-surface-container-high shadow-[0_20px_50px_rgba(107,56,212,0.05)]">
-                        <h2 class="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-primary text-[22px]">send</span>
-                            Kirim Lamaran
-                        </h2>
+                    @if ($hasActiveApplication)
+                        <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-center shadow-[0_4px_20px_rgba(239,68,68,0.03)]">
+                            <span class="material-symbols-outlined text-red-600 text-[36px] mb-3">error</span>
+                            <h3 class="text-md font-bold text-red-800 mb-1">Anda Memiliki Lamaran Aktif</h3>
+                            <p class="text-sm text-red-700 leading-relaxed mb-4">
+                                Anda hanya dapat melamar 1 posisi dalam satu waktu. Selesaikan proses seleksi pada lamaran Anda sebelumnya terlebih dahulu.
+                            </p>
+                            <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm transition-colors w-full no-underline">
+                                <span class="material-symbols-outlined text-[18px]">person</span>
+                                Lihat Lamaran Saya
+                            </a>
+                        </div>
+                    @else
+                        {{-- Form Lamaran --}}
+                        <div class="bg-white rounded-2xl p-6 border border-surface-container-high shadow-[0_20px_50px_rgba(107,56,212,0.05)]">
+                            <h2 class="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-[22px]">send</span>
+                                Kirim Lamaran
+                            </h2>
 
                         <form wire:submit="apply" class="space-y-4" novalidate>
                             {{-- Nama (Readonly) --}}
@@ -214,6 +227,7 @@
                             </div>
                         </form>
                     </div>
+                    @endif
                 @else
                     {{-- Logged in but not applicant (e.g. HR) --}}
                     <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-6 text-center shadow-[0_4px_20px_rgba(245,158,11,0.03)]">

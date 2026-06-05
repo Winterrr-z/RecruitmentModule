@@ -1,4 +1,4 @@
-<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 px-4 relative bg-cover bg-center" style="background-image: url('{{ asset('images/hr_login_bg.png') }}');">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 relative bg-cover bg-center" style="background-image: url('{{ asset('images/hr_login_bg.png') }}');">
     <!-- Dark overlay to ensure card stands out -->
     <div class="absolute inset-0 bg-surface/30 backdrop-blur-[2px]"></div>
     

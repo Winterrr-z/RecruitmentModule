@@ -49,6 +49,86 @@ class CandidateDashboard extends Component
     }
 
     /**
+     * Respon terhadap offering (terima/tolak) langsung dari dashboard.
+     */
+    public function respondOffering($candidateId, $choice)
+    {
+        $candidate = Candidate::where('id', $candidateId)->where('user_id', auth()->id())->first();
+
+        if (!$candidate || !$candidate->offering_token) {
+            session()->flash('error', 'Penawaran tidak valid atau sudah kadaluarsa.');
+            return;
+        }
+
+        if ($candidate->offering_token_expires_at && $candidate->offering_token_expires_at->isPast()) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($candidate) {
+                $candidate->update([
+                    'status' => 'Expired',
+                    'offering_token' => null,
+                    'offering_token_expires_at' => null,
+                ]);
+            });
+            session()->flash('error', 'Waktu penawaran sudah habis.');
+            return;
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($candidate, $choice) {
+            if ($choice === 'terima') {
+                $candidate->status = 'Hired';
+            } else {
+                $candidate->status = 'Declined';
+            }
+
+            // Hapus token setelah direpson
+            $candidate->offering_token = null;
+            $candidate->offering_token_expires_at = null;
+            $candidate->save();
+
+            // Jika diterima, kurangi kuota lowongan
+            if ($choice === 'terima') {
+                $lowongan = $candidate->lowongan;
+                if ($lowongan) {
+                    $lowongan->kuota = max(0, $lowongan->kuota - 1);
+
+                    if ($lowongan->kuota == 0) {
+                        $lowongan->status = 'Closed';
+                        
+                        $rr = $lowongan->recruitmentRequest;
+                        if ($rr) {
+                            $rr->status = 'Completed';
+                            $rr->save();
+                            
+                            $mpp = $rr->mpp;
+                            if ($mpp && $mpp->sisaKuota() <= 0) {
+                                // Status mpp diupdate ke Completed tapi getComputedStatus bisa mengaturnya, jadi tidak masalah, 
+                                // kita set saja secara eksplisit untuk berjaga-jaga.
+                                $mpp->status = 'Completed';
+                                $mpp->save();
+                            }
+                        }
+
+                        // Auto-Reject Kandidat Lain (In Progress / Applied)
+                        $rejectedCandidates = \App\Models\Candidate::where('lowongan_id', $lowongan->id)
+                            ->whereIn('status', ['Applied', 'In Progress', 'Offered'])
+                            ->where('id', '!=', $candidate->id)
+                            ->get();
+                            
+                        foreach ($rejectedCandidates as $rejected) {
+                            $rejected->status = 'Rejected';
+                            $rejected->save();
+                            $rejected->notify(new \App\Notifications\CandidateRejectedNotification($lowongan));
+                        }
+                    }
+                    
+                    $lowongan->save();
+                }
+            }
+        });
+
+        session()->flash('success', $choice === 'terima' ? 'Selamat! Anda telah menerima penawaran pekerjaan ini.' : 'Anda telah menolak penawaran pekerjaan ini.');
+    }
+
+    /**
      * Render komponen.
      *
      * @return \Illuminate\View\View
@@ -64,14 +144,18 @@ class CandidateDashboard extends Component
             ->latest()
             ->get();
 
-        // Lamaran tidak aktif: arsip / selesai
-        $inactiveApplications = Candidate::where('user_id', $userId)
+        // Semua lamaran tidak aktif: arsip / selesai
+        $allInactive = Candidate::where('user_id', $userId)
             ->whereIn('status', self::INACTIVE_STATUSES)
             ->with(['lowongan', 'currentStage'])
             ->latest()
             ->get();
 
-        return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications'))
+        // Pisahkan yang Hired
+        $hiredApplications = $allInactive->where('status', 'Hired');
+        $inactiveApplications = $allInactive->where('status', '!=', 'Hired');
+
+        return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications', 'hiredApplications'))
             ->layout('layouts.applicant');
     }
 }

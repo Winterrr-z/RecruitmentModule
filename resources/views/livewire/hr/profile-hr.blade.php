@@ -1,4 +1,6 @@
-<div class="max-w-3xl mx-auto w-full">
+<div>
+    <x-breadcrumb :items="[['label' => 'Profile', 'url' => null]]" />
+    <div class="max-w-3xl mx-auto w-full">
     <!-- Content Header -->
     <!-- <div class="mb-8 text-center">
         <h2 class="font-headline-lg text-headline-lg text-on-surface flex items-center justify-center gap-3">
@@ -12,17 +14,12 @@
 
         <!-- Profile Header Card -->
         <div class="bg-surface-container-lowest rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 overflow-hidden">
-            <!-- Banner Gradient -->
-            <div class="h-28 bg-gradient-to-r from-primary via-primary/80 to-primary-container relative">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.15),transparent_60%)]"></div>
-            </div>
-
-            <div class="px-8 pb-8">
+            <div class="p-8">
                 <!-- Avatar & Name Section -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-12">
+                <div class="flex flex-col items-center justify-center text-center gap-5">
                     <!-- Avatar -->
                     <div class="relative">
-                        <div class="w-24 h-24 rounded-full bg-primary-container ring-4 ring-surface-container-lowest flex items-center justify-center shadow-lg overflow-hidden">
+                        <div class="w-24 h-24 mx-auto rounded-full bg-primary-container ring-4 ring-surface-container-lowest flex items-center justify-center shadow-lg overflow-hidden">
                             @if($user->profile_photo_path)
                                 <img src="{{ Storage::url($user->profile_photo_path) }}" class="w-full h-full object-cover" alt="Foto Profil">
                             @else
@@ -35,16 +32,16 @@
                     </div>
 
                     <!-- Name & Role -->
-                    <div class="flex-1 sm:pb-1">
+                    <div>
                         <h3 class="text-xl font-extrabold text-on-surface tracking-tight">{{ $user->name }}</h3>
-                        <p class="text-sm text-on-surface-variant mt-0.5 flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
-                            <span class="font-medium uppercase tracking-wider text-xs text-primary">HR Staff — Terverifikasi</span>
+                        <p class="text-sm text-on-surface-variant mt-1 flex items-center justify-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-primary"></span>
+                            <span class="font-medium uppercase tracking-wider text-xs text-primary">{{ $user->departemen }}</span>
                         </p>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex items-center gap-3 mt-4 sm:mt-0">
+                    <div class="flex items-center justify-center gap-3 w-full">
                         <a href="{{ route('hr.profile.password') }}"
                            class="inline-flex items-center gap-2 px-5 h-11 border border-outline/35 text-on-surface-variant font-bold rounded-md hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-95 text-sm">
                             <span class="material-symbols-outlined text-[18px]">lock</span>
@@ -199,5 +196,6 @@
             </div>
         </div>
 
+        </div>
     </div>
 </div>

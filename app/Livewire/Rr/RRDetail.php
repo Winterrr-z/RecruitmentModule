@@ -69,6 +69,25 @@ class RRDetail extends Component
     }
 
     /**
+     * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
+     *
+     * @return void
+     */
+    public function unpublish()
+    {
+        $rr = RecruitmentRequest::findOrFail($this->rrId);
+        if ($rr->status === 'Published') {
+            $rr->update(['status' => 'Ready to Publish']);
+
+            if ($rr->lowongan) {
+                $rr->lowongan->update(['status' => 'Draft']);
+            }
+
+            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" dinonaktifkan.');
+        }
+    }
+
+    /**
      * Tutup RR (ubah status ke 'Completed/Closed').
      *
      * @return void

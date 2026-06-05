@@ -40,8 +40,8 @@ class MppForm extends Component
             $mpp = Mpp::findOrFail($this->mppId);
             
             $status = $mpp->getComputedStatus();
-            if ($status === 'Closed' || $status === 'Filled') {
-                session()->flash('error', 'Tidak dapat mengubah MPP plan yang sudah closed atau filled.');
+            if ($status === 'Closed' || $status === 'Completed') {
+                session()->flash('error', 'Tidak dapat mengubah MPP plan yang sudah closed atau completed.');
                 return redirect()->route('mpp.index');
             }
 
@@ -156,8 +156,8 @@ class MppForm extends Component
         if ($this->isEdit) {
             $mpp = Mpp::findOrFail($this->mppId);
             $status = $mpp->getComputedStatus();
-            if ($status === 'Closed' || $status === 'Filled') {
-                session()->flash('error', 'Tidak dapat mengubah MPP plan yang sudah closed atau filled.');
+            if ($status === 'Closed' || $status === 'Completed') {
+                session()->flash('error', 'Tidak dapat mengubah MPP plan yang sudah closed atau completed.');
                 return redirect()->route('mpp.index');
             }
             $mpp->update($data);

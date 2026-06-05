@@ -5,7 +5,7 @@ namespace App\Livewire\Rr;
 use App\Models\Mpp;
 use App\Models\RecruitmentRequest;
 use Livewire\Component;
-use livewire\Attributes\Layout;
+use Livewire\Attributes\Layout;
 
 /**
  * Class RRForm
@@ -205,6 +205,9 @@ class RRForm extends Component
             return;
         }
 
+        $mpp = Mpp::findOrFail($this->selectedMppId);
+        $maxKuota = $mpp->sisaKuota();
+
         // Lakukan validasi input
         $this->validate([
             'deskripsi_pekerjaan' => 'required|string|max:5000',
@@ -212,12 +215,16 @@ class RRForm extends Component
             'tipe_kerja' => 'required|in:full-time,contract',
             'lokasi' => 'required|in:remote,on-site',
             'application_deadline' => 'required|date|after_or_equal:today',
+            'kuota' => 'required|integer|min:1|max:' . $maxKuota,
         ], [
             'deskripsi_pekerjaan.required' => 'Deskripsi Pekerjaan wajib diisi.',
             'tipe_kerja.required' => 'Tipe Kerja wajib diisi.',
             'lokasi.required' => 'Lokasi wajib diisi.',
             'application_deadline.required' => 'Application Deadline wajib diisi.',
             'application_deadline.after_or_equal' => 'Application Deadline minimal hari ini.',
+            'kuota.required' => 'Kuota wajib diisi.',
+            'kuota.min' => 'Kuota minimal 1.',
+            'kuota.max' => 'Kuota tidak boleh melebihi sisa kebutuhan MPP (' . $maxKuota . ').',
         ]);
 
         if ($this->isEdit) {
@@ -236,7 +243,13 @@ class RRForm extends Component
                 'lokasi' => $this->lokasi,
                 'application_deadline' => $this->application_deadline,
                 'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
+                'kuota' => $this->kuota,
             ]);
+
+            // Sync kuota ke lowongan jika sudah publish
+            if ($rr->lowongan) {
+                $rr->lowongan->update(['kuota' => $this->kuota]);
+            }
 
             session()->flash('message', 'Recruitment Request berhasil diperbarui.');
         } else {
@@ -278,11 +291,11 @@ class RRForm extends Component
                 'lokasi' => $this->lokasi,
                 'application_deadline' => $this->application_deadline,
                 'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
-                'status' => 'Draft',
-                'kuota' => $remainingQuota, // Mengunci kuota dari sisa kebutuhan MPP
+                'status' => 'Ready to Publish',
+                'kuota' => $this->kuota,
             ]);
 
-            session()->flash('message', 'Recruitment Request berhasil dibuat sebagai Draft.');
+            session()->flash('message', 'Recruitment Request berhasil dibuat dan berstatus Ready to Publish.');
         }
 
         return redirect()->route('rr.index');

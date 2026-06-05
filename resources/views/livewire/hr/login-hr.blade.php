@@ -1,4 +1,4 @@
-<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 px-4 relative bg-cover bg-center" style="background-image: url('{{ asset('images/hr_login_bg.png') }}');">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 relative bg-cover bg-center" style="background-image: url('{{ asset('images/hr_login_bg.png') }}');">
     <!-- Dark overlay to ensure card stands out -->
     <div class="absolute inset-0 bg-surface/30 backdrop-blur-[2px]"></div>
     
@@ -9,8 +9,8 @@
 
             {{-- Header --}}
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
-                    <span class="material-symbols-outlined text-primary text-[28px]">admin_panel_settings</span>
+                <div class="inline-flex items-center justify-center">
+                    <img alt="{{ config('company.name') }} Company Logo" class="h-20 w-20" src="{{ asset(config('company.logo')) }}">
                 </div>
                 <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold leading-tight">
                     Masuk Portal HR

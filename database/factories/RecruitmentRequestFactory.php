@@ -34,7 +34,7 @@ class RecruitmentRequestFactory extends Factory
             'lokasi' => $this->faker->randomElement(['remote', 'on-site']),
             'application_deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
             'tampilkan_gaji' => $this->faker->boolean(),
-            'status' => $this->faker->randomElement(['Draft', 'Ready to Publish', 'Published', 'Completed/Closed']),
+            'status' => $this->faker->randomElement(['Draft', 'Ready to Publish', 'Published', 'Completed', 'Closed']),
         ];
     }
 }

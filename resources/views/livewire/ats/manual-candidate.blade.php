@@ -1,4 +1,6 @@
-<div class="max-w-2xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
+<div>
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'Pipeline', 'url' => route('ats.dashboard')], ['label' => 'Tambah Manual', 'url' => null]]" />
+    <div class="max-w-2xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
     <!-- Header -->
     <div class="mb-6 pb-4 border-b border-surface-container-high/50">
         <h3 class="text-headline-lg text-on-surface mb-1">Tambah Kandidat secara Manual</h3>
@@ -115,4 +117,5 @@
             </button>
         </div>
     </form>
+</div>
 </div>

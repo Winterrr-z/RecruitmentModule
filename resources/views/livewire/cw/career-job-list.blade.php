@@ -10,22 +10,12 @@
     </div>
 
     <!-- Search & Filter Controls -->
-    <div class="bg-white rounded-md border border-surface-container-high p-3.5 shadow-[0_20px_40px_rgba(107,56,212,0.02)] mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <!-- Search Keyword -->
-            <div class="relative md:col-span-6">
-                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
-                <input wire:model.live.debounce.300ms="search" 
-                       type="text" 
-                       class="w-full h-10 pl-10 pr-4 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface"
-                       placeholder="Cari jabatan atau departemen...">
-            </div>
-
+    <x-advanced-filter searchPlaceholder="Cari jabatan atau departemen..." searchModel="search">
+        <x-slot:filters>
             <!-- Tipe Kerja Filter -->
-            <div class="relative md:col-span-3">
-                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">work</span>
-                <select wire:model.live="selectedTipeKerja" 
-                        class="w-full h-10 pl-10 pr-10 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer">
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tipe Kerja</label>
+                <select wire:model.live="selectedTipeKerja" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Tipe Kerja</option>
                     <option value="full-time">Full-time</option>
                     <option value="contract">Contract</option>
@@ -33,16 +23,18 @@
             </div>
 
             <!-- Lokasi Filter -->
-            <div class="relative md:col-span-3">
-                <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">location_on</span>
-                <select wire:model.live="selectedLokasi" 
-                        class="w-full h-10 pl-10 pr-10 bg-surface-container-low border border-transparent rounded-sm text-sm focus:border-primary/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-on-surface-variant cursor-pointer">
+            <div>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lokasi</label>
+                <select wire:model.live="selectedLokasi" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Lokasi</option>
                     <option value="remote">Remote</option>
                     <option value="on-site">On-site</option>
                 </select>
             </div>
-        </div>
+        </x-slot:filters>
+    </x-advanced-filter>
+
+    <div class="mb-6">
 
         <!-- Active Filter States & Reset Button -->
         @if(!empty($search) || !empty($selectedTipeKerja) || !empty($selectedLokasi))

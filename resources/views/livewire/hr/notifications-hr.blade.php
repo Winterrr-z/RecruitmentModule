@@ -1,16 +1,6 @@
 <div>
-    <!-- Flash Messages -->
-    @if (session()->has('message'))
-        <div class="mb-6 p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-500/20 flex items-center justify-between transition-all duration-300">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-green-600">check_circle</span>
-                <span class="font-body-md">{{ session('message') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 transition-colors">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-            </button>
-        </div>
-    @endif
+    <x-breadcrumb :items="[['label' => 'Notifications', 'url' => null]]" />
+    <x-toast-alert />
 
     <!-- Header -->
     <div class="mb-8">
@@ -55,41 +45,28 @@
     @else
         <div class="space-y-3">
             @foreach ($notifications as $notification)
-                <div class="p-4 rounded-md border transition-all {{ $notification->is_read ? 'bg-surface-container-lowest border-surface-container-high' : 'bg-primary/5 border-primary/20' }}">
+                <div @if(!$notification->is_read) wire:click="markAsRead({{ $notification->id }})" @endif
+                     class="p-4 rounded-md border transition-all {{ $notification->is_read ? 'bg-surface-container-lowest border-surface-container-high' : 'bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10' }}">
                     <div class="flex items-start gap-4">
                         <!-- Icon -->
-                        <div class="flex-shrink-0">
-                            <span class="material-symbols-outlined text-primary text-[24px]">
-                                {{ $notification->icon }}
-                            </span>
+                        <div class="flex-shrink-0 mt-0.5">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center {{ $notification->is_read ? 'bg-surface-container-high text-on-surface-variant' : 'bg-primary/20 text-primary' }}">
+                                <span class="material-symbols-outlined text-[20px]">
+                                    {{ $notification->icon }}
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Content -->
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-on-surface mb-1">{{ $notification->title }}</h4>
+                            <h4 class="font-bold {{ $notification->is_read ? 'text-on-surface-variant' : 'text-on-surface' }} mb-1">{{ $notification->title }}</h4>
                             <p class="text-label-sm font-label-sm text-on-surface-variant mb-2">
                                 {{ $notification->message }}
                             </p>
-                            <p class="text-xs text-on-surface-variant/60">
+                            <p class="text-[11px] text-on-surface-variant/60 font-semibold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px]">schedule</span>
                                 {{ $notification->created_at->diffForHumans() }}
                             </p>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex-shrink-0 flex items-center gap-2">
-                            @if (!$notification->is_read)
-                                <button wire:click="markAsRead({{ $notification->id }})"
-                                        title="Tandai sebagai dibaca"
-                                        class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-md transition-colors">
-                                    <span class="material-symbols-outlined text-[18px]">done</span>
-                                </button>
-                            @endif
-                            <button wire:click="delete({{ $notification->id }})"
-                                    wire:confirm="Hapus notifikasi ini?"
-                                    title="Hapus"
-                                    class="p-2 text-error hover:bg-error/10 rounded-md transition-colors">
-                                <span class="material-symbols-outlined text-[18px]">delete</span>
-                            </button>
                         </div>
                     </div>
                 </div>

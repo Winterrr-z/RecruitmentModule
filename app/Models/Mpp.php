@@ -126,7 +126,7 @@ class Mpp extends Model
         }
 
         if ($this->isFilled()) {
-            return 'Filled';
+            return 'Completed';
         }
 
         $now = now();
@@ -144,13 +144,14 @@ class Mpp extends Model
             return 'Critical';
         }
 
-        if ($percent >= 90 || $daysRemaining < 7) {
+        if ($percent >= 90 && $daysRemaining < 7) {
             return 'Urgent';
         }
 
         if ($daysSinceActivity >= 7) {
             return 'Need Attention';
         }
+        
         if ($percent >= 51 && $percent <= 89 && $daysRemaining <= 30) {
             return 'Need Attention';
         }
@@ -198,8 +199,8 @@ class Mpp extends Model
                 'dotColor' => 'bg-gray-500',
                 'icon' => 'lock',
             ],
-            'Filled' => [
-                'label' => 'Filled',
+            'Completed' => [
+                'label' => 'Completed',
                 'color' => 'text-green-800',
                 'bg' => 'bg-green-100',
                 'dotColor' => 'bg-green-500',

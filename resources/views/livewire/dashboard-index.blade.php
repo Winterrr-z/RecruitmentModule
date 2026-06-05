@@ -88,6 +88,7 @@
 
                     <!-- Donut Chart Container -->
                     <div class="relative h-56 flex items-center justify-center"
+                         wire:ignore
                          x-data="{
                             chart: null,
                             initChart() {
@@ -98,7 +99,7 @@
                                         labels: @js($this->getCurrentLowonganChartData()['labels']),
                                         datasets: [{
                                             data: @js($this->getCurrentLowonganChartData()['values']),
-                                            backgroundColor: ['#6b38d4', '#fd933d', '#855000', '#944a00', '#10b981', '#3b82f6', '#ec4899']
+                                            backgroundColor: ['#6b38d4', '#fd933d', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#14b8a6']
                                         }]
                                     },
                                     options: {
@@ -221,6 +222,7 @@
 
             <!-- Bar Chart Container -->
             <div class="relative h-[290px]"
+                 wire:ignore
                  x-data="{
                     initChart() {
                         const ctx = document.getElementById('barChart').getContext('2d');
@@ -231,9 +233,9 @@
                                 datasets: [{
                                     label: 'Kandidat',
                                     data: @js($barChartValues),
-                                    backgroundColor: '#6b38d4',
-                                    borderRadius: 6,
-                                    barThickness: 24
+                                    backgroundColor: ['#6b38d4', '#fd933d', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#14b8a6'],
+                                    borderRadius: 4,
+                                    barThickness: 90
                                 }]
                             },
                             options: {
@@ -246,13 +248,13 @@
                                     y: {
                                         beginAtZero: true,
                                         ticks: { 
-                                            stepSize: 1,
+                                            stepSize: 5,
                                             font: { size: 10 }
                                         },
                                         grid: { color: '#f3f4f6' }
                                     },
                                     x: {
-                                        ticks: { font: { size: 10, weight: 'bold' } },
+                                        ticks: { font: { size: 12, weight: 'bold' } },
                                         grid: { display: false }
                                     }
                                 }

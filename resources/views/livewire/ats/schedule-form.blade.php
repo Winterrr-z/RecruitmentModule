@@ -1,5 +1,8 @@
-<div class="max-w-xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
-    <!-- Header -->
+<div>
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->nama ?? 'Detail Kandidat', 'url' => route('ats.candidate.detail', ['candidateId' => $candidate->id])], ['label' => 'Atur Jadwal', 'url' => null]]" />
+    
+    <div class="max-w-xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
+        <!-- Header -->
     <div class="mb-6 pb-4 border-b border-surface-container-high/50">
         <h3 class="text-headline-lg text-on-surface mb-1">Atur Jadwal Interview</h3>
         <p class="text-body-md text-sm text-on-surface-variant/70">
@@ -79,4 +82,5 @@
             </button>
         </div>
     </form>
+    </div>
 </div>

@@ -25,6 +25,8 @@ class CandidateJobDetail extends Component
     public $cv;
     public $portofolio;
 
+    public bool $hasActiveApplication = false;
+
     /**
      * Inisialisasi data komponen.
      */
@@ -38,6 +40,12 @@ class CandidateJobDetail extends Component
             $user = auth()->user();
             $this->nama = $user->name;
             $this->email = $user->email;
+            
+            if ($user->role === 'applicant') {
+                $this->hasActiveApplication = Candidate::where('user_id', $user->id)
+                    ->whereNotIn('status', ['Rejected', 'Hired', 'Declined', 'Expired', 'Blacklisted'])
+                    ->exists();
+            }
         }
     }
 
@@ -49,6 +57,11 @@ class CandidateJobDetail extends Component
         // Hanya user logged-in dengan role applicant yang bisa melamar
         if (!auth()->check() || auth()->user()->role !== 'applicant') {
             abort(403, 'Aksi ini tidak diizinkan.');
+        }
+
+        if ($this->hasActiveApplication) {
+            session()->flash('error', 'Anda masih memiliki lamaran aktif. Selesaikan proses seleksi tersebut terlebih dahulu.');
+            return;
         }
 
         $this->validate([

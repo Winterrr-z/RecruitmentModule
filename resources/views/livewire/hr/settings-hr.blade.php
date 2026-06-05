@@ -1,4 +1,5 @@
 <div>
+    <x-breadcrumb :items="[['label' => 'Settings', 'url' => null]]" />
     <div class="max-w-3xl mx-auto w-full">
         <!-- Settings Header -->
         <div class="mb-8">
@@ -15,13 +16,6 @@
                 <h2 class="text-title-md font-title-md text-on-surface mb-1">Keluar dari Akun</h2>
                 <p class="text-label-sm font-label-sm text-on-surface-variant">
                     Anda akan keluar dari semua perangkat dan sesi Anda akan berakhir.
-                </p>
-            </div>
-
-            <div class="p-4 mb-4 bg-orange-50 border border-orange-200 rounded-md flex gap-3">
-                <span class="material-symbols-outlined text-orange-600 flex-shrink-0">info</span>
-                <p class="text-sm text-orange-800">
-                    Pastikan Anda telah menyimpan semua pekerjaan sebelum logout.
                 </p>
             </div>
 
