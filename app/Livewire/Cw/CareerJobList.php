@@ -107,7 +107,7 @@ class CareerJobList extends Component
 
         // --- Sorting ---
         $direction = $this->sortBy === 'oldest' ? 'asc' : 'desc';
-        $lowongans = $query->orderBy('created_at', $direction)->get();
+        $lowongans = $query->orderBy('created_at', $direction)->paginate(10);
 
         // --- Department list with counts (for sidebar) ---
         $departments = [];

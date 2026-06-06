@@ -35,6 +35,7 @@ class Mpp extends Model
         'estimasi_gaji_max' => 'integer',
         'sla_hari' => 'integer',
         'last_activity_at' => 'datetime',
+        'status' => \App\Enums\MppStatus::class,
     ];
 
     public function recruitmentRequests(): HasMany
@@ -58,7 +59,7 @@ class Mpp extends Model
     {
         return Candidate::whereHas('lowongan.recruitmentRequest', function ($q) {
             $q->where('mpp_id', $this->id);
-        })->where('status', 'Hired')->count();
+        })->where('status', \App\Enums\CandidateStatus::HIRED)->count();
     }
 
     public function sisaKuota(): int
@@ -78,7 +79,7 @@ class Mpp extends Model
         })->pluck('id');
 
         return Candidate::whereIn('lowongan_id', $lowonganIds)
-            ->whereNotIn('status', ['Rejected', 'Hired', 'Withdrawn'])
+            ->whereNotIn('status', [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::WITHDRAWN])
             ->exists();
     }
 
@@ -121,7 +122,7 @@ class Mpp extends Model
 
     public function getComputedStatus(): string
     {
-        if (strtolower($this->status) === 'closed') {
+        if ($this->status === \App\Enums\MppStatus::CLOSED) {
             return 'Closed';
         }
 
@@ -164,8 +165,8 @@ class Mpp extends Model
         $status = $this->getComputedStatus();
 
         return match ($status) {
-            'In Progress' => [
-                'label' => 'In Progress',
+            \App\Enums\CandidateStatus::IN_PROGRESS => [
+                'label' => \App\Enums\CandidateStatus::IN_PROGRESS,
                 'color' => 'text-blue-700',
                 'bg' => 'bg-blue-100',
                 'dotColor' => 'bg-blue-500',

@@ -176,7 +176,7 @@ class AtsPipelineTest extends TestCase
             ->call('reject', $this->candidate->id)
             ->assertSee("Kandidat 'John Doe' berhasil ditolak.");
 
-        $this->assertEquals('Rejected', $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $this->candidate->fresh()->status);
     }
 
     public function test_can_blacklist_candidate()
@@ -190,7 +190,7 @@ class AtsPipelineTest extends TestCase
             ->assertSet('showBlacklistModal', false)
             ->assertSee("Kandidat 'John Doe' berhasil dimasukkan ke daftar hitam (blacklist).");
 
-        $this->assertEquals('Blacklisted', $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $this->candidate->fresh()->status);
         $this->assertDatabaseHas('blacklist', [
             'nama' => 'John Doe',
             'email' => 'john@example.com',
@@ -242,7 +242,7 @@ class AtsPipelineTest extends TestCase
 
         // Next stage in order is Final (since approve moves to Final stage directly with status Offered)
         $this->assertEquals(2, $this->candidate->fresh()->current_stage_id);
-        $this->assertEquals('Offered', $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::OFFERED, $this->candidate->fresh()->status);
     }
 
     public function test_dashboard_displays_manual_candidate_button()

@@ -35,6 +35,7 @@ class Lowongan extends Model
         'estimasi_gaji_min' => 'integer',
         'estimasi_gaji_max' => 'integer',
         'kuota' => 'integer',
+        'status' => \App\Enums\LowonganStatus::class,
     ];
 
     public function recruitmentRequest(): BelongsTo

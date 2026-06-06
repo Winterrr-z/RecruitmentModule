@@ -122,7 +122,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertRedirect(route('ats.dashboard'));
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals('Offered', $this->candidate->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::OFFERED, $this->candidate->status);
         $this->assertNotNull($this->candidate->offering_token);
         $this->assertNotNull($this->candidate->offering_token_expires_at);
         $this->assertTrue($this->candidate->offering_token_expires_at->isAfter(now()));
@@ -155,7 +155,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertSet('statusResponse', 'expired')
             ->assertSee('Tawaran Sudah Kedaluwarsa');
 
-        $this->assertEquals('Expired', $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::EXPIRED, $this->candidate->fresh()->status);
         $this->assertNull($this->candidate->fresh()->offering_token);
     }
 
@@ -174,15 +174,15 @@ class OfferingWorkflowTest extends TestCase
             ->assertSee('Selamat! Anda Telah Menerima Tawaran');
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals('Hired', $this->candidate->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::HIRED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
         $this->assertEquals(0, $this->lowongan->kuota);
-        $this->assertEquals('Completed/Closed', $this->lowongan->status);
+        $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
 
         $this->mpp = $this->mpp->fresh();
-        $this->assertEquals('Completed/Closed', $this->mpp->status);
+        $this->assertEquals(\App\Enums\MppStatus::COMPLETED_CLOSED, $this->mpp->status);
     }
 
     public function test_offering_response_can_reject_offering_livewire()
@@ -200,7 +200,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertSee('Tawaran Telah Ditolak');
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals('Declined', $this->candidate->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::DECLINED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
@@ -220,12 +220,12 @@ class OfferingWorkflowTest extends TestCase
             ->assertSessionHas('status', 'terima');
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals('Hired', $this->candidate->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::HIRED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
         $this->assertEquals(0, $this->lowongan->kuota);
-        $this->assertEquals('Completed/Closed', $this->lowongan->status);
+        $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
     }
 
     public function test_offering_expire_cron_job()
@@ -257,10 +257,10 @@ class OfferingWorkflowTest extends TestCase
         // Run the command
         Artisan::call('offerings:expire');
 
-        $this->assertEquals('Expired', $expiredCandidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::EXPIRED, $expiredCandidate->fresh()->status);
         $this->assertNull($expiredCandidate->fresh()->offering_token);
 
-        $this->assertEquals('Offered', $activeCandidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::OFFERED, $activeCandidate->fresh()->status);
         $this->assertEquals('active-token-1', $activeCandidate->fresh()->offering_token);
     }
 }

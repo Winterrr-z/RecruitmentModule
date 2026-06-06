@@ -32,7 +32,7 @@ class RRTest extends TestCase
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 60,
             'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
-            'status' => 'draft',
+            'status' => \App\Enums\MppStatus::DRAFT,
         ]);
 
         $user = User::factory()->create(['role' => 'hr']);
@@ -52,7 +52,7 @@ class RRTest extends TestCase
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 60,
             'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
-            'status' => 'approved',
+            'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         Livewire::test(\App\Livewire\Rr\RRForm::class, ['mppId' => $mpp->id])
@@ -83,7 +83,7 @@ class RRTest extends TestCase
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 60,
             'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
-            'status' => 'approved',
+            'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([

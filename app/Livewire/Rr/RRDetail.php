@@ -140,9 +140,9 @@ class RRDetail extends Component
 
         // Ambil metrik kandidat
         $totalCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->count() : 0;
-        $hiredCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', 'Hired')->count() : 0;
-        $rejectedCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', 'Rejected')->count() : 0;
-        $activeCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->whereNotIn('status', ['Hired', 'Rejected', 'Declined', 'Expired'])->count() : 0;
+        $hiredCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', \App\Enums\CandidateStatus::HIRED)->count() : 0;
+        $rejectedCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->where('status', \App\Enums\CandidateStatus::REJECTED)->count() : 0;
+        $activeCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->whereNotIn('status', [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED])->count() : 0;
 
         // Ambil persebaran kandidat per stage
         $stages = Stage::orderBy('urutan')->get()->map(function ($stage) use ($lowonganId) {

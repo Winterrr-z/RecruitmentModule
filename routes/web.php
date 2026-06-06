@@ -13,7 +13,7 @@ use App\Models\User;
 // ---------------------------------------------------------------------------
 // Rute Modul HR (MPP, Recruitment Request)
 // ---------------------------------------------------------------------------
-Route::middleware(['web'])->group(function () {
+Route::middleware(['web', 'auth', 'role:hr'])->group(function () {
     Route::get('/mpp', App\Livewire\Mpp\MppIndex::class)->name('mpp.index');
     Route::get('/mpp/create', App\Livewire\Mpp\MppForm::class)->name('mpp.create');
     Route::get('/mpp/{id}/edit', App\Livewire\Mpp\MppForm::class)->name('mpp.edit');
@@ -53,23 +53,28 @@ Route::match(['get', 'post'], '/logout', function () {
 // ---------------------------------------------------------------------------
 // Candidate area (pelamar yang sudah login)
 // ---------------------------------------------------------------------------
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:applicant'])->group(function () {
     Route::get('/candidate/dashboard', App\Livewire\Cw\CandidateDashboard::class)->name('candidate.dashboard');
+    Route::get('/jobs', App\Livewire\Cw\CandidateJobList::class)->name('candidate.jobs');
+    Route::get('/jobs/{id}', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.jobs.show');
+});
+
+// ---------------------------------------------------------------------------
+// HR Internal area (Selain MPP, RR, dan ATS)
+// ---------------------------------------------------------------------------
+Route::middleware(['auth', 'role:hr'])->group(function () {
     Route::get('/dashboard', App\Livewire\DashboardIndex::class)->name('dashboard');
     Route::get('/profile', App\Livewire\Hr\ProfileHr::class)->name('hr.profile');
     Route::get('/profile/edit', App\Livewire\Hr\EditProfileHr::class)->name('hr.profile.edit');
     Route::get('/profile/change-password', App\Livewire\Hr\ChangePasswordHr::class)->name('hr.profile.password');
     Route::get('/settings', App\Livewire\Hr\SettingsHr::class)->name('hr.settings');
     Route::get('/notifications', App\Livewire\Hr\NotificationsHr::class)->name('hr.notifications');
-    Route::get('/jobs', App\Livewire\Cw\CandidateJobList::class)->name('candidate.jobs');
-    Route::get('/jobs/{id}', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.jobs.show');
-    Route::get('/jobs/{id}/apply', App\Livewire\Cw\CandidateJobDetail::class)->name('candidate.apply');
 });
 
 // ---------------------------------------------------------------------------
 // ATS area (Applicant Tracking System)
 // ---------------------------------------------------------------------------
-Route::middleware(['auth'])->prefix('ats')->group(function () {
+Route::middleware(['auth', 'role:hr'])->prefix('ats')->group(function () {
     Route::get('/', App\Livewire\Ats\AtsPipeline::class)->name('ats.dashboard');
     Route::get('/candidates', App\Livewire\Ats\AtsAllCandidates::class)->name('ats.candidates');
     Route::get('/stages', App\Livewire\Ats\AtsStageConfig::class)->name('ats.stages');
@@ -81,7 +86,7 @@ Route::middleware(['auth'])->prefix('ats')->group(function () {
 });
 
 // Offering (HR)
-Route::get('/ats/offering/{candidateId}', App\Livewire\OfferingSend::class)->name('ats.offering.send')->middleware('auth');
+Route::get('/ats/offering/{candidateId}', App\Livewire\OfferingSend::class)->name('ats.offering.send')->middleware(['auth', 'role:hr']);
 
 // Offering Response (Publik)
 Route::get('/offering/{token}', App\Livewire\OfferingResponse::class)->name('offering.response');

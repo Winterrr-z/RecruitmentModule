@@ -59,7 +59,7 @@ class CandidateJobList extends Component
         }
 
         $direction = $this->sortBy === 'oldest' ? 'asc' : 'desc';
-        $lowongans = $query->orderBy('created_at', $direction)->get();
+        $lowongans = $query->orderBy('created_at', $direction)->paginate(10);
 
         // Rekap jumlah per departemen untuk sidebar
         $departments = Lowongan::query()

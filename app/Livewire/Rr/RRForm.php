@@ -105,7 +105,7 @@ class RRForm extends Component
             $mpp = Mpp::findOrFail($mppId);
 
             // Validasi status approved
-            if (strtolower($mpp->status) !== 'approved') {
+            if ($mpp->status !== \App\Enums\MppStatus::APPROVED) {
                 session()->flash('error', 'Hanya Manpower Planning yang telah disetujui (Approved) yang dapat dibuatkan recruitment request.');
                 return redirect()->route('rr.index');
             }
@@ -256,7 +256,7 @@ class RRForm extends Component
             $mpp = Mpp::findOrFail($this->selectedMppId);
 
             // Validasi status approved
-            if (strtolower($mpp->status) !== 'approved') {
+            if ($mpp->status !== \App\Enums\MppStatus::APPROVED) {
                 session()->flash('error', 'Hanya Manpower Planning yang telah disetujui (Approved) yang dapat dibuatkan RR.');
                 return redirect()->route('rr.index');
             }
@@ -309,9 +309,9 @@ class RRForm extends Component
     public function render()
     {
         // Ambil semua MPP Approved yang tidak memiliki RR aktif (selain Completed/Closed)
-        $query = Mpp::whereIn('status', ['Approved', 'approved'])
+        $query = Mpp::where('status', \App\Enums\MppStatus::APPROVED)
             ->whereDoesntHave('recruitmentRequests', function ($query) {
-                $query->where('status', '!=', 'Completed/Closed');
+                $query->where('status', '!=', \App\Enums\RrStatus::COMPLETED_CLOSED);
             });
 
         // Jika sedang edit, masukkan MPP yang terikat saat ini agar opsi dropdown tidak kosong/error

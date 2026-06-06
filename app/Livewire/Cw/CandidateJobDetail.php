@@ -43,7 +43,7 @@ class CandidateJobDetail extends Component
             
             if ($user->role === 'applicant') {
                 $this->hasActiveApplication = Candidate::where('user_id', $user->id)
-                    ->whereNotIn('status', ['Rejected', 'Hired', 'Declined', 'Expired', 'Blacklisted'])
+                    ->whereNotIn('status', [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED])
                     ->exists();
             }
         }
@@ -103,7 +103,7 @@ class CandidateJobDetail extends Component
             'cv_path' => $cvPath,
             'portofolio_path' => $portofolioPath,
             'current_stage_id' => 1, // Applied
-            'status' => 'Applied',
+            'status' => \App\Enums\CandidateStatus::APPLIED,
             'source' => 'public',
         ]);
 

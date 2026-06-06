@@ -146,7 +146,7 @@
                                         @default
                                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-surface-container">
                                                 <span class="w-1.5 h-1.5 bg-on-surface-variant/50 rounded-full"></span>
-                                                {{ $candidate->status }}
+                                                {{ $candidate->status->value ?? $candidate->status }}
                                             </span>
                                     @endswitch
                                 </td>

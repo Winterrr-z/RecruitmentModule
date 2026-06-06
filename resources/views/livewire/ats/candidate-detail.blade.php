@@ -78,7 +78,7 @@
                             @break
                         @default
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-surface-container-high text-on-surface-variant border border-surface-container rounded-full text-xs font-bold">
-                                {{ $candidate->status }}
+                                {{ $candidate->status->value ?? $candidate->status }}
                             </span>
                     @endswitch
                 </div>

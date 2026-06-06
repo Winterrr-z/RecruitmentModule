@@ -165,7 +165,7 @@
                                     @default
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant border border-surface-container">
                                             <span class="w-1.5 h-1.5 bg-on-surface-variant/50 rounded-full"></span>
-                                            {{ $candidate->status }}
+                                            {{ $candidate->status->value ?? $candidate->status }}
                                         </span>
                                 @endswitch
                             </td>
@@ -200,7 +200,7 @@
 
                             <!-- Aksi Buttons -->
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                @if(in_array(strtolower($candidate->status), ['hired', 'rejected', 'declined', 'expired', 'blacklisted']) || ($candidate->current_stage_id == 2 && strtolower($candidate->status) !== 'in progress'))
+                                @if(in_array($candidate->status, [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED]) || ($candidate->current_stage_id == 2 && $candidate->status !== \App\Enums\CandidateStatus::IN_PROGRESS))
                                     <span class="text-on-surface-variant/40 pr-6">-</span>
                                 @else
                                     <div class="flex items-center justify-end gap-1.5">

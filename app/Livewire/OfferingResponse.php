@@ -27,7 +27,7 @@ class OfferingResponse extends Component
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
             DB::transaction(function () {
                 $this->candidate->update([
-                    'status' => 'Expired',
+                    'status' => \App\Enums\CandidateStatus::EXPIRED,
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -50,7 +50,7 @@ class OfferingResponse extends Component
         if ($this->candidate->offering_token_expires_at && $this->candidate->offering_token_expires_at->isPast()) {
             DB::transaction(function () {
                 $this->candidate->update([
-                    'status' => 'Expired',
+                    'status' => \App\Enums\CandidateStatus::EXPIRED,
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -77,7 +77,7 @@ class OfferingResponse extends Component
         if ($candidate->offering_token_expires_at && $candidate->offering_token_expires_at->isPast()) {
             DB::transaction(function () use ($candidate) {
                 $candidate->update([
-                    'status' => 'Expired',
+                    'status' => \App\Enums\CandidateStatus::EXPIRED,
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -102,9 +102,9 @@ class OfferingResponse extends Component
     {
         DB::transaction(function () use ($candidate, $choice) {
             if ($choice === 'terima') {
-                $candidate->status = 'Hired';
+                $candidate->status = \App\Enums\CandidateStatus::HIRED;
             } else {
-                $candidate->status = 'Declined';
+                $candidate->status = \App\Enums\CandidateStatus::DECLINED;
             }
 
             // Clear offering token fields
@@ -114,7 +114,8 @@ class OfferingResponse extends Component
 
             // ONLY process lowongan/mpp completion if accepted
             if ($choice === 'terima') {
-                $lowongan = $candidate->lowongan;
+                // Gunakan Pessimistic Locking untuk mencegah race condition pada saat pengurangan kuota
+                $lowongan = $candidate->lowongan()->lockForUpdate()->first();
                 if ($lowongan) {
                     $lowongan->kuota = max(0, $lowongan->kuota - 1);
 

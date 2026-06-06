@@ -35,7 +35,7 @@ class CandidateDashboard extends Component
      *
      * @var array<string>
      */
-    private const INACTIVE_STATUSES = ['Rejected', 'Hired', 'Declined', 'Expired'];
+    private const INACTIVE_STATUSES = [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED];
 
     /**
      * Mendapatkan ikon Material Symbols berdasarkan nama stage.
@@ -63,7 +63,7 @@ class CandidateDashboard extends Component
         if ($candidate->offering_token_expires_at && $candidate->offering_token_expires_at->isPast()) {
             \Illuminate\Support\Facades\DB::transaction(function () use ($candidate) {
                 $candidate->update([
-                    'status' => 'Expired',
+                    'status' => \App\Enums\CandidateStatus::EXPIRED,
                     'offering_token' => null,
                     'offering_token_expires_at' => null,
                 ]);
@@ -74,9 +74,9 @@ class CandidateDashboard extends Component
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($candidate, $choice) {
             if ($choice === 'terima') {
-                $candidate->status = 'Hired';
+                $candidate->status = \App\Enums\CandidateStatus::HIRED;
             } else {
-                $candidate->status = 'Declined';
+                $candidate->status = \App\Enums\CandidateStatus::DECLINED;
             }
 
             // Hapus token setelah direpson
@@ -109,12 +109,12 @@ class CandidateDashboard extends Component
 
                         // Auto-Reject Kandidat Lain (In Progress / Applied)
                         $rejectedCandidates = \App\Models\Candidate::where('lowongan_id', $lowongan->id)
-                            ->whereIn('status', ['Applied', 'In Progress', 'Offered'])
+                            ->whereIn('status', [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED])
                             ->where('id', '!=', $candidate->id)
                             ->get();
                             
                         foreach ($rejectedCandidates as $rejected) {
-                            $rejected->status = 'Rejected';
+                            $rejected->status = \App\Enums\CandidateStatus::REJECTED;
                             $rejected->save();
                             $rejected->notify(new \App\Notifications\CandidateRejectedNotification($lowongan));
                         }
@@ -152,8 +152,8 @@ class CandidateDashboard extends Component
             ->get();
 
         // Pisahkan yang Hired
-        $hiredApplications = $allInactive->where('status', 'Hired');
-        $inactiveApplications = $allInactive->where('status', '!=', 'Hired');
+        $hiredApplications = $allInactive->where('status', \App\Enums\CandidateStatus::HIRED);
+        $inactiveApplications = $allInactive->where('status', '!=', \App\Enums\CandidateStatus::HIRED);
 
         return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications', 'hiredApplications'))
             ->layout('layouts.applicant');

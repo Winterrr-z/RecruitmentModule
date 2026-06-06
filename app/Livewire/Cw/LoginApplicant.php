@@ -88,6 +88,13 @@ class LoginApplicant extends Component
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             $user = Auth::user();
 
+            // Cek apakah kandidat di-blacklist
+            if (\App\Models\Blacklist::where('email', $user->email)->exists()) {
+                Auth::logout();
+                $limiter->clear($key);
+                return redirect()->route('blacklist.info');
+            }
+
             // Periksa apakah user memiliki role applicant
             if ($user->role !== 'applicant') {
                 Auth::logout();

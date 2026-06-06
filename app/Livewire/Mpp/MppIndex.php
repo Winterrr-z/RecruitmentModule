@@ -103,7 +103,7 @@ class MppIndex extends Component
                   ->join('lowongans', 'lowongans.id', '=', 'candidates.lowongan_id')
                   ->join('recruitment_requests', 'recruitment_requests.id', '=', 'lowongans.recruitment_request_id')
                   ->whereColumn('recruitment_requests.mpp_id', 'mpps.id')
-                  ->where('candidates.status', 'Hired');
+                  ->where('candidates.status', \App\Enums\CandidateStatus::HIRED);
             }, 'hired_count');
 
         if (!empty($this->search)) {

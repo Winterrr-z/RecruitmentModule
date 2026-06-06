@@ -42,8 +42,8 @@ class OfferingSend extends Component
             return;
         }
 
-        // 2. Status check (must be 'Applied', 'In Progress', or 'Offered')
-        if (!in_array($this->candidate->status, ['Applied', 'In Progress', 'Offered'])) {
+        // 2. Status check (must be \App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, or \App\Enums\CandidateStatus::OFFERED)
+        if (!in_array($this->candidate->status, [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED])) {
             $this->isValid = false;
             $this->errorMessage = 'Status kandidat tidak valid untuk dikirimi offering letter. Saat ini status kandidat adalah "' . $this->candidate->status . '".';
             return;
@@ -83,7 +83,7 @@ class OfferingSend extends Component
 
         DB::transaction(function () use ($token, $expiresAt) {
             $this->candidate->update([
-                'status' => 'Offered',
+                'status' => \App\Enums\CandidateStatus::OFFERED,
                 'offering_token' => $token,
                 'offering_token_expires_at' => $expiresAt,
             ]);

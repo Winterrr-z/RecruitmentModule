@@ -38,6 +38,7 @@ class RecruitmentRequest extends Model
         'estimasi_gaji_min' => 'integer',
         'estimasi_gaji_max' => 'integer',
         'kuota' => 'integer',
+        'status' => \App\Enums\RrStatus::class,
     ];
 
     public function mpp(): BelongsTo
@@ -69,6 +70,6 @@ class RecruitmentRequest extends Model
 
     public function hiredCount(): int
     {
-        return $this->lowongan?->candidates()->where('status', 'Hired')->count() ?? 0;
+        return $this->lowongan?->candidates()->where('status', \App\Enums\CandidateStatus::HIRED)->count() ?? 0;
     }
 }

@@ -91,10 +91,10 @@ class AtsBlacklist extends Component
                 'alasan' => $this->alasan,
             ]);
 
-            // Automatically blacklist active candidates with this email to 'Blacklisted' and move to Final stage
+            // Automatically blacklist active candidates with this email to \App\Enums\CandidateStatus::BLACKLISTED and move to Final stage
             Candidate::where('email', $this->email)
                 ->update([
-                    'status' => 'Blacklisted',
+                    'status' => \App\Enums\CandidateStatus::BLACKLISTED,
                     'current_stage_id' => 2
                 ]);
         });

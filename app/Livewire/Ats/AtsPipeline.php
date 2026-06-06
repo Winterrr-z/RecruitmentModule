@@ -138,9 +138,9 @@ class AtsPipeline extends Component
                 'moved_at' => now(),
             ]);
 
-            $newStatus = 'In Progress';
+            $newStatus = \App\Enums\CandidateStatus::IN_PROGRESS;
             if ($toStage->id == 1 || strtolower($toStage->nama) === 'applied') {
-                $newStatus = 'Applied';
+                $newStatus = \App\Enums\CandidateStatus::APPLIED;
             }
 
             // Update candidate current stage
@@ -154,7 +154,7 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Reject candidate (status = 'Rejected').
+     * Reject candidate (status = \App\Enums\CandidateStatus::REJECTED).
      */
     public function reject($id)
     {
@@ -184,7 +184,7 @@ class AtsPipeline extends Component
                 ]);
                 $candidate->current_stage_id = $finalStage->id;
             }
-            $candidate->status = 'Rejected';
+            $candidate->status = \App\Enums\CandidateStatus::REJECTED;
             $candidate->save();
         });
 
@@ -237,7 +237,7 @@ class AtsPipeline extends Component
             }
 
             // Reject candidate
-            $candidate->status = 'Blacklisted';
+            $candidate->status = \App\Enums\CandidateStatus::BLACKLISTED;
             $candidate->save();
         });
 
@@ -284,7 +284,7 @@ class AtsPipeline extends Component
             }
 
             // Update candidate status to Offered
-            $candidate->status = 'Offered';
+            $candidate->status = \App\Enums\CandidateStatus::OFFERED;
             $candidate->save();
         });
 
@@ -309,7 +309,7 @@ class AtsPipeline extends Component
         // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
         $stageCounts = Candidate::when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
             ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
-            ->where('status', '!=', 'Blacklisted')
+            ->where('status', '!=', \App\Enums\CandidateStatus::BLACKLISTED)
             ->selectRaw('current_stage_id, count(*) as count')
             ->groupBy('current_stage_id')
             ->pluck('count', 'current_stage_id')
@@ -320,7 +320,7 @@ class AtsPipeline extends Component
             ->when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
             ->when($this->selectedStageId, fn($q) => $q->where('current_stage_id', $this->selectedStageId))
             ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
-            ->where('status', '!=', 'Blacklisted')
+            ->where('status', '!=', \App\Enums\CandidateStatus::BLACKLISTED)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

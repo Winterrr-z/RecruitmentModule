@@ -124,11 +124,15 @@
                                 <div class="grid grid-cols-2 gap-3 mt-1">
                                     <button wire:click="respondOffering({{ $candidate->id }}, 'terima')" wire:confirm="Apakah Anda yakin ingin MENERIMA tawaran ini?" class="py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-lg shadow-md transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
                                         <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'terima')">Terima Tawaran</span>
-                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'terima')" class="flex items-center gap-1"><span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span> Memproses...</span>
+                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'terima')" class="flex items-center gap-1">
+                                            <span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                                        </span>
                                     </button>
                                     <button wire:click="respondOffering({{ $candidate->id }}, 'tolak')" wire:confirm="Apakah Anda yakin ingin MENOLAK tawaran ini? Keputusan tidak dapat diubah." class="py-3 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
                                         <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'tolak')">Tolak Tawaran</span>
-                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'tolak')" class="flex items-center gap-1"><span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span> Memproses...</span>
+                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'tolak')" class="flex items-center gap-1">
+                                            <span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -155,7 +159,7 @@
                     @php
                         // Konfigurasi tampilan per status
                         $config = match($candidate->status) {
-                            'Hired'            => [
+                            \App\Enums\CandidateStatus::HIRED            => [
                                 'badge'      => 'Diterima',
                                 'badgeCls'   => 'bg-green-100 text-green-700',
                                 'icon'       => 'check_circle',
@@ -163,7 +167,7 @@
                                 'label'      => 'Selesai',
                                 'labelCls'   => 'text-green-600',
                             ],
-                            'Rejected'          => [
+                            \App\Enums\CandidateStatus::REJECTED          => [
                                 'badge'      => 'Tidak Lolos',
                                 'badgeCls'   => 'bg-red-900/10 text-red-800 border border-red-900/20',
                                 'icon'       => 'close',
@@ -171,7 +175,7 @@
                                 'label'      => 'Arsip',
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
-                            'Declined'          => [
+                            \App\Enums\CandidateStatus::DECLINED          => [
                                 'badge'      => 'Offering Ditolak',
                                 'badgeCls'   => 'bg-red-100 text-red-700',
                                 'icon'       => 'cancel',
@@ -179,7 +183,7 @@
                                 'label'      => 'Arsip',
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
-                            'Expired'          => [
+                            \App\Enums\CandidateStatus::EXPIRED          => [
                                 'badge'      => 'Kedaluwarsa',
                                 'badgeCls'   => 'bg-red-100 text-red-700',
                                 'icon'       => 'timer_off',
@@ -187,7 +191,7 @@
                                 'label'      => 'Arsip',
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
-                            'Blacklisted'      => [
+                            \App\Enums\CandidateStatus::BLACKLISTED      => [
                                 'badge'      => 'Daftar Hitam',
                                 'badgeCls'   => 'bg-red-950/20 text-red-950 border border-red-950/30',
                                 'icon'       => 'block',
@@ -196,7 +200,7 @@
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
                             default            => [
-                                'badge'      => $candidate->status,
+                                'badge'      => $candidate->status->value,
                                 'badgeCls'   => 'bg-surface-container-high text-on-surface-variant',
                                 'icon'       => 'help',
                                 'circleCls'  => 'bg-surface-container-high text-on-surface-variant',

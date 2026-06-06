@@ -27,7 +27,7 @@ class GenerateNotifications extends Command
                 ->delete();
 
             // 1. Generate notifikasi untuk candidates yang apply hari ini
-            $todayApplications = Candidate::where('status', 'Applied')
+            $todayApplications = Candidate::where('status', \App\Enums\CandidateStatus::APPLIED)
                 ->whereDate('created_at', $today)
                 ->get();
 

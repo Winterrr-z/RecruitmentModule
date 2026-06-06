@@ -31,6 +31,7 @@ class Candidate extends Model
 
     protected $casts = [
         'offering_token_expires_at' => 'datetime',
+        'status' => \App\Enums\CandidateStatus::class,
         'lowongan_id' => 'integer',
         'user_id' => 'integer',
         'current_stage_id' => 'integer',

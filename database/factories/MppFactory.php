@@ -28,7 +28,7 @@ class MppFactory extends Factory
             'estimasi_gaji_max' => $this->faker->numberBetween(7000000, 15000000),
             'sla_hari' => $this->faker->numberBetween(14, 45),
             'target_waktu_absolut' => $this->faker->dateTimeBetween('+1 month', '+3 months')->format('Y-m-d'),
-            'status' => $this->faker->randomElement(['Draft', 'Approved', 'Completed', 'Closed']),
+            'status' => $this->faker->randomElement([\App\Enums\MppStatus::DRAFT, \App\Enums\MppStatus::APPROVED, \App\Enums\MppStatus::COMPLETED_CLOSED, \App\Enums\MppStatus::CLOSED]),
             'note' => $this->faker->sentence(),
             'last_activity_at' => now(),
         ];

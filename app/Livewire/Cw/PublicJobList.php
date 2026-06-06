@@ -54,7 +54,7 @@ class PublicJobList extends Component
             $query->where('lokasi', $this->selectedLokasi);
         }
 
-        $lowongans = $query->orderBy('created_at', 'desc')->get();
+        $lowongans = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('livewire.cw.career-job-list', compact('lowongans'))
             ->layout('layouts.guest');

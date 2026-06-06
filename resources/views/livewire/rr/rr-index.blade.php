@@ -75,7 +75,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($rrs as $rr)
                 @php
-                    $isCompleted = in_array(strtolower($rr->status), ['completed/closed', 'completed', 'closed']);
+                    $isCompleted = in_array($rr->status, [\App\Enums\RrStatus::COMPLETED_CLOSED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]);
                 @endphp
                 <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex flex-col justify-between text-on-surface
                     {{ $isCompleted 
@@ -84,11 +84,11 @@
                     <div>
                         <!-- Badge status -->
                         <div class="flex justify-between items-start mb-4">
-                            @if($rr->status === 'Ready to Publish')
+                            @if($rr->status->value === 'Ready to Publish')
                                 <span class="inline-flex items-center px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] font-bold uppercase tracking-wider">
                                     Ready to Publish
                                 </span>
-                            @elseif($rr->status === 'Published')
+                            @elseif($rr->status->value === 'Published')
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-[10px] font-bold uppercase tracking-wider">
                                     <span class="relative flex h-2 w-2">
                                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -148,10 +148,10 @@
                             </span>
                         </div>
 
-                        @if($rr->status === 'Ready to Publish' || $rr->status === 'Published')
+                        @if($rr->status->value === 'Ready to Publish' || $rr->status->value === 'Published')
                             <div class="flex items-center justify-end gap-2 pt-3 border-t border-surface-container-low">
                                 <!-- Tombol Edit (Draft & Tanpa Pelamar) -->
-                                @if($rr->status === 'Ready to Publish' && $rr->candidates_count === 0)
+                                @if($rr->status->value === 'Ready to Publish' && $rr->candidates_count === 0)
                                     <a href="{{ route('rr.edit', $rr->id) }}" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95 no-underline">
                                         <span class="material-symbols-outlined text-[16px]">edit</span>
                                         <span>Edit</span>
@@ -159,7 +159,7 @@
                                 @endif
 
                                 <!-- Tombol Aktifkan -->
-                                @if($rr->status === 'Ready to Publish')
+                                @if($rr->status->value === 'Ready to Publish')
                                     <button wire:click="publish({{ $rr->id }})" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-on-primary font-label-sm text-xs font-semibold hover:bg-primary-container shadow-sm transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
                                         <span>Aktifkan</span>
@@ -167,7 +167,7 @@
                                 @endif
 
                                 <!-- Tombol Nonaktifkan -->
-                                @if($rr->status === 'Published')
+                                @if($rr->status->value === 'Published')
                                     <button wire:click="unpublish({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">visibility_off</span>
                                         <span>Nonaktifkan</span>
@@ -175,7 +175,7 @@
                                 @endif
 
                                 <!-- Tombol Tutup -->
-                                @if($rr->status === 'Published')
+                                @if($rr->status->value === 'Published')
                                     <button wire:click="close({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menutup lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/15 text-error font-label-sm text-xs font-semibold hover:bg-error/25 transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">cancel</span>
                                         <span>Tutup</span>

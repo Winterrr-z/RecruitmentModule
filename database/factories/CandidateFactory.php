@@ -30,7 +30,7 @@ class CandidateFactory extends Factory
             'cv_path' => 'cv/sample.pdf',
             'portofolio_path' => null,
             'current_stage_id' => 1, // Default ke stage Applied yang di-seed
-            'status' => $this->faker->randomElement(['Applied', 'In Progress', 'Rejected', 'Hired']),
+            'status' => $this->faker->randomElement([\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED]),
             'source' => $this->faker->randomElement(['public', 'manual']),
         ];
     }

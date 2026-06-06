@@ -119,7 +119,7 @@ class AtsManualAndBlacklistTest extends TestCase
         ]);
 
         // Check active candidate auto-rejected
-        $this->assertEquals('Blacklisted', $cand->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $cand->fresh()->status);
 
         // 3. Test blacklist delete
         $blacklistRow = Blacklist::where('email', 'bad@example.com')->first();

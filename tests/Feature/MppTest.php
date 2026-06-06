@@ -44,7 +44,7 @@ class MppTest extends TestCase
             'estimasi_gaji_min' => 10000000,
             'estimasi_gaji_max' => 15000000,
             'sla_hari' => 90,
-            'status' => 'draft',
+            'status' => \App\Enums\MppStatus::DRAFT,
         ]);
     }
 
@@ -74,7 +74,7 @@ class MppTest extends TestCase
             'jabatan' => 'Accountant',
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 30,
-            'status' => 'draft',
+            'status' => \App\Enums\MppStatus::DRAFT,
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
@@ -83,7 +83,7 @@ class MppTest extends TestCase
 
         $this->assertDatabaseHas('mpps', [
             'id' => $mpp->id,
-            'status' => 'approved',
+            'status' => \App\Enums\MppStatus::APPROVED,
         ]);
     }
 
@@ -130,7 +130,7 @@ class MppTest extends TestCase
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 30,
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
-            'status' => 'approved',
+            'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([
@@ -183,7 +183,7 @@ class MppTest extends TestCase
             'jumlah_kebutuhan' => 1,
             'sla_hari' => 30,
             'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
-            'status' => 'approved',
+            'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([

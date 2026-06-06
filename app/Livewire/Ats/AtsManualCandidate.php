@@ -70,7 +70,7 @@ class AtsManualCandidate extends Component
             'cv_path' => $cvPath,
             'portofolio_path' => $portofolioPath,
             'current_stage_id' => 1, // Applied
-            'status' => 'Applied',
+            'status' => \App\Enums\CandidateStatus::APPLIED,
             'source' => 'manual',
         ]);
 

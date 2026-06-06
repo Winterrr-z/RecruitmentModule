@@ -21,10 +21,10 @@
         <section class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.06)] border border-surface-container/30">
             @php
                 $computedStatus = $mpp->getComputedStatus();
-                $isCompleted = in_array(strtolower($mpp->status), ['completed', 'closed']) || $computedStatus === 'Filled';
+                $isCompleted = in_array($mpp->status, [\App\Enums\MppStatus::COMPLETED_CLOSED, \App\Enums\MppStatus::CLOSED]) || $computedStatus === 'Filled';
                 
                 $isDraftActive = !$isCompleted;
-                $isApprovedActive = (strtolower($mpp->status) === 'approved' || $hasLowongan) && !$isCompleted;
+                $isApprovedActive = ($mpp->status === \App\Enums\MppStatus::APPROVED || $hasLowongan) && !$isCompleted;
                 $isLowonganActive = $hasLowongan && !$isCompleted;
                 
                 $slaDisplay = $mpp->sla_hari >= 30 ? (int) floor($mpp->sla_hari / 30) . ' Bulan' : (int) $mpp->sla_hari . ' Hari';
@@ -270,9 +270,9 @@
                                             <span class="text-on-surface-variant">/ {{ $total }}</span>
                                         </td>
                                         <td class="p-4">
-                                            @if($l->status === 'Published')
+                                            @if($l->status->value === 'Published')
                                                 <span class="px-2.5 py-0.5 bg-[#dcfce7] text-[#166534] text-xs font-bold rounded-full uppercase">Aktif (Published)</span>
-                                            @elseif($l->status === 'Completed/Closed')
+                                            @elseif($l->status->value === 'Completed/Closed')
                                                 <span class="px-2.5 py-0.5 bg-[#f3f4f6] text-[#374151] text-xs font-bold rounded-full uppercase">Closed</span>
                                             @else
                                                 <span class="px-2.5 py-0.5 bg-[#fef9c3] text-[#854d0e] text-xs font-bold rounded-full uppercase">Draft</span>
@@ -306,7 +306,7 @@
                     <!-- Edit Button -->
                     @if($computedStatus === 'Closed' || $computedStatus === 'Filled')
                         {{-- Edit disabled/hidden if closed or filled --}}
-                    @elseif(strtolower($mpp->status) === 'approved' && $mpp->hasPublishedRr())
+                    @elseif($mpp->status === \App\Enums\MppStatus::APPROVED && $mpp->hasPublishedRr())
                         {{-- Edit disabled if plan is approved and RR is published --}}
                     @else
                         <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
@@ -316,7 +316,7 @@
                     @endif
                     
                     <!-- Tutup Plan Button -->
-                    @if(strtolower($mpp->status) === 'approved' && !$mpp->hasActiveCandidates())
+                    @if($mpp->status === \App\Enums\MppStatus::APPROVED && !$mpp->hasActiveCandidates())
                         <button wire:click="closePlan" wire:confirm="Anda yakin ingin menutup Plan ini?" class="px-6 h-14 bg-error text-white hover:brightness-110 border border-error font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">cancel</span>
                             <span>Tutup Plan</span>
@@ -324,7 +324,7 @@
                     @endif
 
                     <!-- Approve Button -->
-                    @if(strtolower($mpp->status) === 'draft')
+                    @if($mpp->status === \App\Enums\MppStatus::DRAFT)
                         <button wire:click="approve" wire:confirm="Approve MPP ini?" class="px-8 h-14 bg-[#10b981] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(16,185,129,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">check_circle</span>
                             <span>Approve Perencanaan</span>
@@ -332,7 +332,7 @@
                     @endif
 
                     <!-- Buat Lowongan Button -->
-                    @if(strtolower($mpp->status) === 'approved' && $remainingQuota > 0 && !$hasActiveRr)
+                    @if($mpp->status === \App\Enums\MppStatus::APPROVED && $remainingQuota > 0 && !$hasActiveRr)
                         <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_box</span>
                             <span>Buat Lowongan</span>

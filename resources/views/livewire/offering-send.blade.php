@@ -39,7 +39,7 @@
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Status</span>
                     <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 border border-blue-500/20">
-                        {{ $candidate->status }}
+                        {{ $candidate->status->value ?? $candidate->status }}
                     </span>
                 </div>
             </div>

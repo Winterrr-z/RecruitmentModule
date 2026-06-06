@@ -100,9 +100,9 @@
                     </div>
                     <div class="mb-6">
                         <div class="flex items-center gap-3 mb-3">
-                            @if(strtolower($mpp->status) === 'approved')
+                            @if($mpp->status === \App\Enums\MppStatus::APPROVED)
                                 <span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded uppercase">Approved</span>
-                            @elseif(strtolower($mpp->status) === 'closed')
+                            @elseif($mpp->status === \App\Enums\MppStatus::CLOSED)
                                 <span class="px-2 py-1 bg-gray-200 text-gray-700 text-[10px] font-bold rounded uppercase">Closed</span>
                             @else
                                 <span class="px-2 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold rounded uppercase">Draft</span>
