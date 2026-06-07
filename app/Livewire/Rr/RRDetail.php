@@ -145,7 +145,7 @@ class RRDetail extends Component
         $activeCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->whereNotIn('status', [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED])->count() : 0;
 
         // Ambil persebaran kandidat per stage
-        $stages = Stage::orderBy('sequence')->get()->map(function ($stage) use ($lowonganId) {
+        $stages = Stage::getAllCached()->map(function ($stage) use ($lowonganId) {
             return [
                 'name' => $stage->name,
                 'count' => $lowonganId ? Candidate::where('lowongan_id', $lowonganId)

@@ -2,7 +2,7 @@
     $requestPath = request()->path();
 
     $activeTab = null;
-    if (request()->routeIs('ats.candidate.detail') || str_starts_with($requestPath, 'ats/candidate/')) {
+    if (request()->routeIs('ats.candidate.detail') || request()->routeIs('ats.offering.send') || str_starts_with($requestPath, 'ats/candidate/') || str_starts_with($requestPath, 'ats/offering/')) {
         $referer = request()->headers->get('referer');
         $from = request()->query('from');
         if ($from === 'candidates' || ($referer && str_contains($referer, '/ats/candidates'))) {

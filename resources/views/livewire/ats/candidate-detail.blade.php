@@ -14,8 +14,8 @@
             </div>
         </div>
 
-        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->name) === 'final') && in_array($candidate->status, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->quota > 0)
-            <a href="{{ route('ats.offering.send', ['candidateId' => $candidate->id]) }}" 
+        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->name) === 'final') && in_array($candidate->status->value, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->quota > 0)
+            <a href="{{ route('ats.offering.send', ['candidateId' => $candidate->id]) }}?from={{ $backLabel === 'All Candidates' ? 'candidates' : 'dashboard' }}" 
                class="inline-flex items-center justify-center gap-2 px-5 h-11 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)] text-sm">
                 <span class="material-symbols-outlined text-[20px]">mail</span>
                 <span>Kirim Offering Letter</span>
@@ -175,7 +175,7 @@
                                     </td>
                                     <td class="px-4 py-3 text-sm text-on-surface-variant/80 min-w-[250px]">
                                         @php
-                                            $isPassed = $m->to_stage_id !== $candidate->current_stage_id || !in_array($candidate->status, ['Applied', 'In Progress', 'Offered']);
+                                            $isPassed = $m->to_stage_id !== $candidate->current_stage_id || !in_array($candidate->status->value, ['Applied', 'In Progress', 'Offered']);
                                         @endphp
                                         
                                         @if($isPassed)

@@ -6,9 +6,9 @@ use App\Models\Candidate;
 use App\Mail\OfferingLetterMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use illuminate\support\Facades\DB;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use livewire\Attributes\Layout;
+use Livewire\Attributes\Layout;
 
 #[Layout('layouts.app')]
 class OfferingSend extends Component
@@ -17,11 +17,25 @@ class OfferingSend extends Component
     public $candidate;
     public $lowongan;
 
+    public $backUrl;
+    public $backLabel;
+
     public $isValid = false;
     public $errorMessage = '';
 
     public function mount($candidateId)
     {
+        $referer = request()->headers->get('referer');
+        $from = request()->query('from');
+
+        if ($from === 'candidates' || ($referer && str_contains($referer, '/ats/candidates'))) {
+            $this->backUrl = route('ats.candidates');
+            $this->backLabel = 'All Candidates';
+        } else {
+            $this->backUrl = route('ats.dashboard');
+            $this->backLabel = 'Pipeline';
+        }
+
         $this->candidateId = $candidateId;
         $this->candidate = Candidate::with(['lowongan', 'currentStage'])->findOrFail($candidateId);
         $this->lowongan = $this->candidate->lowongan;
@@ -94,6 +108,7 @@ class OfferingSend extends Component
             Mail::to($this->candidate->email)->send(new OfferingLetterMail($this->candidate, $this->lowongan, $token, $expiresAt));
             session()->flash('message', 'Offering letter telah dikirim ke email kandidat.');
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email offering letter untuk kandidat {$this->candidate->id}: " . $e->getMessage());
             session()->flash('error', 'Kandidat berhasil di-update menjadi Offered, namun email gagal terkirim: ' . $e->getMessage());
         }
 

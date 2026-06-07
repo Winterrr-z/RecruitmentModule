@@ -156,41 +156,17 @@ class RRIndex extends Component
      *
      * @return \Illuminate\View\View
      */
-    public function render()
+    public function render(\App\Repositories\RrRepository $repository)
     {
-        $stats = [
-            'total_active' => RecruitmentRequest::where('status', 'Published')->count(),
-            'ready_to_publish' => RecruitmentRequest::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
-            'completed' => RecruitmentRequest::whereIn('status', ['Completed/Closed', 'Completed', 'Closed'])->count(),
+        $stats = $repository->getStats();
+
+        $filters = [
+            'status' => $this->status,
+            'search' => $this->search,
+            'sortBy' => $this->sortBy,
         ];
 
-        // Query RR
-        $query = RecruitmentRequest::with('lowongan', 'mpp')->withCount('candidates');
-
-        if ($this->status !== '') {
-            if (in_array($this->status, ['Completed/Closed', 'Completed', 'Closed'])) {
-                $query->whereIn('status', ['Completed/Closed', 'Completed', 'Closed']);
-            } else {
-                $query->whereRaw('lower(status) = ?', [strtolower($this->status)]);
-            }
-        }
-
-        if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('job_title', 'like', '%' . $this->search . '%')
-                  ->orWhere('department', 'like', '%' . $this->search . '%');
-            });
-        }
-
-        $query->orderByRaw("CASE WHEN lower(status) IN ('completed/closed', 'completed', 'closed') THEN 1 ELSE 0 END ASC");
-
-        if ($this->sortBy === 'oldest') {
-            $query->orderBy('created_at', 'asc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        $rrs = $query->paginate(12);
+        $rrs = $repository->getPaginatedList($filters, 12);
 
         return view('livewire.rr.rr-index', [
             'rrs' => $rrs,

@@ -58,7 +58,7 @@ class DashboardIndex extends Component
         $this->todayInterviewCount = InterviewSchedule::whereDate('date', today())->count();
 
         // 4. Load stages
-        $this->stages = Stage::orderBy('sequence', 'asc')->get();
+        $this->stages = Stage::getAllCached();
 
         // 5. Load active vacancies for Donut Carousel
         $this->activeLowongans = Lowongan::where('status', 'Published')

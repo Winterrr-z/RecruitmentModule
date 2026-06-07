@@ -90,6 +90,11 @@ class RegisterApplicant extends Component
             'role'     => 'applicant',
         ]);
 
+        // Link existing candidate records matching this email
+        \App\Models\Candidate::where('email', $user->email)
+            ->whereNull('user_id')
+            ->update(['user_id' => $user->id]);
+
         Auth::login($user);
 
         session()->flash('message', 'Selamat datang, ' . $user->name . '!');

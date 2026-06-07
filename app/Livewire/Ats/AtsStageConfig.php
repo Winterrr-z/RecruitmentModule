@@ -57,7 +57,7 @@ class AtsStageConfig extends Component
 
     public function loadStages()
     {
-        $this->stages = Stage::orderBy('sequence', 'asc')->get();
+        $this->stages = Stage::getAllCached();
     }
 
     public function addKriteria()

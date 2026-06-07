@@ -136,6 +136,16 @@
                                     </button>
                                 </div>
                             </div>
+                        @elseif($candidate->status === \App\Enums\CandidateStatus::OFFERED)
+                            <div class="w-full mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col gap-2 shadow-sm">
+                                <p class="text-xs font-bold text-amber-700 text-center flex items-center justify-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[18px]">info</span>
+                                    Penawaran Sedang Diproses
+                                </p>
+                                <p class="text-[11px] text-amber-600/90 text-center leading-relaxed">
+                                    Tim HR kami sedang menyiapkan surat penawaran resmi untuk Anda. Harap periksa email Anda atau dashboard ini secara berkala.
+                                </p>
+                            </div>
                         @endif
                     </div>
                 @endforeach

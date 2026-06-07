@@ -110,8 +110,7 @@
             <h1>Surat Penawaran Pekerjaan</h1>
         </div>
         <div class="content">
-            <p>Halo <strong>{{ $candidate->name }}</strong>,</p>
-            <p>Selamat! Kami dengan senang hati menyampaikan penawaran resmi untuk bergabung bersama tim kami. Berdasarkan hasil evaluasi proses seleksi yang telah dilalui, kami menilai kualifikasi Anda sangat sesuai untuk posisi yang kami tawarkan.</p>
+            @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $lowongan->job_title])
             
             <div class="highlight-box">
                 <table>
@@ -129,8 +128,6 @@
                     </tr>
                 </table>
             </div>
-
-            <p>Silakan tinjau rincian penawaran selengkapnya dan berikan tanggapan Anda dengan mengeklik tombol di bawah ini:</p>
 
             <div class="btn-container">
                 <a href="{{ url('/offering/'.$token) }}" class="btn">Tinjau Penawaran</a>

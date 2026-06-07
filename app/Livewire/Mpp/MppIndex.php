@@ -87,54 +87,18 @@ class MppIndex extends Component
      * 
      * @return \Illuminate\View\View
      */
-    public function render()
+    public function render(\App\Repositories\MppRepository $repository)
     {
-        $departments = Mpp::select('department')
-            ->whereNotNull('department')
-            ->distinct()
-            ->orderBy('department')
-            ->pluck('department');
+        $departments = $repository->getUniqueDepartments();
 
-        $query = Mpp::with('lowongans.candidates')
-            ->select('mpps.*')
-            ->selectSub(function ($q) {
-                $q->selectRaw('count(*)')
-                  ->from('candidates')
-                  ->join('lowongans', 'lowongans.id', '=', 'candidates.lowongan_id')
-                  ->join('recruitment_requests', 'recruitment_requests.id', '=', 'lowongans.recruitment_request_id')
-                  ->whereColumn('recruitment_requests.mpp_id', 'mpps.id')
-                  ->where('candidates.status', \App\Enums\CandidateStatus::HIRED);
-            }, 'hired_count');
+        $filters = [
+            'search' => $this->search,
+            'department' => $this->selectedDepartment,
+            'status' => $this->status,
+            'sortBy' => $this->sortBy,
+        ];
 
-        if (!empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('plan_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('job_title', 'like', '%' . $this->search . '%')
-                  ->orWhere('department', 'like', '%' . $this->search . '%');
-            });
-        }
-
-        if (!empty($this->selectedDepartment)) {
-            $query->where('department', $this->selectedDepartment);
-        }
-
-        if (!empty($this->status)) {
-            if ($this->status === 'completed') {
-                $query->havingRaw('hired_count >= quota');
-            } else {
-                $query->where('status', $this->status);
-            }
-        }
-
-        $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= quota THEN 1 ELSE 0 END ASC");
-
-        if ($this->sortBy === 'oldest') {
-            $query->orderBy('created_at', 'asc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        $mpps = $query->paginate(12);
+        $mpps = $repository->getPaginatedList($filters, 12);
 
         return view('livewire.mpp.index', compact('departments', 'mpps'));
     }

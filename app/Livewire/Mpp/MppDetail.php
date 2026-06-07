@@ -87,10 +87,9 @@ class MppDetail extends Component
      * 
      * @return void
      */
-    public function approve()
+    public function approve(\App\Services\MppService $service)
     {
-        if ($this->mpp->status === \App\Enums\MppStatus::DRAFT) {
-            $this->mpp->update(['status' => \App\Enums\MppStatus::APPROVED, 'last_activity_at' => now()]);
+        if ($service->approve($this->mpp)) {
             session()->flash('message', 'Manpower Planning berhasil disetujui.');
             $this->loadMpp();
         }
@@ -102,10 +101,9 @@ class MppDetail extends Component
      * 
      * @return void
      */
-    public function closePlan()
+    public function closePlan(\App\Services\MppService $service)
     {
-        if ($this->mpp->status === \App\Enums\MppStatus::APPROVED && !$this->mpp->hasActiveCandidates()) {
-            $this->mpp->update(['status' => \App\Enums\MppStatus::CLOSED, 'last_activity_at' => now()]);
+        if ($service->close($this->mpp)) {
             session()->flash('message', 'Manpower Planning berhasil ditutup.');
             $this->loadMpp();
         } else {

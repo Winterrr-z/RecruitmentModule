@@ -1,7 +1,9 @@
 <div>
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => $backLabel, 'url' => $backUrl], ['label' => $candidate->name, 'url' => route('ats.candidate.detail', ['candidateId' => $candidate->id]) . '?from=' . ($backLabel === 'All Candidates' ? 'candidates' : 'dashboard')], ['label' => 'Offering Letter', 'url' => null]]" />
+
     <!-- Content Header & Back button -->
     <div class="mb-8 flex items-center gap-4">
-        <a href="{{ route('ats.candidate.detail', ['candidateId' => $candidateId]) }}" class="p-2 hover:bg-surface-container rounded-md transition-colors text-on-surface-variant flex items-center" title="Kembali ke Detail Pelamar">
+        <a href="{{ route('ats.candidate.detail', ['candidateId' => $candidateId]) }}?from={{ $backLabel === 'All Candidates' ? 'candidates' : 'dashboard' }}" class="p-2 hover:bg-surface-container rounded-md transition-colors text-on-surface-variant flex items-center" title="Kembali ke Detail Pelamar">
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
@@ -12,7 +14,7 @@
 
     <x-toast-alert />
 
-    <div class="max-w-2xl bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
+    <div class="max-w-4xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
         <div>
             <h3 class="text-title-md font-headline-lg text-on-surface mb-2">Detail Kandidat & Lowongan</h3>
             <p class="text-body-md text-xs text-on-surface-variant/70">Periksa kembali data di bawah ini sebelum mengirimkan surat penawaran.</p>
@@ -68,6 +70,14 @@
             </div>
         </div>
 
+        <!-- Preview Surat Penawaran -->
+        <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-primary border-b border-surface-container-high/65 pb-1 mb-3">Preview Surat Penawaran</h4>
+            <div class="text-xs text-on-surface-variant/90 leading-relaxed space-y-3 max-h-48 overflow-y-auto p-4 border rounded-md bg-surface/30">
+                @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $lowongan->job_title])
+            </div>
+        </div>
+
         @if (!$isValid)
             <!-- Validation Error Alert -->
             <div class="p-4 rounded-md bg-error/10 text-error border border-error/25 flex items-start gap-3">
@@ -85,7 +95,6 @@
                     <p class="font-bold text-sm text-green-900 mb-1">Informasi Pengiriman:</p>
                     <ul class="list-disc pl-4 space-y-1">
                         <li>Kandidat akan menerima email berisi tautan tinjauan unik.</li>
-                        <li>Status kandidat akan diperbarui menjadi <strong class="text-primary font-bold">Offered</strong>.</li>
                         <li>Kandidat memiliki waktu <strong>3 hari</strong> untuk memberikan keputusan (Terima/Tolak).</li>
                         <li>Apabila melewati tenggat, status penawaran akan otomatis kedaluwarsa.</li>
                     </ul>

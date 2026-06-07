@@ -97,6 +97,12 @@ class CandidateService
             $candidate->status = \App\Enums\CandidateStatus::REJECTED;
             $candidate->save();
         });
+
+        try {
+            $candidate->notify(new \App\Notifications\CandidateRejectedNotification($candidate->lowongan));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Gagal mengirim email penolakan untuk kandidat {$candidate->id}: " . $e->getMessage());
+        }
     }
 
     /**

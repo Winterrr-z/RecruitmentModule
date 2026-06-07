@@ -171,12 +171,19 @@ class AtsPipelineTest extends TestCase
 
     public function test_can_reject_candidate()
     {
+        \Illuminate\Support\Facades\Notification::fake();
+
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('reject', $this->candidate->id)
             ->assertSee("Kandidat 'John Doe' berhasil ditolak.");
 
         $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $this->candidate->fresh()->status);
+
+        \Illuminate\Support\Facades\Notification::assertSentTo(
+            $this->candidate->fresh(),
+            \App\Notifications\CandidateRejectedNotification::class
+        );
     }
 
     public function test_can_blacklist_candidate()

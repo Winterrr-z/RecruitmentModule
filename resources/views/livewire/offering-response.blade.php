@@ -1,4 +1,4 @@
-<div class="max-w-xl mx-auto px-4 py-16">
+<div class="max-w-3xl mx-auto px-4 py-16 min-h-[calc(100vh-280px)] flex flex-col justify-center">
     <!-- Success Accept State -->
     @if ($statusResponse === 'success_accept')
         <div class="bg-surface-container-lowest p-8 rounded-lg shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 text-center space-y-6">
@@ -12,7 +12,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span class="material-symbols-outlined">home</span>
                     <span>Kembali ke Portal Karir</span>
                 </a>
@@ -32,7 +32,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span class="material-symbols-outlined">home</span>
                     <span>Kembali ke Portal Karir</span>
                 </a>
@@ -52,7 +52,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span>Kembali ke Portal Karir</span>
                 </a>
             </div>
@@ -71,7 +71,7 @@
                 </p>
             </div>
             <div class="pt-4">
-                <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
+                <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all duration-200 active:scale-95 text-sm shadow-[0_4px_12px_rgba(107,56,212,0.18)] no-underline">
                     <span>Kembali ke Portal Karir</span>
                 </a>
             </div>
@@ -82,7 +82,7 @@
         <div class="bg-surface-container-lowest p-8 rounded-lg shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 space-y-8">
             <div class="text-center">
                 <h2 class="font-headline-lg text-2xl text-on-surface mb-2">Surat Penawaran Pekerjaan</h2>
-                <p class="text-body-md text-sm text-on-surface-variant/70">Tinjau tawaran posisi jabatan dan berikan keputusan Anda</p>
+                
             </div>
 
             <!-- Profile Overview Box -->
@@ -116,12 +116,7 @@
 
             <!-- Letter Text Preview -->
             <div class="text-sm text-on-surface-variant/90 leading-relaxed space-y-3 max-h-60 overflow-y-auto p-4 border rounded-md bg-surface/30">
-                <p>Yth. <strong>{{ $candidate->name }}</strong>,</p>
-                <p>Kami menyampaikan apresiasi setinggi-tingginya atas partisipasi Anda dalam rangkaian proses seleksi di perusahaan kami. Kami sangat terkesan dengan kapabilitas dan potensi kontribusi yang dapat Anda berikan.</p>
-                <p>Melalui surat ini, kami secara resmi menawarkan Anda untuk bergabung bersama tim kami pada posisi jabatan di atas. Kami meyakini bahwa bakat Anda akan sangat mendukung visi perkembangan perusahaan.</p>
-                <p>Dengan mengeklik tombol <strong>Terima Tawaran</strong> di bawah ini, Anda menyatakan kesediaan untuk melanjutkan ke tahap administrasi penerimaan karyawan baru. Jika Anda memilih <strong>Tolak Tawaran</strong>, anda menyatakan menolak menjadi karyawan baru kami.</p>
-                <p>Salam hangat,</p>
-                <p><strong>Team HR Recruitment</strong></p>
+                @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $candidate->lowongan->job_title])
             </div>
 
             <!-- Expiration Alert Notice -->

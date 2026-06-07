@@ -9,6 +9,24 @@ class Stage extends Model
 {
     protected $table = 'stages';
 
+    protected static function booted()
+    {
+        static::saved(function ($model) {
+            \Illuminate\Support\Facades\Cache::forget('stages_all');
+        });
+
+        static::deleted(function ($model) {
+            \Illuminate\Support\Facades\Cache::forget('stages_all');
+        });
+    }
+
+    public static function getAllCached()
+    {
+        return \Illuminate\Support\Facades\Cache::rememberForever('stages_all', function () {
+            return self::orderBy('sequence', 'asc')->get();
+        });
+    }
+
     protected $fillable = [
         'name',
         'description',

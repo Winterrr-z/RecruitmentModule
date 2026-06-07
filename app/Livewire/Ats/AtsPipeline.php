@@ -55,7 +55,7 @@ class AtsPipeline extends Component
             $this->selectedStageId = session()->get('pipeline_selected_stage');
         } else {
             // Default: set selected stage to first stage by urutan
-            $firstStage = Stage::orderBy('sequence', 'asc')->first();
+            $firstStage = Stage::getAllCached()->first();
             if ($firstStage) {
                 $this->selectedStageId = $firstStage->id;
             }
@@ -206,7 +206,7 @@ class AtsPipeline extends Component
         $lowongans = Lowongan::whereIn('status', ['Published', 'Ready to Publish'])->get();
 
         // 2. Get all stages
-        $stages = Stage::orderBy('sequence', 'asc')->get();
+        $stages = Stage::getAllCached();
 
         // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
         $stageCounts = app(\App\Repositories\CandidateRepository::class)->getStageCounts($this->selectedLowonganId, $this->search);

@@ -40,12 +40,10 @@ class CandidateRejectedNotification extends Notification implements ShouldQueue
         
         return (new MailMessage)
                     ->subject('Update Status Lamaran - ' . $job_title)
-                    ->greeting('Halo ' . $notifiable->name . ',')
-                    ->line('Terima kasih atas minat Anda untuk bergabung bersama kami pada posisi ' . $job_title . '.')
-                    ->line('Setelah melakukan pertimbangan secara menyeluruh, dengan berat hati kami menginformasikan bahwa kami belum dapat melanjutkan proses lamaran Anda ke tahap berikutnya pada saat ini karena kuota untuk posisi tersebut telah terpenuhi.')
-                    ->line('Kami sangat menghargai waktu dan usaha yang Anda luangkan dalam proses seleksi ini.')
-                    ->line('Kami akan menyimpan profil Anda dalam database kami dan mungkin akan menghubungi Anda di masa mendatang jika ada peluang yang sesuai dengan kualifikasi Anda.')
-                    ->salutation('Salam hormat, Tim Rekrutmen');
+                    ->view('emails.rejected-letter', [
+                        'name' => $notifiable->name,
+                        'jobTitle' => $job_title,
+                    ]);
     }
 
     /**

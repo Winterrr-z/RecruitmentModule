@@ -62,15 +62,17 @@ class CandidateJobList extends Component
         $lowongans = $query->orderBy('created_at', $direction)->paginate(10);
 
         // Rekap jumlah per departemen untuk sidebar
-        $departments = Lowongan::query()
-            ->where('status', 'Published')
-            ->where('quota', '>', 0)
-            ->where('application_deadline', '>=', Carbon::today())
-            ->selectRaw('department, count(*) as total')
-            ->groupBy('department')
-            ->orderBy('department')
-            ->pluck('total', 'department')
-            ->toArray();
+        $departments = \Illuminate\Support\Facades\Cache::remember('lowongan_department_counts', 3600, function () {
+            return Lowongan::query()
+                ->where('status', 'Published')
+                ->where('quota', '>', 0)
+                ->where('application_deadline', '>=', Carbon::today())
+                ->selectRaw('department, count(*) as total')
+                ->groupBy('department')
+                ->orderBy('department')
+                ->pluck('total', 'department')
+                ->toArray();
+        });
 
         return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))
             ->layout('layouts.applicant');

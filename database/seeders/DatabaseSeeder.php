@@ -100,8 +100,10 @@ class DatabaseSeeder extends Seeder
 
         $stagesArray = [$stageApplied, $stageScreening, $stageInterview, $stageTechnical, $stageFinal];
 
+        $activeUserIds = [];
+
         // 3. Seed MPPs, RRs, Lowongans, and Candidates
-        Mpp::factory()->count(15)->create()->each(function ($mpp) use ($applicants, $stagesArray) {
+        Mpp::factory()->count(15)->create()->each(function ($mpp) use ($applicants, $stagesArray, &$activeUserIds) {
             
             // Buat 1 atau 2 Recruitment Request untuk setiap MPP, dengan membagi kuota
             $rrsCount = rand(1, 2);
@@ -138,20 +140,36 @@ class DatabaseSeeder extends Seeder
                     // Generate candidates for this lowongan
                     Candidate::factory()->count(rand(2, 8))->create([
                         'lowongan_id' => $lowongan->id,
-                    ])->each(function ($candidate) use ($applicants, $stagesArray) {
-                        // 50% pelamar memiliki user account
-                        if (rand(0, 1)) {
-                            $user = $applicants->random();
-                            $candidate->user_id = $user->id;
-                            $candidate->name = $user->name;
-                            $candidate->email = $user->email;
-                        }
-
+                    ])->each(function ($candidate) use ($applicants, $stagesArray, &$activeUserIds) {
                         // Secara acak majukan kandidat ke beberapa tahap
                         $maxStageIndex = rand(0, count($stagesArray) - 1);
                         
                         $candidate->current_stage_id = $stagesArray[$maxStageIndex]->id;
                         $candidate->status = $maxStageIndex === 4 ? (rand(0, 1) ? \App\Enums\CandidateStatus::HIRED : \App\Enums\CandidateStatus::REJECTED) : \App\Enums\CandidateStatus::IN_PROGRESS;
+
+                        $isActive = in_array($candidate->status, [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED]);
+
+                        // 50% pelamar memiliki user account
+                        if (rand(0, 1)) {
+                            $availableUsers = $applicants;
+                            if ($isActive) {
+                                $availableUsers = $applicants->reject(function ($u) use ($activeUserIds) {
+                                    return in_array($u->id, $activeUserIds);
+                                });
+                            }
+
+                            if ($availableUsers->isNotEmpty()) {
+                                $user = $availableUsers->random();
+                                $candidate->user_id = $user->id;
+                                $candidate->name = $user->name;
+                                $candidate->email = $user->email;
+
+                                if ($isActive) {
+                                    $activeUserIds[] = $user->id;
+                                }
+                            }
+                        }
+
                         $candidate->save();
 
                         if ($maxStageIndex > 0) {

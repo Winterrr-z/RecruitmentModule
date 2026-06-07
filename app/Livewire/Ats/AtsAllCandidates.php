@@ -42,7 +42,7 @@ class AtsAllCandidates extends Component
     public function render()
     {
         $lowongans = Lowongan::all();
-        $stages = Stage::orderBy('sequence', 'asc')->get();
+        $stages = Stage::getAllCached();
 
         $candidates = app(\App\Repositories\CandidateRepository::class)->getAllCandidates(
             $this->filterLowongan,

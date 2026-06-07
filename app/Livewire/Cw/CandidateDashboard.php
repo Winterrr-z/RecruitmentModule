@@ -116,7 +116,11 @@ class CandidateDashboard extends Component
                         foreach ($rejectedCandidates as $rejected) {
                             $rejected->status = \App\Enums\CandidateStatus::REJECTED;
                             $rejected->save();
-                            $rejected->notify(new \App\Notifications\CandidateRejectedNotification($lowongan));
+                            try {
+                                $rejected->notify(new \App\Notifications\CandidateRejectedNotification($lowongan));
+                            } catch (\Exception $e) {
+                                \Illuminate\Support\Facades\Log::error("Gagal mengirim email penolakan otomatis untuk kandidat {$rejected->id}: " . $e->getMessage());
+                            }
                         }
                     }
                     
@@ -136,6 +140,14 @@ class CandidateDashboard extends Component
     public function render()
     {
         $userId = auth()->id();
+        $user = auth()->user();
+
+        // Auto-associate manual candidates that have the same email but no user_id yet
+        if ($user) {
+            Candidate::where('email', $user->email)
+                ->whereNull('user_id')
+                ->update(['user_id' => $userId]);
+        }
 
         // Lamaran aktif: belum ditolak, belum hired, belum expired
         $activeApplications = Candidate::where('user_id', $userId)

@@ -112,15 +112,17 @@ class CareerJobList extends Component
         // --- Department list with counts (for sidebar) ---
         $departments = [];
         if ($isLoggedIn) {
-            $departments = Lowongan::query()
-                ->where('status', 'Published')
-                ->where('quota', '>', 0)
-                ->where('application_deadline', '>=', Carbon::today())
-                ->selectRaw('department, count(*) as total')
-                ->groupBy('department')
-                ->orderBy('department')
-                ->pluck('total', 'department')
-                ->toArray();
+            $departments = \Illuminate\Support\Facades\Cache::remember('lowongan_department_counts', 3600, function () {
+                return Lowongan::query()
+                    ->where('status', 'Published')
+                    ->where('quota', '>', 0)
+                    ->where('application_deadline', '>=', Carbon::today())
+                    ->selectRaw('department, count(*) as total')
+                    ->groupBy('department')
+                    ->orderBy('department')
+                    ->pluck('total', 'department')
+                    ->toArray();
+            });
         }
 
         if ($isLoggedIn) {
