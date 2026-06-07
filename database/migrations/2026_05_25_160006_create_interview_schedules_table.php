@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('candidate_id')->constrained('candidates')->onDelete('cascade');
             $table->foreignId('stage_id')->constrained('stages');
-            $table->date('tanggal');
-            $table->time('waktu');
-            $table->string('tempat', 200)->nullable();
-            $table->string('tautan_virtual', 200)->nullable();
+            $table->date('date');
+            $table->time('time');
+            $table->string('venue', 200)->nullable();
+            $table->string('virtual_link', 200)->nullable();
             $table->timestamps();
         });
     }

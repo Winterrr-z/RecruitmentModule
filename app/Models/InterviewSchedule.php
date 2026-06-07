@@ -12,14 +12,14 @@ class InterviewSchedule extends Model
     protected $fillable = [
         'candidate_id',
         'stage_id',
-        'tanggal',
-        'waktu',
-        'tempat',
-        'tautan_virtual',
+        'date',
+        'time',
+        'venue',
+        'virtual_link',
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'date' => 'date',
         'candidate_id' => 'integer',
         'stage_id' => 'integer',
     ];

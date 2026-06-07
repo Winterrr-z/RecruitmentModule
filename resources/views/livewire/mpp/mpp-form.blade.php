@@ -21,11 +21,11 @@
         <form wire:submit.prevent="save" class="space-y-6">
             <!-- Row 1: Nama Plan (full width) -->
             <div>
-                <label for="nama_plan" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Nama Plan <span class="text-error">*</span></label>
-                <input type="text" id="nama_plan" wire:model="nama_plan" 
-                       class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('nama_plan') ring-2 ring-error/20 @enderror"
+                <label for="plan_name" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Nama Plan <span class="text-error">*</span></label>
+                <input type="text" id="plan_name" wire:model="plan_name" 
+                       class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('plan_name') ring-2 ring-error/20 @enderror"
                        placeholder="Masukkan Nama Plan (cth: Rekrutmen Designer Q3)">
-                @error('nama_plan')
+                @error('plan_name')
                     <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                 @enderror
             </div>
@@ -33,20 +33,20 @@
             <!-- Row 2: Departemen (kiri) & Jabatan (kanan) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="departemen" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Departemen <span class="text-error">*</span></label>
-                    <input type="text" id="departemen" wire:model="departemen" 
-                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('departemen') ring-2 ring-error/20 @enderror"
+                    <label for="department" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Departemen <span class="text-error">*</span></label>
+                    <input type="text" id="department" wire:model="department" 
+                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('department') ring-2 ring-error/20 @enderror"
                            placeholder="Masukkan Departemen (cth: Technology)">
-                    @error('departemen')
+                    @error('department')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="jabatan" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Jabatan <span class="text-error">*</span></label>
-                    <input type="text" id="jabatan" wire:model="jabatan" 
-                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('jabatan') ring-2 ring-error/20 @enderror"
+                    <label for="job_title" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Jabatan <span class="text-error">*</span></label>
+                    <input type="text" id="job_title" wire:model="job_title" 
+                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('job_title') ring-2 ring-error/20 @enderror"
                            placeholder="Masukkan Jabatan (cth: UI/UX Designer)">
-                    @error('jabatan')
+                    @error('job_title')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
@@ -55,29 +55,29 @@
             <!-- Row 3: Jumlah Kebutuhan (kiri) & SLA dalam bulan (kanan) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="jumlah_kebutuhan" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Jumlah Kebutuhan (Orang) <span class="text-error">*</span></label>
-                    <input type="number" id="jumlah_kebutuhan" wire:model="jumlah_kebutuhan" min="1"
-                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('jumlah_kebutuhan') ring-2 ring-error/20 @enderror"
+                    <label for="quota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Jumlah Kebutuhan (Orang) <span class="text-error">*</span></label>
+                    <input type="number" id="quota" wire:model="quota" min="1"
+                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('quota') ring-2 ring-error/20 @enderror"
                            placeholder="Jumlah Orang">
-                    @error('jumlah_kebutuhan')
+                    @error('quota')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="sla_hari" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">SLA (Hari) <span class="text-error">*</span></label>
-                    <input type="number" id="sla_hari" wire:model.live="sla_hari" min="1"
-                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('sla_hari') ring-2 ring-error/20 @enderror"
+                    <label for="sla_days" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">SLA (Hari) <span class="text-error">*</span></label>
+                    <input type="number" id="sla_days" wire:model.live="sla_days" min="1"
+                           class="w-full px-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('sla_days') ring-2 ring-error/20 @enderror"
                            placeholder="Estimasi Durasi (hari)">
                     
                     <!-- Real-time target date display -->
-                    @if ($target_waktu_absolut)
+                    @if ($absolute_target_date)
                         <p class="text-xs text-on-surface-variant/80 mt-2 flex items-center gap-1 px-3">
                             <span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
-                            <span>Target selesai rekrutmen: <strong>{{ \Carbon\Carbon::parse($target_waktu_absolut)->translatedFormat('d F Y') }}</strong></span>
+                            <span>Target selesai rekrutmen: <strong>{{ \Carbon\Carbon::parse($absolute_target_date)->translatedFormat('d F Y') }}</strong></span>
                         </p>
                     @endif
 
-                    @error('sla_hari')
+                    @error('sla_days')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
@@ -86,26 +86,26 @@
             <!-- Row 4: Estimasi Gaji Min (kiri) & Estimasi Gaji Max (kanan) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="estimasi_gaji_min" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Estimasi Gaji Min</label>
+                    <label for="estimated_salary_min" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Estimasi Gaji Min</label>
                     <div class="relative">
                         <span class="absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant/70 font-semibold">Rp</span>
-                        <input type="text" id="estimasi_gaji_min" wire:model.blur="estimasi_gaji_min"
-                               class="w-full pl-14 pr-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('estimasi_gaji_min') ring-2 ring-error/20 @enderror"
+                        <input type="text" id="estimated_salary_min" wire:model.blur="estimated_salary_min"
+                               class="w-full pl-14 pr-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('estimated_salary_min') ring-2 ring-error/20 @enderror"
                                placeholder="Contoh: 10,000,000">
                     </div>
-                    @error('estimasi_gaji_min')
+                    @error('estimated_salary_min')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
                 <div>
-                    <label for="estimasi_gaji_max" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Estimasi Gaji Max</label>
+                    <label for="estimated_salary_max" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Estimasi Gaji Max</label>
                     <div class="relative">
                         <span class="absolute left-6 top-1/2 -translate-y-1/2 text-on-surface-variant/70 font-semibold">Rp</span>
-                        <input type="text" id="estimasi_gaji_max" wire:model.blur="estimasi_gaji_max"
-                               class="w-full pl-14 pr-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('estimasi_gaji_max') ring-2 ring-error/20 @enderror"
+                        <input type="text" id="estimated_salary_max" wire:model.blur="estimated_salary_max"
+                               class="w-full pl-14 pr-6 h-12 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('estimated_salary_max') ring-2 ring-error/20 @enderror"
                                placeholder="Contoh: 15,000,000">
                     </div>
-                    @error('estimasi_gaji_max')
+                    @error('estimated_salary_max')
                         <p class="text-error text-xs mt-1 px-3 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>

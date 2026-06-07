@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('blacklist', function (Blueprint $table) {
             $table->id();
-            $table->string('nama', 100);
+            $table->string('name', 100);
             $table->string('email', 100);
-            $table->string('telepon', 20);
-            $table->text('alasan');
+            $table->string('phone', 20);
+            $table->text('reason');
             $table->timestamps();
         });
     }

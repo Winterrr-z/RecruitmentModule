@@ -102,9 +102,9 @@
                         {{-- Badges Row --}}
                         <div class="flex flex-wrap gap-2">
                             <span class="px-2.5 py-0.5 bg-surface-container text-on-surface-variant font-label-sm text-[11px] rounded-full">
-                                {{ $lowongan->departemen }}
+                                {{ $lowongan->department }}
                             </span>
-                            @if($lowongan->tipe_kerja === 'full-time')
+                            @if($lowongan->employment_type === 'full-time')
                                 <span class="px-2.5 py-0.5 bg-primary/10 text-primary font-label-sm text-[11px] rounded-full">
                                     Full-time
                                 </span>
@@ -114,13 +114,13 @@
                                 </span>
                             @endif
                             <span class="px-2.5 py-0.5 bg-surface-container text-on-surface-variant font-label-sm text-[11px] rounded-full capitalize">
-                                {{ $lowongan->lokasi }}
+                                {{ $lowongan->location }}
                             </span>
                         </div>
 
                         {{-- Job Title --}}
                         <h3 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">
-                            {{ $lowongan->jabatan }}
+                            {{ $lowongan->job_title }}
                         </h3>
 
                         {{-- Meta Row --}}
@@ -131,12 +131,12 @@
                                 Batas: <strong class="text-on-surface ml-0.5">{{ $lowongan->application_deadline->translatedFormat('d F Y') }}</strong>
                             </span>
 
-                            @if($lowongan->tampilkan_gaji && $lowongan->estimasi_gaji_min)
+                            @if($lowongan->show_salary && $lowongan->estimated_salary_min)
                                 <span class="hidden sm:inline text-outline-variant/60">•</span>
                                 <span class="flex items-center gap-1 text-primary">
                                     <span class="material-symbols-outlined text-[18px]">payments</span>
-                                    Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }}
-                                    – Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}
+                                    Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }}
+                                    – Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
                                 </span>
                             @else
                                 <span class="hidden sm:inline text-outline-variant/60">•</span>

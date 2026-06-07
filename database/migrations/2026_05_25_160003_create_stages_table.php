@@ -14,17 +14,17 @@ return new class extends Migration
     {
         Schema::create('stages', function (Blueprint $table) {
             $table->id();
-            $table->string('nama', 100);
-            $table->text('deskripsi')->nullable();
-            $table->boolean('butuh_scorecard')->default(false);
-            $table->boolean('butuh_jadwal')->default(false);
-            $table->integer('urutan');
+            $table->string('name', 100);
+            $table->text('description')->nullable();
+            $table->boolean('needs_scorecard')->default(false);
+            $table->boolean('needs_schedule')->default(false);
+            $table->integer('sequence');
             
             // Predefined Configuration Templates
-            $table->text('scorecard_kriteria')->nullable(); // JSON Array
-            $table->string('tipe_wawancara', 50)->nullable(); // online, offline, hybrid
-            $table->string('lokasi_default', 200)->nullable();
-            $table->string('tautan_virtual_default', 200)->nullable();
+            $table->text('scorecard_criteria')->nullable(); // JSON Array
+            $table->string('interview_type', 50)->nullable(); // online, offline, hybrid
+            $table->string('default_location', 200)->nullable();
+            $table->string('default_virtual_link', 200)->nullable();
 
             $table->timestamps();
         });
@@ -32,21 +32,21 @@ return new class extends Migration
         DB::table('stages')->insert([
             [
                 'id' => 1,
-                'nama' => 'Applied',
-                'deskripsi' => 'Default applied stage',
-                'butuh_scorecard' => false,
-                'butuh_jadwal' => false,
-                'urutan' => 1,
+                'name' => 'Applied',
+                'description' => 'Default applied stage',
+                'needs_scorecard' => false,
+                'needs_schedule' => false,
+                'sequence' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'id' => 2,
-                'nama' => 'Final',
-                'deskripsi' => 'Default final stage',
-                'butuh_scorecard' => false,
-                'butuh_jadwal' => false,
-                'urutan' => 2,
+                'name' => 'Final',
+                'description' => 'Default final stage',
+                'needs_scorecard' => false,
+                'needs_schedule' => false,
+                'sequence' => 2,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

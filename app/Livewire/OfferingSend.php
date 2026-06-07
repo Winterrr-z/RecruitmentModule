@@ -36,7 +36,7 @@ class OfferingSend extends Component
     {
         // 1. Stage check (name: 'Final' or id: 2)
         $stage = $this->candidate->currentStage;
-        if (!$stage || ($stage->id !== 2 && strtolower($stage->nama) !== 'final')) {
+        if (!$stage || ($stage->id !== 2 && strtolower($stage->name) !== 'final')) {
             $this->isValid = false;
             $this->errorMessage = 'Kandidat harus berada di stage "Final" untuk dikirimi offering letter.';
             return;
@@ -57,9 +57,9 @@ class OfferingSend extends Component
         }
 
         // 4. Quota check
-        if ($this->lowongan->kuota <= 0) {
+        if ($this->lowongan->quota <= 0) {
             $this->isValid = false;
-            $this->errorMessage = 'Kuota lowongan untuk jabatan "' . $this->lowongan->jabatan . '" sudah habis.';
+            $this->errorMessage = 'Kuota lowongan untuk jabatan "' . $this->lowongan->job_title . '" sudah habis.';
             return;
         }
 

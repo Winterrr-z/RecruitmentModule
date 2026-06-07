@@ -20,15 +20,15 @@ class StageFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => $this->faker->word() . ' Stage',
-            'deskripsi' => $this->faker->sentence(),
-            'butuh_scorecard' => $this->faker->boolean(),
-            'butuh_jadwal' => $this->faker->boolean(),
-            'urutan' => $this->faker->numberBetween(1, 10),
-            'scorecard_kriteria' => null,
-            'tipe_wawancara' => $this->faker->randomElement(['online', 'offline', 'hybrid']),
-            'lokasi_default' => $this->faker->address(),
-            'tautan_virtual_default' => 'https://meet.google.com/' . $this->faker->uuid(),
+            'name' => $this->faker->word() . ' Stage',
+            'description' => $this->faker->sentence(),
+            'needs_scorecard' => $this->faker->boolean(),
+            'needs_schedule' => $this->faker->boolean(),
+            'sequence' => $this->faker->numberBetween(1, 10),
+            'scorecard_criteria' => null,
+            'interview_type' => $this->faker->randomElement(['online', 'offline', 'hybrid']),
+            'default_location' => $this->faker->address(),
+            'default_virtual_link' => 'https://meet.google.com/' . $this->faker->uuid(),
         ];
     }
 }

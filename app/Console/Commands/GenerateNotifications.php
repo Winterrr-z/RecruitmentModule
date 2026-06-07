@@ -45,7 +45,7 @@ class GenerateNotifications extends Command
                         'user_id' => $user->id,
                         'type' => 'application_single',
                         'title' => 'Aplikasi Kandidat Baru',
-                        'message' => $candidate->nama . ' apply untuk posisi ' . ($candidate->lowongan?->jabatan ?? 'N/A'),
+                        'message' => $candidate->name . ' apply untuk posisi ' . ($candidate->lowongan?->job_title ?? 'N/A'),
                         'icon' => 'person_add',
                         'candidate_id' => $candidate->id,
                     ]);
@@ -53,7 +53,7 @@ class GenerateNotifications extends Command
             }
 
             // 2. Generate notifikasi untuk interviews hari ini
-            $todayInterviews = InterviewSchedule::whereDate('tanggal', $today)
+            $todayInterviews = InterviewSchedule::whereDate('date', $today)
                 ->with('candidate', 'stage')
                 ->get();
 
@@ -62,7 +62,7 @@ class GenerateNotifications extends Command
                     'user_id' => $user->id,
                     'type' => 'interview',
                     'title' => 'Interview Hari Ini',
-                    'message' => $interview->candidate->nama . ' - ' . $interview->stage->nama . ' (' . $interview->waktu . ')',
+                    'message' => $interview->candidate->name . ' - ' . $interview->stage->name . ' (' . $interview->time . ')',
                     'icon' => 'calendar_today',
                     'candidate_id' => $interview->candidate_id,
                     'interview_schedule_id' => $interview->id,

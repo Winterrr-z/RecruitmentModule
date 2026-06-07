@@ -47,7 +47,7 @@
                             ? 'bg-primary text-white scale-[1.15] shadow-md z-10' 
                             : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:scale-[1.05] hover:z-20 hover:shadow-md z-0' }}"
                         style="clip-path: {{ $polygon }};">
-                    <span class="whitespace-nowrap">{{ $stage->nama }}</span>
+                    <span class="whitespace-nowrap">{{ $stage->name }}</span>
                     <span class="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] {{ $isActive ? 'bg-white/20 text-white' : 'bg-surface-container-highest text-on-surface-variant/80' }}">
                         {{ $count }}
                     </span>
@@ -62,7 +62,7 @@
                 <select wire:model.live="selectedLowonganId" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Lowongan</option>
                     @foreach($lowongans as $job)
-                        <option value="{{ $job->id }}">{{ $job->jabatan }}</option>
+                        <option value="{{ $job->id }}">{{ $job->job_title }}</option>
                     @endforeach
                 </select>
             </div>
@@ -102,11 +102,11 @@
                             <td class="px-6 py-4 whitespace-nowrap sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                 <a href="{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}" class="flex items-center gap-3 group/item">
                                     <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm group-hover/item:bg-primary group-hover/item:text-white transition-colors">
-                                        {{ strtoupper(substr($candidate->nama, 0, 2)) }}
+                                        {{ strtoupper(substr($candidate->name, 0, 2)) }}
                                     </div>
                                     <div>
                                         <span class="font-title-md text-sm font-bold text-on-surface group-hover/item:text-primary transition-colors">
-                                            {{ $candidate->nama }}
+                                            {{ $candidate->name }}
                                         </span>
                                         <div class="text-[11px] text-on-surface-variant/65">ID: #{{ $candidate->id }}</div>
                                     </div>
@@ -119,7 +119,7 @@
                             
                             <!-- Status Badge -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @switch($candidate->status)
+                                @switch($candidate->status->value)
                                     @case('Rejected')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-950/20 text-red-950 border border-red-950/30">
                                             <span class="w-1.5 h-1.5 bg-red-900 rounded-full"></span>
@@ -172,8 +172,8 @@
                             
                             <!-- Lowongan -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="font-body-md text-sm text-on-surface font-semibold">{{ $candidate->lowongan?->jabatan ?: 'Kandidat Mandiri' }}</span>
-                                <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->departemen ?: 'Tanpa Lowongan' }}</div>
+                                <span class="font-body-md text-sm text-on-surface font-semibold">{{ $candidate->lowongan?->job_title ?: 'Kandidat Mandiri' }}</span>
+                                <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->department ?: 'Tanpa Lowongan' }}</div>
                             </td>
                             
                             <!-- Tanggal Melamar -->
@@ -183,7 +183,7 @@
                             
                             <!-- Pindah Tahap Dropdown -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant">
-                                @if($candidate->current_stage_id == 2 || strtolower($candidate->currentStage?->nama) === 'final')
+                                @if($candidate->current_stage_id == 2 || strtolower($candidate->currentStage?->name) === 'final')
                                     <span class="text-on-surface-variant/40">-</span>
                                 @else
                                     <select @click.stop onchange="confirm('Apakah Anda yakin ingin memindahkan kandidat ini ke stage yang dipilih?') ? @this.moveCandidate({{ $candidate->id }}, this.value) : this.selectedIndex = 0"
@@ -191,7 +191,7 @@
                                         <option value="" disabled selected>Pilih Stage...</option>
                                         @foreach($stages as $stageOption)
                                             @if($stageOption->id != $candidate->current_stage_id)
-                                                <option value="{{ $stageOption->id }}">{{ $stageOption->nama }}</option>
+                                                <option value="{{ $stageOption->id }}">{{ $stageOption->name }}</option>
                                             @endif
                                         @endforeach
                                     </select>
@@ -206,7 +206,7 @@
                                     <div class="flex items-center justify-end gap-1.5">
                                         <!-- Reject Action -->
                                         <button @click.stop wire:click="reject({{ $candidate->id }})" 
-                                                wire:confirm="Apakah Anda yakin ingin menolak kandidat {{ $candidate->nama }}?"
+                                                wire:confirm="Apakah Anda yakin ingin menolak kandidat {{ $candidate->name }}?"
                                                 class="p-2 hover:bg-error/10 text-error rounded-md transition-colors" 
                                                 title="Reject (Tolak)">
                                             <span class="material-symbols-outlined text-[20px]">cancel</span>
@@ -221,7 +221,7 @@
 
                                         <!-- Approve / Hired Action -->
                                         <button @click.stop wire:click="approve({{ $candidate->id }})" 
-                                                wire:confirm="Apakah Anda yakin ingin meng-hire kandidat {{ $candidate->nama }}?"
+                                                wire:confirm="Apakah Anda yakin ingin meng-hire kandidat {{ $candidate->name }}?"
                                                 class="p-2 hover:bg-green-500/10 text-green-600 rounded-md transition-colors" 
                                                 title="Hired">
                                             <span class="material-symbols-outlined text-[20px]">check_circle</span>
@@ -291,8 +291,8 @@
             <!-- Modal Content (Form) -->
             <form wire:submit.prevent="blacklist" class="space-y-6">
                 <div>
-                    <label for="alasan" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Masuk Daftar Hitam <span class="text-error">*</span></label>
-                    <textarea id="alasan" wire:model="blacklistAlasan" rows="4"
+                    <label for="reason" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Masuk Daftar Hitam <span class="text-error">*</span></label>
+                    <textarea id="reason" wire:model="blacklistAlasan" rows="4"
                               placeholder="Berikan penjelasan atau pelanggaran/alasan kandidat ini dimasukkan ke dalam daftar hitam (tidak dapat melamar lagi)..."
                               class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface 
                               @error('blacklistAlasan') border-error @enderror"></textarea>

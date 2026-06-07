@@ -21,12 +21,12 @@ class CareerJobListTest extends TestCase
 
         // Buat dummy MPP untuk relasi Lowongan
         $this->mpp = Mpp::create([
-            'nama_plan' => 'Plan Karir',
-            'departemen' => 'Teknologi',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 5,
-            'sla_hari' => 90,
-            'target_waktu_absolut' => now()->addDays(90)->format('Y-m-d'),
+            'plan_name' => 'Plan Karir',
+            'department' => 'Teknologi',
+            'job_title' => 'Developer',
+            'quota' => 5,
+            'sla_days' => 90,
+            'absolute_target_date' => now()->addDays(90)->format('Y-m-d'),
         ]);
     }
 
@@ -42,233 +42,233 @@ class CareerJobListTest extends TestCase
         // 1. Valid Lowongan (Published, quota > 0, deadline in future)
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $validLowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Laravel Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Laravel Developer',
+            'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja Laravel 12',
-            'spesifikasi_kebutuhan' => 'PHP 8.2+',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Kerja Laravel 12',
+            'job_requirements' => 'PHP 8.2+',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 2,
+            'quota' => 2,
         ]);
 
         // 2. Draft Lowongan (not published)
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $draftLowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'React Developer',
-            'departemen' => 'IT',
+            'job_title' => 'React Developer',
+            'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja React',
-            'spesifikasi_kebutuhan' => 'ReactJS',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Kerja React',
+            'job_requirements' => 'ReactJS',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Ready to Publish',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         // 3. Lowongan with 0 quota
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $noQuotaLowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'DevOps Engineer',
-            'departemen' => 'IT',
+            'job_title' => 'DevOps Engineer',
+            'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja DevOps',
-            'spesifikasi_kebutuhan' => 'AWS',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Kerja DevOps',
+            'job_requirements' => 'AWS',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 0,
+            'quota' => 0,
         ]);
 
         // 4. Lowongan with expired deadline
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $expiredLowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'UI Designer',
-            'departemen' => 'Design',
+            'job_title' => 'UI Designer',
+            'department' => 'Design',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja UI',
-            'spesifikasi_kebutuhan' => 'Figma',
-            'tipe_kerja' => 'contract',
-            'lokasi' => 'on-site',
+            'job_description' => 'Kerja UI',
+            'job_requirements' => 'Figma',
+            'employment_type' => 'contract',
+            'location' => 'on-site',
             'application_deadline' => Carbon::yesterday()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         Livewire::test(\App\Livewire\Cw\PublicJobList::class)
-            ->assertSee($validLowongan->jabatan)
-            ->assertDontSee($draftLowongan->jabatan)
-            ->assertDontSee($noQuotaLowongan->jabatan)
-            ->assertDontSee($expiredLowongan->jabatan);
+            ->assertSee($validLowongan->job_title)
+            ->assertDontSee($draftLowongan->job_title)
+            ->assertDontSee($noQuotaLowongan->job_title)
+            ->assertDontSee($expiredLowongan->job_title);
     }
 
     public function test_filters_by_search_keyword()
     {
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $job1 = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'iOS Developer',
-            'departemen' => 'Mobile',
+            'job_title' => 'iOS Developer',
+            'department' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Swift',
-            'spesifikasi_kebutuhan' => 'iOS SDK',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Swift',
+            'job_requirements' => 'iOS SDK',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $job2 = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Android Specialist',
-            'departemen' => 'Mobile',
+            'job_title' => 'Android Specialist',
+            'department' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kotlin',
-            'spesifikasi_kebutuhan' => 'Android SDK',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Kotlin',
+            'job_requirements' => 'Android SDK',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('search', 'iOS')
-            ->assertSee($job1->jabatan)
-            ->assertDontSee($job2->jabatan);
+            ->assertSee($job1->job_title)
+            ->assertDontSee($job2->job_title);
     }
 
     public function test_filters_by_tipe_kerja_and_lokasi()
     {
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $fullTimeRemote = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Backend Engineer',
-            'departemen' => 'Engineering',
+            'job_title' => 'Backend Engineer',
+            'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'NodeJS',
-            'spesifikasi_kebutuhan' => 'Javascript',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'NodeJS',
+            'job_requirements' => 'Javascript',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $contractOnSite = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Frontend Consultant',
-            'departemen' => 'Engineering',
+            'job_title' => 'Frontend Consultant',
+            'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'VueJS',
-            'spesifikasi_kebutuhan' => 'Vue',
-            'tipe_kerja' => 'contract',
-            'lokasi' => 'on-site',
+            'job_description' => 'VueJS',
+            'job_requirements' => 'Vue',
+            'employment_type' => 'contract',
+            'location' => 'on-site',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('selectedTipeKerja', 'full-time')
-            ->assertSee($fullTimeRemote->jabatan)
-            ->assertDontSee($contractOnSite->jabatan);
+            ->assertSee($fullTimeRemote->job_title)
+            ->assertDontSee($contractOnSite->job_title);
 
         Livewire::test(\App\Livewire\Cw\PublicJobList::class)
             ->set('selectedLokasi', 'on-site')
-            ->assertSee($contractOnSite->jabatan)
-            ->assertDontSee($fullTimeRemote->jabatan);
+            ->assertSee($contractOnSite->job_title)
+            ->assertDontSee($fullTimeRemote->job_title);
     }
 
     public function test_logged_in_user_sees_logged_in_view()
@@ -287,80 +287,80 @@ class CareerJobListTest extends TestCase
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $rr2 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Cloud Architect',
-            'departemen' => 'IT',
+            'job_title' => 'Cloud Architect',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Cloud infra',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Cloud infra',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $itJob = Lowongan::create([
             'recruitment_request_id' => $rr2->id,
-            'jabatan'             => 'Cloud Architect',
-            'departemen'          => 'IT',
+            'job_title'             => 'Cloud Architect',
+            'department'          => 'IT',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Cloud infra',
-            'spesifikasi_kebutuhan' => 'AWS',
-            'tipe_kerja'          => 'full-time',
-            'lokasi'              => 'remote',
+            'job_description' => 'Cloud infra',
+            'job_requirements' => 'AWS',
+            'employment_type'          => 'full-time',
+            'location'              => 'remote',
             'application_deadline'=> Carbon::tomorrow()->format('Y-m-d'),
             'status'              => 'Published',
-            'kuota'               => 1,
+            'quota'               => 1,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $rr3 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Financial Analyst',
-            'departemen' => 'Finance',
+            'job_title' => 'Financial Analyst',
+            'department' => 'Finance',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Finance analysis',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Finance analysis',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $financeJob = Lowongan::create([
             'recruitment_request_id' => $rr3->id,
-            'jabatan'             => 'Financial Analyst',
-            'departemen'          => 'Finance',
+            'job_title'             => 'Financial Analyst',
+            'department'          => 'Finance',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Finance analysis',
-            'spesifikasi_kebutuhan' => 'Excel',
-            'tipe_kerja'          => 'full-time',
-            'lokasi'              => 'on-site',
+            'job_description' => 'Finance analysis',
+            'job_requirements' => 'Excel',
+            'employment_type'          => 'full-time',
+            'location'              => 'on-site',
             'application_deadline'=> Carbon::tomorrow()->format('Y-m-d'),
             'status'              => 'Published',
-            'kuota'               => 1,
+            'quota'               => 1,
         ]);
 
         Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)
             ->set('selectedDepartments', ['IT'])
-            ->assertSee($itJob->jabatan)
-            ->assertDontSee($financeJob->jabatan);
+            ->assertSee($itJob->job_title)
+            ->assertDontSee($financeJob->job_title);
     }
 
     public function test_logged_in_checkbox_type_filter()
@@ -369,80 +369,80 @@ class CareerJobListTest extends TestCase
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $rr4 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Data Engineer',
-            'departemen' => 'Data',
+            'job_title' => 'Data Engineer',
+            'department' => 'Data',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'ETL pipelines',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'ETL pipelines',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $fullTime = Lowongan::create([
             'recruitment_request_id' => $rr4->id,
-            'jabatan'             => 'Data Engineer',
-            'departemen'          => 'Data',
+            'job_title'             => 'Data Engineer',
+            'department'          => 'Data',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'ETL pipelines',
-            'spesifikasi_kebutuhan' => 'Python',
-            'tipe_kerja'          => 'full-time',
-            'lokasi'              => 'remote',
+            'job_description' => 'ETL pipelines',
+            'job_requirements' => 'Python',
+            'employment_type'          => 'full-time',
+            'location'              => 'remote',
             'application_deadline'=> Carbon::tomorrow()->format('Y-m-d'),
             'status'              => 'Published',
-            'kuota'               => 1,
+            'quota'               => 1,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $rr5 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'QA Contractor',
-            'departemen' => 'QA',
+            'job_title' => 'QA Contractor',
+            'department' => 'QA',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Testing',
-            'tipe_kerja' => 'contract',
-            'lokasi' => 'on-site',
+            'job_description' => 'Testing',
+            'employment_type' => 'contract',
+            'location' => 'on-site',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $contract = Lowongan::create([
             'recruitment_request_id' => $rr5->id,
-            'jabatan'             => 'QA Contractor',
-            'departemen'          => 'QA',
+            'job_title'             => 'QA Contractor',
+            'department'          => 'QA',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Testing',
-            'spesifikasi_kebutuhan' => 'Selenium',
-            'tipe_kerja'          => 'contract',
-            'lokasi'              => 'on-site',
+            'job_description' => 'Testing',
+            'job_requirements' => 'Selenium',
+            'employment_type'          => 'contract',
+            'location'              => 'on-site',
             'application_deadline'=> Carbon::tomorrow()->format('Y-m-d'),
             'status'              => 'Published',
-            'kuota'               => 1,
+            'quota'               => 1,
         ]);
 
         Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)
             ->set('selectedTypes', ['contract'])
-            ->assertSee($contract->jabatan)
-            ->assertDontSee($fullTime->jabatan);
+            ->assertSee($contract->job_title)
+            ->assertDontSee($fullTime->job_title);
     }
 
     public function test_sorting_order()
@@ -451,44 +451,44 @@ class CareerJobListTest extends TestCase
 
         $rr6 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Senior Researcher',
-            'departemen' => 'RnD',
+            'job_title' => 'Senior Researcher',
+            'department' => 'RnD',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Research',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Research',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $olderData = [
             'recruitment_request_id' => $rr6->id,
-            'jabatan'              => 'Senior Researcher',
-            'departemen'           => 'RnD',
+            'job_title'              => 'Senior Researcher',
+            'department'           => 'RnD',
             'expected_join_date'   => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan'  => 'Research',
-            'spesifikasi_kebutuhan'=> 'PhD',
-            'tipe_kerja'           => 'full-time',
-            'lokasi'               => 'remote',
+            'job_description'  => 'Research',
+            'job_requirements'=> 'PhD',
+            'employment_type'           => 'full-time',
+            'location'               => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'status'               => 'Published',
-            'kuota'                => 1,
+            'quota'                => 1,
         ];
         $newerData = array_merge($olderData, [
-            'jabatan' => 'Junior Researcher',
-            'spesifikasi_kebutuhan' => 'Bachelor',
+            'job_title' => 'Junior Researcher',
+            'job_requirements' => 'Bachelor',
         ]);
 
         $older = Lowongan::create($olderData);
         $rr7 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Junior Researcher',
-            'departemen' => 'RnD',
+            'job_title' => 'Junior Researcher',
+            'department' => 'RnD',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Research',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Research',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $newerData['recruitment_request_id'] = $rr7->id;
         $newer = Lowongan::create($newerData);
@@ -504,15 +504,15 @@ class CareerJobListTest extends TestCase
         // Newest first → Junior appears before Senior
         $component = Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)->set('sortBy', 'newest');
         $html = $component->html();
-        $posNewer = strpos($html, $newer->jabatan);
-        $posOlder = strpos($html, $older->jabatan);
+        $posNewer = strpos($html, $newer->job_title);
+        $posOlder = strpos($html, $older->job_title);
         $this->assertLessThan($posOlder, $posNewer, 'Terbaru harus muncul lebih awal.');
 
         // Oldest first → Senior appears before Junior
         $component2 = Livewire::actingAs($user)->test(\App\Livewire\Cw\CandidateJobList::class)->set('sortBy', 'oldest');
         $html2 = $component2->html();
-        $posNewer2 = strpos($html2, $newer->jabatan);
-        $posOlder2 = strpos($html2, $older->jabatan);
+        $posNewer2 = strpos($html2, $newer->job_title);
+        $posOlder2 = strpos($html2, $older->job_title);
         $this->assertLessThan($posNewer2, $posOlder2, 'Terlama harus muncul lebih awal.');
     }
 }

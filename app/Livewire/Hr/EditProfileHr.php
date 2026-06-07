@@ -27,7 +27,7 @@ class EditProfileHr extends Component
     public string $email = '';
 
     /** @var string Departemen. */
-    public string $departemen = '';
+    public string $department = '';
 
     /** @var string Jabatan / Job Title. */
     public string $job_title = '';
@@ -43,7 +43,7 @@ class EditProfileHr extends Component
         $user = Auth::user();
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->departemen = $user->departemen ?? '';
+        $this->department = $user->department ?? '';
         $this->job_title = $user->job_title ?? '';
         $this->phone_number = $user->phone_number ?? '';
     }
@@ -58,7 +58,7 @@ class EditProfileHr extends Component
         return [
             'name'         => ['required', 'string', 'max:255'],
             'email'        => ['required', 'email', 'max:255', 'unique:users,email,' . Auth::id()],
-            'departemen'   => ['nullable', 'string', 'max:255'],
+            'department'   => ['nullable', 'string', 'max:255'],
             'job_title'    => ['nullable', 'string', 'max:255'],
             'phone_number' => ['nullable', 'string', 'max:25'],
             'photo'        => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:10240'], // max 10MB
@@ -95,7 +95,7 @@ class EditProfileHr extends Component
         $data = [
             'name'         => $this->name,
             'email'        => $this->email,
-            'departemen'   => $this->departemen ?: null,
+            'department'   => $this->department ?: null,
             'job_title'    => $this->job_title ?: null,
             'phone_number' => $this->phone_number ?: null,
         ];

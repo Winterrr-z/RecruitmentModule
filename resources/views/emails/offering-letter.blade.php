@@ -110,22 +110,22 @@
             <h1>Surat Penawaran Pekerjaan</h1>
         </div>
         <div class="content">
-            <p>Halo <strong>{{ $candidate->nama }}</strong>,</p>
+            <p>Halo <strong>{{ $candidate->name }}</strong>,</p>
             <p>Selamat! Kami dengan senang hati menyampaikan penawaran resmi untuk bergabung bersama tim kami. Berdasarkan hasil evaluasi proses seleksi yang telah dilalui, kami menilai kualifikasi Anda sangat sesuai untuk posisi yang kami tawarkan.</p>
             
             <div class="highlight-box">
                 <table>
                     <tr>
                         <td class="label">Posisi Jabatan</td>
-                        <td class="value">{{ $lowongan->jabatan }}</td>
+                        <td class="value">{{ $lowongan->job_title }}</td>
                     </tr>
                     <tr>
                         <td class="label">Departemen</td>
-                        <td class="value">{{ $lowongan->departemen }}</td>
+                        <td class="value">{{ $lowongan->department }}</td>
                     </tr>
                     <tr>
                         <td class="label">Tipe Pekerjaan</td>
-                        <td class="value" style="text-transform: capitalize;">{{ $lowongan->tipe_kerja }}</td>
+                        <td class="value" style="text-transform: capitalize;">{{ $lowongan->employment_type }}</td>
                     </tr>
                 </table>
             </div>

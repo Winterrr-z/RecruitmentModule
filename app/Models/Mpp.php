@@ -15,25 +15,25 @@ class Mpp extends Model
     protected $table = 'mpps';
 
     protected $fillable = [
-        'nama_plan',
-        'departemen',
-        'jabatan',
-        'jumlah_kebutuhan',
-        'estimasi_gaji_min',
-        'estimasi_gaji_max',
-        'sla_hari',
-        'target_waktu_absolut',
+        'plan_name',
+        'department',
+        'job_title',
+        'quota',
+        'estimated_salary_min',
+        'estimated_salary_max',
+        'sla_days',
+        'absolute_target_date',
         'status',
         'note',
         'last_activity_at',
     ];
 
     protected $casts = [
-        'target_waktu_absolut' => 'date',
-        'jumlah_kebutuhan' => 'integer',
-        'estimasi_gaji_min' => 'integer',
-        'estimasi_gaji_max' => 'integer',
-        'sla_hari' => 'integer',
+        'absolute_target_date' => 'date',
+        'quota' => 'integer',
+        'estimated_salary_min' => 'integer',
+        'estimated_salary_max' => 'integer',
+        'sla_days' => 'integer',
         'last_activity_at' => 'datetime',
         'status' => \App\Enums\MppStatus::class,
     ];
@@ -64,12 +64,12 @@ class Mpp extends Model
 
     public function sisaKuota(): int
     {
-        return max(0, $this->jumlah_kebutuhan - $this->totalHired());
+        return max(0, $this->quota - $this->totalHired());
     }
 
     public function isFilled(): bool
     {
-        return $this->totalHired() >= $this->jumlah_kebutuhan;
+        return $this->totalHired() >= $this->quota;
     }
 
     public function hasActiveCandidates(): bool
@@ -132,7 +132,7 @@ class Mpp extends Model
 
         $now = now();
         $created = Carbon::parse($this->created_at);
-        $target = Carbon::parse($this->target_waktu_absolut);
+        $target = Carbon::parse($this->absolute_target_date);
         $totalDays = max(1, $created->diffInDays($target));
         $elapsedDays = $created->diffInDays($now);
         $percent = ($elapsedDays / $totalDays) * 100;
@@ -165,8 +165,8 @@ class Mpp extends Model
         $status = $this->getComputedStatus();
 
         return match ($status) {
-            \App\Enums\CandidateStatus::IN_PROGRESS => [
-                'label' => \App\Enums\CandidateStatus::IN_PROGRESS,
+            'In Progress' => [
+                'label' => 'In Progress',
                 'color' => 'text-blue-700',
                 'bg' => 'bg-blue-100',
                 'dotColor' => 'bg-blue-500',

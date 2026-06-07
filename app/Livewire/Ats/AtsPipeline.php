@@ -55,7 +55,7 @@ class AtsPipeline extends Component
             $this->selectedStageId = session()->get('pipeline_selected_stage');
         } else {
             // Default: set selected stage to first stage by urutan
-            $firstStage = Stage::orderBy('urutan', 'asc')->first();
+            $firstStage = Stage::orderBy('sequence', 'asc')->first();
             if ($firstStage) {
                 $this->selectedStageId = $firstStage->id;
             }
@@ -83,30 +83,7 @@ class AtsPipeline extends Component
      */
     private function validateCurrentStageRequirements($candidate)
     {
-        $currentStage = $candidate->currentStage;
-        if (!$currentStage) {
-            return null;
-        }
-
-        if ($currentStage->butuh_scorecard) {
-            $scorecardCount = Scorecard::where('candidate_id', $candidate->id)
-                ->where('stage_id', $currentStage->id)
-                ->count();
-            if ($scorecardCount === 0) {
-                return "Kandidat '{$candidate->nama}' tidak dapat dipindahkan karena tahap saat ini ('{$currentStage->nama}') membutuhkan scorecard yang belum diisi.";
-            }
-        }
-
-        if ($currentStage->butuh_jadwal) {
-            $scheduleCount = InterviewSchedule::where('candidate_id', $candidate->id)
-                ->where('stage_id', $currentStage->id)
-                ->count();
-            if ($scheduleCount === 0) {
-                return "Kandidat '{$candidate->nama}' tidak dapat dipindahkan karena tahap saat ini ('{$currentStage->nama}') membutuhkan jadwal interview yang belum dibuat.";
-            }
-        }
-
-        return null;
+        return app(\App\Services\CandidateService::class)->validateCurrentStageRequirements($candidate);
     }
 
     /**
@@ -130,27 +107,10 @@ class AtsPipeline extends Component
         }
 
         \DB::transaction(function () use ($candidate, $toStage) {
-            // Save movement history
-            CandidateMovement::create([
-                'candidate_id' => $candidate->id,
-                'from_stage_id' => $candidate->current_stage_id,
-                'to_stage_id' => $toStage->id,
-                'moved_at' => now(),
-            ]);
-
-            $newStatus = \App\Enums\CandidateStatus::IN_PROGRESS;
-            if ($toStage->id == 1 || strtolower($toStage->nama) === 'applied') {
-                $newStatus = \App\Enums\CandidateStatus::APPLIED;
-            }
-
-            // Update candidate current stage
-            $candidate->update([
-                'current_stage_id' => $toStage->id,
-                'status' => $newStatus,
-            ]);
+            app(\App\Services\CandidateService::class)->moveCandidate($candidate, $toStage);
         });
 
-        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil dipindahkan ke stage '{$toStage->nama}'.");
+        session()->flash('message', "Kandidat '{$candidate->name}' berhasil dipindahkan ke stage '{$toStage->name}'.");
     }
 
     /**
@@ -166,29 +126,14 @@ class AtsPipeline extends Component
             return;
         }
 
-        $currentStage = $candidate->currentStage;
-        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
-
-        if (!$finalStage) {
-            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
+        try {
+            app(\App\Services\CandidateService::class)->rejectCandidate($candidate);
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
             return;
         }
 
-        \DB::transaction(function () use ($candidate, $currentStage, $finalStage) {
-            if ($candidate->current_stage_id != $finalStage->id) {
-                CandidateMovement::create([
-                    'candidate_id' => $candidate->id,
-                    'from_stage_id' => $currentStage->id,
-                    'to_stage_id' => $finalStage->id,
-                    'moved_at' => now(),
-                ]);
-                $candidate->current_stage_id = $finalStage->id;
-            }
-            $candidate->status = \App\Enums\CandidateStatus::REJECTED;
-            $candidate->save();
-        });
-
-        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil ditolak.");
+        session()->flash('message', "Kandidat '{$candidate->name}' berhasil ditolak.");
     }
 
     /**
@@ -211,41 +156,18 @@ class AtsPipeline extends Component
 
         $candidate = Candidate::findOrFail($this->blacklistCandidateId);
 
-        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
-        if (!$finalStage) {
-            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
+        try {
+            app(\App\Services\CandidateService::class)->blacklistCandidate($candidate, $this->blacklistAlasan);
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
             return;
         }
-
-        \DB::transaction(function () use ($candidate, $finalStage) {
-            // Create blacklist entry
-            Blacklist::create([
-                'nama' => $candidate->nama,
-                'email' => $candidate->email,
-                'telepon' => $candidate->telepon,
-                'alasan' => $this->blacklistAlasan,
-            ]);
-
-            if ($candidate->current_stage_id != $finalStage->id) {
-                CandidateMovement::create([
-                    'candidate_id' => $candidate->id,
-                    'from_stage_id' => $candidate->current_stage_id,
-                    'to_stage_id' => $finalStage->id,
-                    'moved_at' => now(),
-                ]);
-                $candidate->current_stage_id = $finalStage->id;
-            }
-
-            // Reject candidate
-            $candidate->status = \App\Enums\CandidateStatus::BLACKLISTED;
-            $candidate->save();
-        });
 
         $this->showBlacklistModal = false;
         $this->blacklistCandidateId = null;
         $this->blacklistAlasan = '';
 
-        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil dimasukkan ke daftar hitam (blacklist).");
+        session()->flash('message', "Kandidat '{$candidate->name}' berhasil dimasukkan ke daftar hitam (blacklist).");
     }
 
     /**
@@ -261,34 +183,14 @@ class AtsPipeline extends Component
             return;
         }
 
-        $currentStage = $candidate->currentStage;
-        $finalStage = Stage::where('nama', 'Final')->orWhere('id', 2)->first();
-
-        if (!$finalStage) {
-            session()->flash('error', "Tahap 'Final' tidak ditemukan.");
+        try {
+            app(\App\Services\CandidateService::class)->approveCandidate($candidate);
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
             return;
         }
 
-        \DB::transaction(function () use ($candidate, $currentStage, $finalStage) {
-            if ($candidate->current_stage_id != $finalStage->id) {
-                // Save movement history
-                CandidateMovement::create([
-                    'candidate_id' => $candidate->id,
-                    'from_stage_id' => $currentStage->id,
-                    'to_stage_id' => $finalStage->id,
-                    'moved_at' => now(),
-                ]);
-
-                // Update candidate current stage
-                $candidate->current_stage_id = $finalStage->id;
-            }
-
-            // Update candidate status to Offered
-            $candidate->status = \App\Enums\CandidateStatus::OFFERED;
-            $candidate->save();
-        });
-
-        session()->flash('message', "Kandidat '{$candidate->nama}' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
+        session()->flash('message', "Kandidat '{$candidate->name}' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
     }
 
     public function selectStage($stageId)
@@ -304,25 +206,13 @@ class AtsPipeline extends Component
         $lowongans = Lowongan::whereIn('status', ['Published', 'Ready to Publish'])->get();
 
         // 2. Get all stages
-        $stages = Stage::orderBy('urutan', 'asc')->get();
+        $stages = Stage::orderBy('sequence', 'asc')->get();
 
         // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
-        $stageCounts = Candidate::when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
-            ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
-            ->where('status', '!=', \App\Enums\CandidateStatus::BLACKLISTED)
-            ->selectRaw('current_stage_id, count(*) as count')
-            ->groupBy('current_stage_id')
-            ->pluck('count', 'current_stage_id')
-            ->toArray();
+        $stageCounts = app(\App\Repositories\CandidateRepository::class)->getStageCounts($this->selectedLowonganId, $this->search);
 
         // 4. Query candidates
-        $candidates = Candidate::with('lowongan', 'currentStage')
-            ->when($this->selectedLowonganId, fn($q) => $q->where('lowongan_id', $this->selectedLowonganId))
-            ->when($this->selectedStageId, fn($q) => $q->where('current_stage_id', $this->selectedStageId))
-            ->when($this->search, fn($q) => $q->where(fn($sq) => $sq->where('nama', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%')))
-            ->where('status', '!=', \App\Enums\CandidateStatus::BLACKLISTED)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $candidates = app(\App\Repositories\CandidateRepository::class)->getPipelineCandidates($this->selectedLowonganId, $this->selectedStageId, $this->search, 10);
 
         return view('livewire.ats.ats-pipeline', [
             'lowongans' => $lowongans,

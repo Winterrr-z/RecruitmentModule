@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('lowongan_id')->nullable()->constrained('lowongans')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('nama', 100);
+            $table->string('name', 100);
             $table->string('email', 100);
-            $table->string('telepon', 20);
+            $table->string('phone', 20);
             $table->string('cv_path', 200)->nullable();
             $table->string('portofolio_path', 200)->nullable();
             $table->foreignId('current_stage_id')->default(1)->constrained('stages');

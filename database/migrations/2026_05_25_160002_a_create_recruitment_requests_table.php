@@ -14,19 +14,19 @@ return new class extends Migration
         Schema::create('recruitment_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mpp_id')->constrained('mpps')->onDelete('cascade');
-            $table->string('jabatan', 100);
-            $table->string('departemen', 100);
-            $table->integer('estimasi_gaji_min')->nullable();
-            $table->integer('estimasi_gaji_max')->nullable();
+            $table->string('job_title', 100);
+            $table->string('department', 100);
+            $table->integer('estimated_salary_min')->nullable();
+            $table->integer('estimated_salary_max')->nullable();
             $table->date('expected_join_date')->nullable();
-            $table->text('deskripsi_pekerjaan');
-            $table->text('spesifikasi_kebutuhan')->nullable();
-            $table->enum('tipe_kerja', ['full-time', 'contract']);
-            $table->enum('lokasi', ['remote', 'on-site']);
+            $table->text('job_description');
+            $table->text('job_requirements')->nullable();
+            $table->enum('employment_type', ['full-time', 'contract']);
+            $table->enum('location', ['remote', 'on-site']);
             $table->date('application_deadline');
-            $table->boolean('tampilkan_gaji')->default(false);
+            $table->boolean('show_salary')->default(false);
             $table->string('status', 30)->default('Draft');
-            $table->integer('kuota');
+            $table->integer('quota');
             $table->timestamps();
         });
     }

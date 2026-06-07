@@ -9,9 +9,9 @@ class Blacklist extends Model
     protected $table = 'blacklist';
 
     protected $fillable = [
-        'nama',
+        'name',
         'email',
-        'telepon',
-        'alasan',
+        'phone',
+        'reason',
     ];
 }

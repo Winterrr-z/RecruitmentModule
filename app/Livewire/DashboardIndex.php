@@ -45,7 +45,7 @@ class DashboardIndex extends Component
     {
         // 1. Widget 1: Active vacancy count
         $this->activeLowonganCount = Lowongan::where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', now()->toDateString())
             ->count();
 
@@ -55,14 +55,14 @@ class DashboardIndex extends Component
             ->count();
 
         // 3. Widget 3: Today's interviews count
-        $this->todayInterviewCount = InterviewSchedule::whereDate('tanggal', today())->count();
+        $this->todayInterviewCount = InterviewSchedule::whereDate('date', today())->count();
 
         // 4. Load stages
-        $this->stages = Stage::orderBy('urutan', 'asc')->get();
+        $this->stages = Stage::orderBy('sequence', 'asc')->get();
 
         // 5. Load active vacancies for Donut Carousel
         $this->activeLowongans = Lowongan::where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', now()->toDateString())
             ->get();
 
@@ -111,8 +111,8 @@ class DashboardIndex extends Component
         $this->monthName = $firstDay->translatedFormat('F Y');
 
         $schedules = InterviewSchedule::with('candidate')
-            ->whereMonth('tanggal', $this->currentMonth)
-            ->whereYear('tanggal', $this->currentYear)
+            ->whereMonth('date', $this->currentMonth)
+            ->whereYear('date', $this->currentYear)
             ->get();
 
         $daysInMonth = $firstDay->daysInMonth;
@@ -129,7 +129,7 @@ class DashboardIndex extends Component
             $dateString = Carbon::create($this->currentYear, $this->currentMonth, $day)->toDateString();
             
             $daySchedules = $schedules->filter(function ($s) use ($dateString) {
-                return $s->tanggal && $s->tanggal->toDateString() === $dateString;
+                return $s->date && $s->date->toDateString() === $dateString;
             });
 
             $grid[] = [
@@ -148,7 +148,7 @@ class DashboardIndex extends Component
         foreach ($this->stages as $stage) {
             $count = Candidate::where('current_stage_id', $stage->id)->count();
             $barChartData[] = [
-                'stage' => $stage->nama,
+                'stage' => $stage->name,
                 'count' => $count
             ];
         }
@@ -176,13 +176,13 @@ class DashboardIndex extends Component
                 ->count();
             
             $data[] = [
-                'stage' => $stage->nama,
+                'stage' => $stage->name,
                 'count' => $count
             ];
         }
 
         return [
-            'title' => $lowongan->jabatan . ' (' . $lowongan->departemen . ')',
+            'title' => $lowongan->job_title . ' (' . $lowongan->department . ')',
             'labels' => collect($data)->pluck('stage')->toArray(),
             'values' => collect($data)->pluck('count')->toArray(),
         ];

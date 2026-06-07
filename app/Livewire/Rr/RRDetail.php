@@ -42,29 +42,29 @@ class RRDetail extends Component
     public function publish()
     {
         $rr = RecruitmentRequest::findOrFail($this->rrId);
-        if ($rr->status === 'Draft' || $rr->status === 'Ready to Publish') {
+        if ($rr->status->value === 'Draft' || $rr->status->value === 'Ready to Publish') {
             $rr->update(['status' => 'Published']);
 
             // Buat Lowongan otomatis
             $rr->lowongan()->updateOrCreate(
                 ['recruitment_request_id' => $rr->id],
                 [
-                    'kuota' => $rr->kuota,
-                    'jabatan' => $rr->jabatan,
-                    'departemen' => $rr->departemen,
-                    'tipe_kerja' => $rr->tipe_kerja,
-                    'lokasi' => $rr->lokasi,
+                    'quota' => $rr->quota,
+                    'job_title' => $rr->job_title,
+                    'department' => $rr->department,
+                    'employment_type' => $rr->employment_type,
+                    'location' => $rr->location,
                     'application_deadline' => $rr->application_deadline,
-                    'tampilkan_gaji' => $rr->tampilkan_gaji,
-                    'estimasi_gaji_min' => $rr->estimasi_gaji_min,
-                    'estimasi_gaji_max' => $rr->estimasi_gaji_max,
-                    'deskripsi_pekerjaan' => $rr->deskripsi_pekerjaan,
-                    'spesifikasi_kebutuhan' => $rr->spesifikasi_kebutuhan,
+                    'show_salary' => $rr->show_salary,
+                    'estimated_salary_min' => $rr->estimated_salary_min,
+                    'estimated_salary_max' => $rr->estimated_salary_max,
+                    'job_description' => $rr->job_description,
+                    'job_requirements' => $rr->job_requirements,
                     'status' => 'Published'
                 ]
             );
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dipublikasikan.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan.');
         }
     }
 
@@ -76,14 +76,14 @@ class RRDetail extends Component
     public function unpublish()
     {
         $rr = RecruitmentRequest::findOrFail($this->rrId);
-        if ($rr->status === 'Published') {
+        if ($rr->status->value === 'Published') {
             $rr->update(['status' => 'Ready to Publish']);
 
             if ($rr->lowongan) {
                 $rr->lowongan->update(['status' => 'Draft']);
             }
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" dinonaktifkan.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" dinonaktifkan.');
         }
     }
 
@@ -95,7 +95,7 @@ class RRDetail extends Component
     public function close()
     {
         $rr = RecruitmentRequest::findOrFail($this->rrId);
-        if ($rr->status !== 'Completed/Closed') {
+        if ($rr->status->value !== 'Completed/Closed') {
             $rr->update(['status' => 'Completed/Closed']);
 
             // Tutup lowongan juga
@@ -103,7 +103,7 @@ class RRDetail extends Component
                 $rr->lowongan->update(['status' => 'Closed']);
             }
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil ditutup.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
         }
     }
 
@@ -116,7 +116,7 @@ class RRDetail extends Component
     {
         $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($this->rrId);
 
-        if ($rr->hiredCount() > 0 || ($rr->status !== 'Draft' && $rr->status !== 'Ready to Publish')) {
+        if ($rr->hiredCount() > 0 || ($rr->status->value !== 'Draft' && $rr->status->value !== 'Ready to Publish')) {
             session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Draft tidak dapat dihapus.');
             return;
         }
@@ -145,9 +145,9 @@ class RRDetail extends Component
         $activeCandidates = $lowonganId ? Candidate::where('lowongan_id', $lowonganId)->whereNotIn('status', [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED])->count() : 0;
 
         // Ambil persebaran kandidat per stage
-        $stages = Stage::orderBy('urutan')->get()->map(function ($stage) use ($lowonganId) {
+        $stages = Stage::orderBy('sequence')->get()->map(function ($stage) use ($lowonganId) {
             return [
-                'nama' => $stage->nama,
+                'name' => $stage->name,
                 'count' => $lowonganId ? Candidate::where('lowongan_id', $lowonganId)
                     ->where('current_stage_id', $stage->id)
                     ->count() : 0

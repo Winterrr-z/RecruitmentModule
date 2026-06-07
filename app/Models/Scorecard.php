@@ -12,14 +12,14 @@ class Scorecard extends Model
     protected $fillable = [
         'candidate_id',
         'stage_id',
-        'kriteria',
-        'bobot',
-        'nilai',
+        'criteria',
+        'weight',
+        'score',
     ];
 
     protected $casts = [
-        'bobot' => 'integer',
-        'nilai' => 'integer',
+        'weight' => 'integer',
+        'score' => 'integer',
         'candidate_id' => 'integer',
         'stage_id' => 'integer',
     ];

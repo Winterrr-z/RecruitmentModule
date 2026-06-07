@@ -31,96 +31,96 @@ class AtsPipelineTest extends TestCase
         // Default stages seeded by migration are 1 (Applied) and 2 (Final)
         // Let's create a custom intermediate stage
         Stage::create([
-            'nama' => 'HR Interview',
-            'deskripsi' => 'HR Stage',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 2,
+            'name' => 'HR Interview',
+            'description' => 'HR Stage',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 2,
         ]);
 
-        Stage::where('id', 2)->update(['urutan' => 3]);
+        Stage::where('id', 2)->update(['sequence' => 3]);
 
         $mpp1 = \App\Models\Mpp::create([
-            'nama_plan' => 'Plan IT',
-            'departemen' => 'IT',
-            'jabatan' => 'Software Engineer',
-            'jumlah_kebutuhan' => 5,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Plan IT',
+            'department' => 'IT',
+            'job_title' => 'Software Engineer',
+            'quota' => 5,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
         $mpp2 = \App\Models\Mpp::create([
-            'nama_plan' => 'Plan HR',
-            'departemen' => 'HR',
-            'jabatan' => 'HR Manager',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Plan HR',
+            'department' => 'HR',
+            'job_title' => 'HR Manager',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
         $rr1 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp1->id,
-            'jabatan' => 'Software Engineer',
-            'departemen' => 'IT',
+            'job_title' => 'Software Engineer',
+            'department' => 'IT',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 5,
+            'quota' => 5,
         ]);
 
         $this->job1 = Lowongan::create([
             'recruitment_request_id' => $rr1->id,
             'mpp_id' => $mpp1->id,
-            'jabatan' => 'Software Engineer',
-            'departemen' => 'IT',
+            'job_title' => 'Software Engineer',
+            'department' => 'IT',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 5,
+            'quota' => 5,
         ]);
 
         $rr2 = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp2->id,
-            'jabatan' => 'HR Manager',
-            'departemen' => 'HR',
+            'job_title' => 'HR Manager',
+            'department' => 'HR',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->job2 = Lowongan::create([
             'recruitment_request_id' => $rr2->id,
             'mpp_id' => $mpp2->id,
-            'jabatan' => 'HR Manager',
-            'departemen' => 'HR',
+            'job_title' => 'HR Manager',
+            'department' => 'HR',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->candidate = Candidate::create([
             'lowongan_id' => $this->job1->id,
-            'nama' => 'John Doe',
+            'name' => 'John Doe',
             'email' => 'john@example.com',
-            'telepon' => '081234567890',
+            'phone' => '081234567890',
             'current_stage_id' => 1, // Applied
             'status' => 'Applied',
         ]);
@@ -145,9 +145,9 @@ class AtsPipelineTest extends TestCase
         // Another candidate at a different stage and job
         $candidate2 = Candidate::create([
             'lowongan_id' => $this->job2->id,
-            'nama' => 'Jane Smith',
+            'name' => 'Jane Smith',
             'email' => 'jane@example.com',
-            'telepon' => '081234567891',
+            'phone' => '081234567891',
             'current_stage_id' => 2, // Final
             'status' => 'Applied',
         ]);
@@ -192,16 +192,16 @@ class AtsPipelineTest extends TestCase
 
         $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $this->candidate->fresh()->status);
         $this->assertDatabaseHas('blacklist', [
-            'nama' => 'John Doe',
+            'name' => 'John Doe',
             'email' => 'john@example.com',
-            'alasan' => 'Melanggar kode etik',
+            'reason' => 'Melanggar kode etik',
         ]);
     }
 
     public function test_validates_stage_requirements_on_move()
     {
         // Update stage 1 to require scorecard
-        Stage::find(1)->update(['butuh_scorecard' => true]);
+        Stage::find(1)->update(['needs_scorecard' => true]);
 
         // Attempt move without scorecard -> should fail validation
         Livewire::actingAs($this->user)
@@ -215,9 +215,9 @@ class AtsPipelineTest extends TestCase
         Scorecard::create([
             'candidate_id' => $this->candidate->id,
             'stage_id' => 1,
-            'kriteria' => 'Keahlian Teknis',
-            'bobot' => 100,
-            'nilai' => 5,
+            'criteria' => 'Keahlian Teknis',
+            'weight' => 100,
+            'score' => 5,
         ]);
 
         // Attempt move again -> should succeed

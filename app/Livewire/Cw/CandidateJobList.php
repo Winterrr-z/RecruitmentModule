@@ -40,22 +40,22 @@ class CandidateJobList extends Component
     {
         $query = Lowongan::query()
             ->where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('jabatan', 'like', '%' . $this->search . '%')
-                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+                $q->where('job_title', 'like', '%' . $this->search . '%')
+                  ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }
 
         if (!empty($this->selectedDepartments)) {
-            $query->whereIn('departemen', $this->selectedDepartments);
+            $query->whereIn('department', $this->selectedDepartments);
         }
 
         if (!empty($this->selectedTypes)) {
-            $query->whereIn('tipe_kerja', $this->selectedTypes);
+            $query->whereIn('employment_type', $this->selectedTypes);
         }
 
         $direction = $this->sortBy === 'oldest' ? 'asc' : 'desc';
@@ -64,12 +64,12 @@ class CandidateJobList extends Component
         // Rekap jumlah per departemen untuk sidebar
         $departments = Lowongan::query()
             ->where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today())
-            ->selectRaw('departemen, count(*) as total')
-            ->groupBy('departemen')
-            ->orderBy('departemen')
-            ->pluck('total', 'departemen')
+            ->selectRaw('department, count(*) as total')
+            ->groupBy('department')
+            ->orderBy('department')
+            ->pluck('total', 'department')
             ->toArray();
 
         return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))

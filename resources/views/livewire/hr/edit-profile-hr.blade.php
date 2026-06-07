@@ -118,11 +118,11 @@
                         <label for="profile-dept" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Departemen</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">corporate_fare</span>
-                            <input type="text" id="profile-dept" wire:model="departemen"
+                            <input type="text" id="profile-dept" wire:model="department"
                                    placeholder="Contoh: Human Resources"
-                                   class="w-full pl-12 pr-6 h-12 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('departemen') border-error @enderror">
+                                   class="w-full pl-12 pr-6 h-12 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('department') border-error @enderror">
                         </div>
-                        @error('departemen')
+                        @error('department')
                             <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[14px]">error</span>
                                 {{ $message }}

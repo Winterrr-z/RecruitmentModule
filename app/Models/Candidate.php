@@ -17,9 +17,9 @@ class Candidate extends Model
     protected $fillable = [
         'lowongan_id',
         'user_id',
-        'nama',
+        'name',
         'email',
-        'telepon',
+        'phone',
         'cv_path',
         'portofolio_path',
         'current_stage_id',

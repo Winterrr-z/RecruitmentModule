@@ -28,46 +28,46 @@ class AtsCandidateDetailFormTest extends TestCase
         $this->user = User::factory()->create(['role' => 'hr']);
 
         $mpp = \App\Models\Mpp::create([
-            'nama_plan' => 'IT Engineer Plan',
-            'departemen' => 'IT',
-            'jabatan' => 'IT Engineer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'IT Engineer Plan',
+            'department' => 'IT',
+            'job_title' => 'IT Engineer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'IT Engineer',
-            'departemen' => 'IT',
+            'job_title' => 'IT Engineer',
+            'department' => 'IT',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->job = Lowongan::create([
             'recruitment_request_id' => $rr->id,
-            'jabatan' => 'IT Engineer',
-            'departemen' => 'IT',
+            'job_title' => 'IT Engineer',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->candidate = Candidate::create([
             'lowongan_id' => $this->job->id,
-            'nama' => 'Bob Smith',
+            'name' => 'Bob Smith',
             'email' => 'bob@example.com',
-            'telepon' => '081234567899',
+            'phone' => '081234567899',
             'current_stage_id' => 1, // Applied
             'status' => 'Applied',
             'cv_path' => 'cvs/bob_cv.pdf',
@@ -106,8 +106,8 @@ class AtsCandidateDetailFormTest extends TestCase
 
         // 2. Change stage 1 requirements
         Stage::find(1)->update([
-            'butuh_scorecard' => true,
-            'butuh_jadwal' => true,
+            'needs_scorecard' => true,
+            'needs_schedule' => true,
         ]);
 
         Livewire::actingAs($this->user)
@@ -123,10 +123,10 @@ class AtsCandidateDetailFormTest extends TestCase
                 'candidateId' => $this->candidate->id,
                 'stageId' => 1,
             ])
-            ->set('tanggal', '2026-06-15')
-            ->set('waktu', '10:00')
-            ->set('tempat', 'Room 302')
-            ->set('tautan_virtual', 'https://meet.google.com/test')
+            ->set('date', '2026-06-15')
+            ->set('time', '10:00')
+            ->set('venue', 'Room 302')
+            ->set('virtual_link', 'https://meet.google.com/test')
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('ats.candidate.detail', ['candidateId' => $this->candidate->id]));
@@ -134,10 +134,10 @@ class AtsCandidateDetailFormTest extends TestCase
         $this->assertDatabaseHas('interview_schedules', [
             'candidate_id' => $this->candidate->id,
             'stage_id' => 1,
-            'tanggal' => '2026-06-15 00:00:00',
-            'waktu' => '10:00',
-            'tempat' => 'Room 302',
-            'tautan_virtual' => 'https://meet.google.com/test',
+            'date' => '2026-06-15 00:00:00',
+            'time' => '10:00',
+            'venue' => 'Room 302',
+            'virtual_link' => 'https://meet.google.com/test',
         ]);
     }
 
@@ -145,9 +145,9 @@ class AtsCandidateDetailFormTest extends TestCase
     {
         // Update stage with scheduling defaults
         Stage::find(1)->update([
-            'tipe_wawancara' => 'hybrid',
-            'lokasi_default' => 'Gedung A, Ruang 101',
-            'tautan_virtual_default' => 'https://zoom.us/j/1234567890',
+            'interview_type' => 'hybrid',
+            'default_location' => 'Gedung A, Ruang 101',
+            'default_virtual_link' => 'https://zoom.us/j/1234567890',
         ]);
 
         Livewire::actingAs($this->user)
@@ -155,18 +155,18 @@ class AtsCandidateDetailFormTest extends TestCase
                 'candidateId' => $this->candidate->id,
                 'stageId' => 1,
             ])
-            ->assertSet('tempat', 'Gedung A, Ruang 101')
-            ->assertSet('tautan_virtual', 'https://zoom.us/j/1234567890');
+            ->assertSet('venue', 'Gedung A, Ruang 101')
+            ->assertSet('virtual_link', 'https://zoom.us/j/1234567890');
     }
 
     public function test_scorecard_form_validation_and_saving()
     {
         // Setup predefined criteria on Stage 1
         Stage::find(1)->update([
-            'butuh_scorecard' => true,
-            'scorecard_kriteria' => [
-                ['kriteria' => 'Communication', 'bobot' => 40],
-                ['kriteria' => 'Technical skill', 'bobot' => 60],
+            'needs_scorecard' => true,
+            'scorecard_criteria' => [
+                ['criteria' => 'Communication', 'weight' => 40],
+                ['criteria' => 'Technical skill', 'weight' => 60],
             ],
         ]);
 
@@ -176,9 +176,9 @@ class AtsCandidateDetailFormTest extends TestCase
                 'candidateId' => $this->candidate->id,
                 'stageId' => 1,
             ])
-            ->set('kriteriaList.0.nilai', 150) // invalid score (> 100)
+            ->set('kriteriaList.0.score', 150) // invalid score (> 100)
             ->call('save')
-            ->assertHasErrors(['kriteriaList.0.nilai']);
+            ->assertHasErrors(['kriteriaList.0.score']);
 
         // 2. Successful save
         Livewire::actingAs($this->user)
@@ -186,8 +186,8 @@ class AtsCandidateDetailFormTest extends TestCase
                 'candidateId' => $this->candidate->id,
                 'stageId' => 1,
             ])
-            ->set('kriteriaList.0.nilai', 8)
-            ->set('kriteriaList.1.nilai', 9)
+            ->set('kriteriaList.0.score', 8)
+            ->set('kriteriaList.1.score', 9)
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('ats.candidate.detail', ['candidateId' => $this->candidate->id]));
@@ -195,17 +195,17 @@ class AtsCandidateDetailFormTest extends TestCase
         $this->assertDatabaseHas('scorecards', [
             'candidate_id' => $this->candidate->id,
             'stage_id' => 1,
-            'kriteria' => 'Communication',
-            'bobot' => 40,
-            'nilai' => 8,
+            'criteria' => 'Communication',
+            'weight' => 40,
+            'score' => 8,
         ]);
 
         $this->assertDatabaseHas('scorecards', [
             'candidate_id' => $this->candidate->id,
             'stage_id' => 1,
-            'kriteria' => 'Technical skill',
-            'bobot' => 60,
-            'nilai' => 9,
+            'criteria' => 'Technical skill',
+            'weight' => 60,
+            'score' => 9,
         ]);
     }
 }

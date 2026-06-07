@@ -27,37 +27,37 @@ class AtsManualAndBlacklistTest extends TestCase
         $this->user = User::factory()->create(['role' => 'hr']);
 
         $mpp = \App\Models\Mpp::create([
-            'nama_plan' => 'Staff Plan',
-            'departemen' => 'Sales',
-            'jabatan' => 'Sales Staff',
-            'jumlah_kebutuhan' => 2,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Staff Plan',
+            'department' => 'Sales',
+            'job_title' => 'Sales Staff',
+            'quota' => 2,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $this->job = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Sales Staff',
-            'departemen' => 'Sales',
+            'job_title' => 'Sales Staff',
+            'department' => 'Sales',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 2,
+            'quota' => 2,
         ]);
     }
 
@@ -68,16 +68,16 @@ class AtsManualAndBlacklistTest extends TestCase
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsManualCandidate::class, ['lowonganId' => $this->job->id])
-            ->set('nama', 'Alice Johnson')
+            ->set('name', 'Alice Johnson')
             ->set('email', 'alice@example.com')
-            ->set('telepon', '0899999999')
+            ->set('phone', '0899999999')
             ->set('cv', $dummyCv)
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('ats.dashboard', ['selectedLowonganId' => $this->job->id]));
 
         $this->assertDatabaseHas('candidates', [
-            'nama' => 'Alice Johnson',
+            'name' => 'Alice Johnson',
             'email' => 'alice@example.com',
             'source' => 'manual',
             'current_stage_id' => 1,
@@ -90,9 +90,9 @@ class AtsManualAndBlacklistTest extends TestCase
         // 1. Create a candidate to test the picker
         $cand = Candidate::create([
             'lowongan_id' => $this->job->id,
-            'nama' => 'Bad Guy',
+            'name' => 'Bad Guy',
             'email' => 'bad@example.com',
-            'telepon' => '0866666666',
+            'phone' => '0866666666',
             'current_stage_id' => 1,
             'status' => 'Applied',
         ]);
@@ -104,18 +104,18 @@ class AtsManualAndBlacklistTest extends TestCase
             // Trigger picker search
             ->set('candidateSearch', 'Bad')
             ->call('selectCandidate', $cand->id)
-            ->assertSet('nama', 'Bad Guy')
+            ->assertSet('name', 'Bad Guy')
             ->assertSet('email', 'bad@example.com')
-            ->assertSet('telepon', '0866666666')
-            ->set('alasan', 'Fraud detected')
+            ->assertSet('phone', '0866666666')
+            ->set('reason', 'Fraud detected')
             ->call('save')
             ->assertHasNoErrors();
 
         // Check blacklist row added
         $this->assertDatabaseHas('blacklist', [
-            'nama' => 'Bad Guy',
+            'name' => 'Bad Guy',
             'email' => 'bad@example.com',
-            'alasan' => 'Fraud detected',
+            'reason' => 'Fraud detected',
         ]);
 
         // Check active candidate auto-rejected
@@ -140,16 +140,16 @@ class AtsManualAndBlacklistTest extends TestCase
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsManualCandidate::class)
-            ->set('nama', 'Independent Candidate')
+            ->set('name', 'Independent Candidate')
             ->set('email', 'independent@example.com')
-            ->set('telepon', '0899999998')
+            ->set('phone', '0899999998')
             ->set('cv', $dummyCv)
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('ats.dashboard'));
 
         $this->assertDatabaseHas('candidates', [
-            'nama' => 'Independent Candidate',
+            'name' => 'Independent Candidate',
             'email' => 'independent@example.com',
             'lowongan_id' => null,
             'source' => 'manual',

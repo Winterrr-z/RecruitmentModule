@@ -25,7 +25,7 @@
                 <select wire:model.live="filterLowongan" class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Lowongan</option>
                     @foreach($lowongans as $job)
-                        <option value="{{ $job->id }}">{{ $job->jabatan }} ({{ $job->departemen }})</option>
+                        <option value="{{ $job->id }}">{{ $job->job_title }} ({{ $job->department }})</option>
                     @endforeach
                 </select>
             </div>
@@ -48,7 +48,7 @@
                 <select wire:model.live="filterStage" class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Stage</option>
                     @foreach($stages as $stage)
-                        <option value="{{ $stage->id }}">{{ $stage->nama }}</option>
+                        <option value="{{ $stage->id }}">{{ $stage->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -83,15 +83,15 @@
                     </thead>
                     <tbody class="divide-y divide-surface-container/30">
                         @forelse($candidates as $candidate)
-                            <tr x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
+                            <tr x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id, 'from' => 'candidates']) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
                                 <!-- Nama -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                                            {{ strtoupper(substr($candidate->nama, 0, 2)) }}
+                                            {{ strtoupper(substr($candidate->name, 0, 2)) }}
                                         </div>
                                         <span class="font-title-md text-sm font-bold text-on-surface">
-                                            {{ $candidate->nama }}
+                                            {{ $candidate->name }}
                                         </span>
                                     </div>
                                 </td>
@@ -103,19 +103,19 @@
 
                                 <!-- Lowongan -->
                                 <td class="px-6 py-4 whitespace-nowrap font-medium">
-                                    {{ $candidate->lowongan->jabatan ?? '-' }}
+                                    {{ $candidate->lowongan->job_title ?? '-' }}
                                 </td>
 
                                 <!-- Stage -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-container-high text-on-surface-variant border border-surface-container">
-                                        {{ $candidate->currentStage->nama ?? '-' }}
+                                        {{ $candidate->currentStage->name ?? '-' }}
                                     </span>
                                 </td>
 
                                 <!-- Status -->
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @switch($candidate->status)
+                                    @switch($candidate->status->value)
                                         @case('Applied')
                                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-700 border border-blue-500/20">
                                                 <span class="w-1.5 h-1.5 bg-blue-600 rounded-full"></span>

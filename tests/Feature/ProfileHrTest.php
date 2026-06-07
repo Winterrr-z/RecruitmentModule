@@ -36,7 +36,7 @@ class ProfileHrTest extends TestCase
     {
         $user = User::factory()->create([
             'role'         => 'hr',
-            'departemen'   => 'Human Resources',
+            'department'   => 'Human Resources',
             'job_title'    => 'HR Specialist',
             'phone_number' => '08123456789'
         ]);
@@ -56,7 +56,7 @@ class ProfileHrTest extends TestCase
             'role'         => 'hr',
             'name'         => 'Budi Santoso',
             'email'        => 'budi@example.com',
-            'departemen'   => 'Human Resources',
+            'department'   => 'Human Resources',
             'job_title'    => 'HR Specialist',
             'phone_number' => '08123456789'
         ]);
@@ -78,7 +78,7 @@ class ProfileHrTest extends TestCase
     {
         $user = User::factory()->create([
             'role'         => 'hr',
-            'departemen'   => null,
+            'department'   => null,
             'job_title'    => null,
             'phone_number' => null,
         ]);
@@ -110,7 +110,7 @@ class ProfileHrTest extends TestCase
     {
         $user = User::factory()->create([
             'role'         => 'hr',
-            'departemen'   => 'IT',
+            'department'   => 'IT',
             'job_title'    => 'Developer',
             'phone_number' => '111',
         ]);
@@ -130,7 +130,7 @@ class ProfileHrTest extends TestCase
             'role'         => 'hr',
             'name'         => 'Original Name',
             'email'        => 'original@example.com',
-            'departemen'   => 'IT',
+            'department'   => 'IT',
             'job_title'    => 'Programmer',
             'phone_number' => '111'
         ]);
@@ -140,7 +140,7 @@ class ProfileHrTest extends TestCase
         Livewire::test(\App\Livewire\Hr\EditProfileHr::class)
             ->set('name', 'Updated Name')
             ->set('email', 'updated@example.com')
-            ->set('departemen', 'HR')
+            ->set('department', 'HR')
             ->set('job_title' , 'HR Manager')
             ->set('phone_number', '222')
             ->call('save')
@@ -150,7 +150,7 @@ class ProfileHrTest extends TestCase
             'id'           => $user->id,
             'name'         => 'Updated Name',
             'email'        => 'updated@example.com',
-            'departemen'   => 'HR',
+            'department'   => 'HR',
             'job_title'    => 'HR Manager',
             'phone_number' => '222',
         ]);

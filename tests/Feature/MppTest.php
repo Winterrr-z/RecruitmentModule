@@ -26,24 +26,24 @@ class MppTest extends TestCase
     public function test_can_create_mpp()
     {
         Livewire::test(\App\Livewire\Mpp\MppForm::class)
-            ->set('nama_plan', 'Test Plan')
-            ->set('departemen', 'IT')
-            ->set('jabatan', 'Software Engineer')
-            ->set('jumlah_kebutuhan', 2)
-            ->set('estimasi_gaji_min', '10,000,000')
-            ->set('estimasi_gaji_max', '15,000,000')
-            ->set('sla_hari', 90)
+            ->set('plan_name', 'Test Plan')
+            ->set('department', 'IT')
+            ->set('job_title', 'Software Engineer')
+            ->set('quota', 2)
+            ->set('estimated_salary_min', '10,000,000')
+            ->set('estimated_salary_max', '15,000,000')
+            ->set('sla_days', 90)
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('mpps', [
-            'nama_plan' => 'Test Plan',
-            'departemen' => 'IT',
-            'jabatan' => 'Software Engineer',
-            'jumlah_kebutuhan' => 2,
-            'estimasi_gaji_min' => 10000000,
-            'estimasi_gaji_max' => 15000000,
-            'sla_hari' => 90,
+            'plan_name' => 'Test Plan',
+            'department' => 'IT',
+            'job_title' => 'Software Engineer',
+            'quota' => 2,
+            'estimated_salary_min' => 10000000,
+            'estimated_salary_max' => 15000000,
+            'sla_days' => 90,
             'status' => \App\Enums\MppStatus::DRAFT,
         ]);
     }
@@ -52,12 +52,12 @@ class MppTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'hr']);
         $mpp = Mpp::create([
-            'nama_plan' => 'Test Detail',
-            'departemen' => 'HR',
-            'jabatan' => 'HR Manager',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 60,
-            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
+            'plan_name' => 'Test Detail',
+            'department' => 'HR',
+            'job_title' => 'HR Manager',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
         ]);
 
         $this->actingAs($user)
@@ -69,13 +69,13 @@ class MppTest extends TestCase
     public function test_can_approve_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'To Approve',
-            'departemen' => 'Finance',
-            'jabatan' => 'Accountant',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
+            'plan_name' => 'To Approve',
+            'department' => 'Finance',
+            'job_title' => 'Accountant',
+            'quota' => 1,
+            'sla_days' => 30,
             'status' => \App\Enums\MppStatus::DRAFT,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
         Livewire::test(\App\Livewire\Mpp\MppDetail::class, ['mppId' => $mpp->id])
@@ -90,12 +90,12 @@ class MppTest extends TestCase
     public function test_cannot_edit_closed_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Closed Plan',
-            'departemen' => 'IT',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Closed Plan',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => 'Closed',
         ]);
 
@@ -106,12 +106,12 @@ class MppTest extends TestCase
     public function test_cannot_delete_closed_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Closed Plan to Delete',
-            'departemen' => 'IT',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Closed Plan to Delete',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => 'Closed',
         ]);
 
@@ -124,46 +124,46 @@ class MppTest extends TestCase
     public function test_cannot_edit_completed_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Filled Plan',
-            'departemen' => 'IT',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Filled Plan',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Developer',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $lowongan = \App\Models\Lowongan::create([
             'recruitment_request_id' => $rr->id,
-            'jabatan' => 'Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Developer',
+            'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja Developer',
-            'spesifikasi_kebutuhan' => 'Minimal S1',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Kerja Developer',
+            'job_requirements' => 'Minimal S1',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(10)->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         \App\Models\Candidate::create([
             'lowongan_id' => $lowongan->id,
-            'nama' => 'John Doe',
+            'name' => 'John Doe',
             'email' => 'john@doe.com',
-            'telepon' => '1234567890',
+            'phone' => '1234567890',
             'current_stage_id' => 1,
             'status' => 'Hired',
         ]);
@@ -177,46 +177,46 @@ class MppTest extends TestCase
     public function test_cannot_delete_completed_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Filled Plan to Delete',
-            'departemen' => 'IT',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Filled Plan to Delete',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Developer',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $lowongan = \App\Models\Lowongan::create([
             'recruitment_request_id' => $rr->id,
-            'jabatan' => 'Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Developer',
+            'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja Developer',
-            'spesifikasi_kebutuhan' => 'Minimal S1',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Kerja Developer',
+            'job_requirements' => 'Minimal S1',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(10)->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         \App\Models\Candidate::create([
             'lowongan_id' => $lowongan->id,
-            'nama' => 'John Doe',
+            'name' => 'John Doe',
             'email' => 'john@doe.com',
-            'telepon' => '1234567890',
+            'phone' => '1234567890',
             'current_stage_id' => 1,
             'status' => 'Hired',
         ]);

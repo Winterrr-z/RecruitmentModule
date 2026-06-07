@@ -1,6 +1,17 @@
 @php
     $requestPath = request()->path();
 
+    $activeTab = null;
+    if (request()->routeIs('ats.candidate.detail') || str_starts_with($requestPath, 'ats/candidate/')) {
+        $referer = request()->headers->get('referer');
+        $from = request()->query('from');
+        if ($from === 'candidates' || ($referer && str_contains($referer, '/ats/candidates'))) {
+            $activeTab = 'candidates';
+        } else {
+            $activeTab = 'dashboard';
+        }
+    }
+
     if (request()->routeIs('mpp.*') || str_starts_with($requestPath, 'mpp')) {
         $headerTitle = 'Manpower Planning';
     } elseif (request()->routeIs('rr.*') || str_starts_with($requestPath, 'rr')) {
@@ -74,12 +85,12 @@
                  x-transition:leave-end="opacity-0 transform -translate-y-2"
                  class="pl-10 flex flex-col gap-1 mt-1">
                 <a href="{{ route('ats.dashboard') }}" 
-                   class="{{ (request()->routeIs('ats.dashboard') || request()->routeIs('ats.candidate.manual')) ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
+                   class="{{ (request()->routeIs('ats.dashboard') || request()->routeIs('ats.candidate.manual') || $activeTab === 'dashboard') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
                     <span class="material-symbols-outlined text-[18px]">account_tree</span>
                     <span class="font-body-md text-sm">Pipeline</span>
                 </a>
                 <a href="{{ route('ats.candidates') }}" 
-                   class="{{ (request()->routeIs('ats.candidates') || request()->routeIs('ats.blacklist')) ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
+                   class="{{ (request()->routeIs('ats.candidates') || request()->routeIs('ats.blacklist') || $activeTab === 'candidates') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
                     <span class="material-symbols-outlined text-[18px]">group</span>
                     <span class="font-body-md text-sm">All Candidates</span>
                 </a>

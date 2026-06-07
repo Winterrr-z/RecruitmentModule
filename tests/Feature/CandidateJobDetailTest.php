@@ -26,37 +26,37 @@ class CandidateJobDetailTest extends TestCase
 
         // Setup base data
         $this->mpp = Mpp::create([
-            'nama_plan' => 'Plan IT',
-            'departemen' => 'Teknologi',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 3,
-            'sla_hari' => 90,
-            'target_waktu_absolut' => now()->addDays(90)->format('Y-m-d'),
+            'plan_name' => 'Plan IT',
+            'department' => 'Teknologi',
+            'job_title' => 'Developer',
+            'quota' => 3,
+            'sla_days' => 90,
+            'absolute_target_date' => now()->addDays(90)->format('Y-m-d'),
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $this->lowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Laravel Specialist',
-            'departemen' => 'Engineering',
+            'job_title' => 'Laravel Specialist',
+            'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Develop clean code.',
-            'spesifikasi_kebutuhan' => 'PHP 8.2 & Laravel 11/12',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Develop clean code.',
+            'job_requirements' => 'PHP 8.2 & Laravel 11/12',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addMonth()->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 2,
+            'quota' => 2,
         ]);
     }
 
@@ -89,7 +89,7 @@ class CandidateJobDetailTest extends TestCase
         Livewire::actingAs($user)
             ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
             ->call('apply')
-            ->assertHasErrors(['telepon' => 'required', 'cv' => 'required']);
+            ->assertHasErrors(['phone' => 'required', 'cv' => 'required']);
     }
 
     public function test_successful_application_submission()
@@ -107,7 +107,7 @@ class CandidateJobDetailTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
-            ->set('telepon', '0812345678')
+            ->set('phone', '0812345678')
             ->set('cv', $cvFile)
             ->set('portofolio', $portfolioFile)
             ->call('apply')
@@ -116,9 +116,9 @@ class CandidateJobDetailTest extends TestCase
         $this->assertDatabaseHas('candidates', [
             'lowongan_id' => $this->lowongan->id,
             'user_id' => $user->id,
-            'nama' => 'Budi Santoso',
+            'name' => 'Budi Santoso',
             'email' => 'budi@example.com',
-            'telepon' => '0812345678',
+            'phone' => '0812345678',
             'status' => 'Applied',
             'source' => 'public',
         ]);
@@ -135,10 +135,10 @@ class CandidateJobDetailTest extends TestCase
     {
         // Seed blacklist
         DB::table('blacklist')->insert([
-            'nama' => 'Blacklisted Person',
+            'name' => 'Blacklisted Person',
             'email' => 'blacklist@example.com',
-            'telepon' => '0899999999',
-            'alasan' => 'Indisipliner',
+            'phone' => '0899999999',
+            'reason' => 'Indisipliner',
         ]);
 
         $user = User::factory()->create([
@@ -151,7 +151,7 @@ class CandidateJobDetailTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
-            ->set('telepon', '0812345678') // blacklist by email
+            ->set('phone', '0812345678') // blacklist by email
             ->set('cv', $cvFile)
             ->call('apply')
             ->assertRedirect(route('blacklist.info'));

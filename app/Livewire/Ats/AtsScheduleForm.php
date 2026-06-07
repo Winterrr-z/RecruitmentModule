@@ -15,26 +15,26 @@ class AtsScheduleForm extends Component
     public $stage;
 
     // Form fields
-    public $tanggal;
-    public $waktu;
-    public $tempat;
-    public $tautan_virtual;
+    public $date;
+    public $time;
+    public $venue;
+    public $virtual_link;
 
     protected function rules()
     {
         return [
-            'tanggal' => 'required|date',
-            'waktu' => 'required',
-            'tempat' => 'nullable|string|max:200',
-            'tautan_virtual' => 'nullable|url|max:200',
+            'date' => 'required|date',
+            'time' => 'required',
+            'venue' => 'nullable|string|max:200',
+            'virtual_link' => 'nullable|url|max:200',
         ];
     }
 
     protected $messages = [
-        'tanggal.required' => 'Tanggal interview wajib dipilih.',
-        'tanggal.date' => 'Tanggal format salah.',
-        'waktu.required' => 'Waktu interview wajib diisi.',
-        'tautan_virtual.url' => 'Format tautan virtual meeting tidak valid.',
+        'date.required' => 'Tanggal interview wajib dipilih.',
+        'date.date' => 'Tanggal format salah.',
+        'time.required' => 'Waktu interview wajib diisi.',
+        'virtual_link.url' => 'Format tautan virtual meeting tidak valid.',
     ];
 
     public function mount($candidateId, $stageId)
@@ -50,13 +50,13 @@ class AtsScheduleForm extends Component
             ->first();
 
         if ($existing) {
-            $this->tanggal = $existing->tanggal ? $existing->tanggal->format('Y-m-d') : null;
-            $this->waktu = $existing->waktu;
-            $this->tempat = $existing->tempat;
-            $this->tautan_virtual = $existing->tautan_virtual;
+            $this->date = $existing->date ? $existing->date->format('Y-m-d') : null;
+            $this->time = $existing->time;
+            $this->venue = $existing->venue;
+            $this->virtual_link = $existing->virtual_link;
         } else {
-            $this->tempat = $this->stage->lokasi_default;
-            $this->tautan_virtual = $this->stage->tautan_virtual_default;
+            $this->venue = $this->stage->default_location;
+            $this->virtual_link = $this->stage->default_virtual_link;
         }
     }
 
@@ -70,10 +70,10 @@ class AtsScheduleForm extends Component
                 'stage_id' => $this->stageId,
             ],
             [
-                'tanggal' => $this->tanggal,
-                'waktu' => $this->waktu,
-                'tempat' => $this->tempat,
-                'tautan_virtual' => $this->tautan_virtual,
+                'date' => $this->date,
+                'time' => $this->time,
+                'venue' => $this->venue,
+                'virtual_link' => $this->virtual_link,
             ]
         );
 

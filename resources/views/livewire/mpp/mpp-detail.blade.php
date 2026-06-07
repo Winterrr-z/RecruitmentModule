@@ -1,5 +1,5 @@
 <div>
-    <x-breadcrumb :items="[['label' => 'Manpower Planning', 'url' => route('mpp.index')], ['label' => $mpp->nama_plan ?? 'Detail MPP', 'url' => null]]" />
+    <x-breadcrumb :items="[['label' => 'Manpower Planning', 'url' => route('mpp.index')], ['label' => $mpp->plan_name ?? 'Detail MPP', 'url' => null]]" />
     <!-- Main Detail Content -->
     <div class="px-gutter py-8 max-w-screen-xl mx-auto space-y-8">
         <x-toast-alert />
@@ -7,7 +7,7 @@
         <!-- Hero Title Section -->
         <section class="space-y-4">
             <div class="flex items-center gap-4">
-                <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $mpp->nama_plan }}</h1>
+                <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $mpp->plan_name }}</h1>
                 
                 @php $heroBadge = $mpp->getStatusBadge(); @endphp
                 <span class="px-4 py-1 {{ $heroBadge['bg'] }} {{ $heroBadge['color'] }} text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider flex items-center gap-2">
@@ -27,7 +27,7 @@
                 $isApprovedActive = ($mpp->status === \App\Enums\MppStatus::APPROVED || $hasLowongan) && !$isCompleted;
                 $isLowonganActive = $hasLowongan && !$isCompleted;
                 
-                $slaDisplay = $mpp->sla_hari >= 30 ? (int) floor($mpp->sla_hari / 30) . ' Bulan' : (int) $mpp->sla_hari . ' Hari';
+                $slaDisplay = $mpp->sla_days >= 30 ? (int) floor($mpp->sla_days / 30) . ' Bulan' : (int) $mpp->sla_days . ' Hari';
             @endphp
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-8">
                 <!-- Step 1: Draft -->
@@ -83,7 +83,7 @@
         <section class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.06)] border border-surface-container/30 space-y-6">
             @php
                 $now = now();
-                $target = \Carbon\Carbon::parse($mpp->target_waktu_absolut);
+                $target = \Carbon\Carbon::parse($mpp->absolute_target_date);
                 $created = \Carbon\Carbon::parse($mpp->created_at);
                 
                 $totalDays = $created->diffInDays($target);
@@ -150,7 +150,7 @@
                     </div>
                     <div>
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Kandidat Direkrut</p>
-                        <p class="font-title-md text-title-md font-bold">0 / {{ $mpp->jumlah_kebutuhan }} Orang</p>
+                        <p class="font-title-md text-title-md font-bold">0 / {{ $mpp->quota }} Orang</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
@@ -176,25 +176,25 @@
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-y-8 gap-x-12">
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Departemen</p>
-                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->departemen }}</p>
+                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->department }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Jabatan</p>
-                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->jabatan }}</p>
+                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->job_title }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Kuota Dibutuhkan</p>
-                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->jumlah_kebutuhan }} Orang</p>
+                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ $mpp->quota }} Orang</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Estimasi Gaji</p>
                         <p class="font-body-lg text-body-lg font-semibold text-primary">
-                            @if($mpp->estimasi_gaji_min && $mpp->estimasi_gaji_max)
-                                Rp {{ number_format($mpp->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimasi_gaji_max, 0, ',', '.') }}
-                            @elseif($mpp->estimasi_gaji_min)
-                                Rp {{ number_format($mpp->estimasi_gaji_min, 0, ',', '.') }}
-                            @elseif($mpp->estimasi_gaji_max)
-                                Rp {{ number_format($mpp->estimasi_gaji_max, 0, ',', '.') }}
+                            @if($mpp->estimated_salary_min && $mpp->estimated_salary_max)
+                                Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                            @elseif($mpp->estimated_salary_min)
+                                Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }}
+                            @elseif($mpp->estimated_salary_max)
+                                Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
                             @else
                                 -
                             @endif
@@ -206,7 +206,7 @@
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Target Selesai</p>
-                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ \Carbon\Carbon::parse($mpp->target_waktu_absolut)->translatedFormat('d F Y') }}</p>
+                        <p class="font-body-lg text-body-lg font-semibold text-on-surface">{{ \Carbon\Carbon::parse($mpp->absolute_target_date)->translatedFormat('d F Y') }}</p>
                     </div>
                     <div class="space-y-1">
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Tanggal Dibuat</p>
@@ -254,17 +254,17 @@
                                     @endphp
                                     <tr class="hover:bg-surface-container-low/50 transition-colors text-body-md text-on-surface">
                                         <td class="p-4 pl-6 font-semibold">
-                                            {{ $l->jabatan }}
-                                            <div class="text-xs text-on-surface-variant font-normal">{{ $l->departemen }}</div>
+                                            {{ $l->job_title }}
+                                            <div class="text-xs text-on-surface-variant font-normal">{{ $l->department }}</div>
                                         </td>
                                         <td class="p-4">
                                             <div class="flex items-center gap-1.5 text-xs text-on-surface-variant font-normal">
-                                                <span class="capitalize">{{ $l->tipe_kerja }}</span>
+                                                <span class="capitalize">{{ $l->employment_type }}</span>
                                                 <span>•</span>
-                                                <span class="capitalize">{{ $l->lokasi }}</span>
+                                                <span class="capitalize">{{ $l->location }}</span>
                                             </div>
                                         </td>
-                                        <td class="p-4 text-center font-semibold">{{ $l->kuota }} Orang</td>
+                                        <td class="p-4 text-center font-semibold">{{ $l->quota }} Orang</td>
                                         <td class="p-4 text-center font-semibold">
                                             <span class="text-primary">{{ $hired }}</span>
                                             <span class="text-on-surface-variant">/ {{ $total }}</span>

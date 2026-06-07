@@ -112,10 +112,10 @@
                         <!-- Judul dan Departemen -->
                         <div class="mb-4">
                             <h4 class="text-title-md font-title-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2">
-                                {{ $rr->jabatan }}
+                                {{ $rr->job_title }}
                             </h4>
                             <p class="text-label-sm font-label-sm text-on-surface-variant/80 mt-1">
-                                {{ $rr->departemen }}
+                                {{ $rr->department }}
                             </p>
                         </div>
 
@@ -124,12 +124,12 @@
                             <!-- Tipe Kerja -->
                             <div class="flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary text-[18px]">work</span>
-                                <span class="capitalize">{{ $rr->tipe_kerja }}</span>
+                                <span class="capitalize">{{ $rr->employment_type }}</span>
                             </div>
                             <!-- Lokasi -->
                             <div class="flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
-                                <span class="capitalize">{{ $rr->lokasi }}</span>
+                                <span class="capitalize">{{ $rr->location }}</span>
                             </div>
                             <!-- Application Deadline -->
                             <div class="flex items-center gap-2 col-span-2">
@@ -143,8 +143,8 @@
                     <div class="mt-4 flex flex-col gap-4">
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-on-surface-variant">Kuota Terbuka:</span>
-                            <span class="font-bold @if($rr->kuota > 0) text-on-surface @else text-error @endif bg-surface-container-low px-3 py-1 rounded">
-                                {{ $rr->kuota }} Orang
+                            <span class="font-bold @if($rr->quota > 0) text-on-surface @else text-error @endif bg-surface-container-low px-3 py-1 rounded">
+                                {{ $rr->quota }} Orang
                             </span>
                         </div>
 

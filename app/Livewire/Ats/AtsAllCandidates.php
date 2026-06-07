@@ -42,19 +42,15 @@ class AtsAllCandidates extends Component
     public function render()
     {
         $lowongans = Lowongan::all();
-        $stages = Stage::orderBy('urutan', 'asc')->get();
+        $stages = Stage::orderBy('sequence', 'asc')->get();
 
-        $candidates = Candidate::query()
-            ->with(['lowongan', 'currentStage'])
-            ->when($this->filterLowongan, fn($q) => $q->where('lowongan_id', $this->filterLowongan))
-            ->when($this->filterStatus, fn($q) => $q->where('status', $this->filterStatus))
-            ->when($this->filterStage, fn($q) => $q->where('current_stage_id', $this->filterStage))
-            ->when($this->search, fn($q) => $q->where(function($sub) {
-                $sub->where('nama', 'like', '%' . $this->search . '%')
-                    ->orWhere('email', 'like', '%' . $this->search . '%');
-            }))
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $candidates = app(\App\Repositories\CandidateRepository::class)->getAllCandidates(
+            $this->filterLowongan,
+            $this->filterStatus,
+            $this->filterStage,
+            $this->search,
+            15
+        );
 
         return view('livewire.ats.ats-all-candidates', [
             'lowongans' => $lowongans,

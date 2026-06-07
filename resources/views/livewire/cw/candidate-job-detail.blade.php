@@ -17,21 +17,21 @@
             <div class="bg-white rounded-2xl p-6 border border-surface-container-high shadow-[0_4px_20px_rgba(107,56,212,0.02)]">
                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary mb-4 capitalize">
                     <span class="material-symbols-outlined text-[14px]">work</span>
-                    {{ $lowongan->tipe_kerja }}
+                    {{ $lowongan->employment_type }}
                 </span>
                 
                 <h1 class="text-3xl font-extrabold text-on-surface tracking-tight leading-tight mb-2">
-                    {{ $lowongan->jabatan }}
+                    {{ $lowongan->job_title }}
                 </h1>
                 
                 <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm text-on-surface-variant font-medium mt-4">
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">corporate_fare</span>
-                        {{ $lowongan->departemen }}
+                        {{ $lowongan->department }}
                     </span>
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
-                        <span class="capitalize">{{ $lowongan->lokasi }}</span>
+                        <span class="capitalize">{{ $lowongan->location }}</span>
                     </span>
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">calendar_today</span>
@@ -39,7 +39,7 @@
                     </span>
                 </div>
 
-                @if ($lowongan->tampilkan_gaji && ($lowongan->estimasi_gaji_min || $lowongan->estimasi_gaji_max))
+                @if ($lowongan->show_salary && ($lowongan->estimated_salary_min || $lowongan->estimated_salary_max))
                     <div class="mt-6 pt-6 border-t border-surface-container-high flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                             <span class="material-symbols-outlined text-[20px]">payments</span>
@@ -47,12 +47,12 @@
                         <div>
                             <p class="text-xs text-on-surface-variant/70 font-semibold uppercase tracking-wider">Estimasi Gaji</p>
                             <p class="text-lg font-bold text-on-surface">
-                                @if ($lowongan->estimasi_gaji_min && $lowongan->estimasi_gaji_max)
-                                    Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}
-                                @elseif ($lowongan->estimasi_gaji_min)
-                                    Mulai dari Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }}
+                                @if ($lowongan->estimated_salary_min && $lowongan->estimated_salary_max)
+                                    Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
+                                @elseif ($lowongan->estimated_salary_min)
+                                    Mulai dari Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }}
                                 @else
-                                    Hingga Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}
+                                    Hingga Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
                                 @endif
                             </p>
                         </div>
@@ -67,7 +67,7 @@
                     Deskripsi Pekerjaan
                 </h2>
                 <div class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed whitespace-pre-line">
-                    {{ $lowongan->deskripsi_pekerjaan }}
+                    {{ $lowongan->job_description }}
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                     Kualifikasi & Persyaratan
                 </h2>
                 <div class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed whitespace-pre-line">
-                    {{ $lowongan->spesifikasi_kebutuhan }}
+                    {{ $lowongan->job_requirements }}
                 </div>
             </div>
         </div>
@@ -115,7 +115,7 @@
                                     Nama Lengkap
                                 </label>
                                 <input type="text" 
-                                       value="{{ $nama }}" 
+                                       value="{{ $name }}" 
                                        readonly 
                                        class="w-full h-11 px-4 rounded-full bg-surface-container-lowest border border-surface-container-high text-on-surface-variant/80 font-medium cursor-not-allowed">
                             </div>
@@ -138,10 +138,10 @@
                                 </label>
                                 <input type="text" 
                                        id="form-phone"
-                                       wire:model="telepon"
+                                       wire:model="phone"
                                        placeholder="Contoh: 08123456789" 
-                                       class="w-full h-11 px-4 rounded-full bg-surface-container-low border @error('telepon') border-error bg-error/5 @else border-transparent @enderror focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium placeholder:text-on-surface-variant/40 text-on-surface">
-                                @error('telepon')
+                                       class="w-full h-11 px-4 rounded-full bg-surface-container-low border @error('phone') border-error bg-error/5 @else border-transparent @enderror focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium placeholder:text-on-surface-variant/40 text-on-surface">
+                                @error('phone')
                                     <p class="mt-1 ml-4 text-xs text-error flex items-center gap-1 font-semibold">
                                         <span class="material-symbols-outlined text-[13px]">error</span>
                                         {{ $message }}

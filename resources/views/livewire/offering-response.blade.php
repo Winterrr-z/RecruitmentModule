@@ -89,7 +89,7 @@
             <div class="bg-surface-container-low/40 p-6 rounded-md border border-surface-container/40 space-y-4">
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Nama Pelamar</span>
-                    <span class="text-body-md text-on-surface font-bold text-lg">{{ $candidate->nama }}</span>
+                    <span class="text-body-md text-on-surface font-bold text-lg">{{ $candidate->name }}</span>
                 </div>
                 
                 <hr class="border-surface-container-high/40">
@@ -97,26 +97,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Jabatan Tumpuan</span>
-                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->jabatan }}</span>
+                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->job_title }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Departemen</span>
-                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->departemen }}</span>
+                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->department }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Tipe Kontrak</span>
-                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->tipe_kerja }}</span>
+                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->employment_type }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Penempatan</span>
-                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->lokasi }}</span>
+                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->location }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Letter Text Preview -->
             <div class="text-sm text-on-surface-variant/90 leading-relaxed space-y-3 max-h-60 overflow-y-auto p-4 border rounded-md bg-surface/30">
-                <p>Yth. <strong>{{ $candidate->nama }}</strong>,</p>
+                <p>Yth. <strong>{{ $candidate->name }}</strong>,</p>
                 <p>Kami menyampaikan apresiasi setinggi-tingginya atas partisipasi Anda dalam rangkaian proses seleksi di perusahaan kami. Kami sangat terkesan dengan kapabilitas dan potensi kontribusi yang dapat Anda berikan.</p>
                 <p>Melalui surat ini, kami secara resmi menawarkan Anda untuk bergabung bersama tim kami pada posisi jabatan di atas. Kami meyakini bahwa bakat Anda akan sangat mendukung visi perkembangan perusahaan.</p>
                 <p>Dengan mengeklik tombol <strong>Terima Tawaran</strong> di bawah ini, Anda menyatakan kesediaan untuk melanjutkan ke tahap administrasi penerimaan karyawan baru. Jika Anda memilih <strong>Tolak Tawaran</strong>, anda menyatakan menolak menjadi karyawan baru kami.</p>

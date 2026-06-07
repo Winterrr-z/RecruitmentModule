@@ -39,20 +39,20 @@ class RRForm extends Component
     public $isReadOnly = false;
 
     // Field MPP (Read-only)
-    public $jabatan;
-    public $departemen;
-    public $estimasi_gaji_min;
-    public $estimasi_gaji_max;
+    public $job_title;
+    public $department;
+    public $estimated_salary_min;
+    public $estimated_salary_max;
     public $expected_join_date;
-    public $kuota; // Read-only
+    public $quota; // Read-only
 
     // Field diisi HR
-    public $deskripsi_pekerjaan;
-    public $spesifikasi_kebutuhan;
-    public $tipe_kerja = 'full-time'; // Default
-    public $lokasi = 'remote'; // Default
+    public $job_description;
+    public $job_requirements;
+    public $employment_type = 'full-time'; // Default
+    public $location = 'remote'; // Default
     public $application_deadline;
-    public $tampilkan_gaji = false;
+    public $show_salary = false;
 
     /**
      * Inisialisasi komponen.
@@ -68,7 +68,7 @@ class RRForm extends Component
             $rr = RecruitmentRequest::findOrFail($id);
 
             // Logika rr dapat diedit ketika tidak berada di status active (Published), dan closed/completed.
-            if ($rr->status === 'Published' || $rr->status === 'Completed/Closed' || $rr->hiredCount() > 0) {
+            if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
                 session()->flash('error', 'Recruitment Request yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
                 return redirect()->route('rr.index');
             }
@@ -79,20 +79,20 @@ class RRForm extends Component
             $this->selectedMppId = $rr->mpp_id;
 
             // Populate MPP read-only fields
-            $this->jabatan = $rr->jabatan;
-            $this->departemen = $rr->departemen;
-            $this->kuota = $rr->kuota;
-            $this->estimasi_gaji_min = $rr->estimasi_gaji_min;
-            $this->estimasi_gaji_max = $rr->estimasi_gaji_max;
+            $this->job_title = $rr->job_title;
+            $this->department = $rr->department;
+            $this->quota = $rr->quota;
+            $this->estimated_salary_min = $rr->estimated_salary_min;
+            $this->estimated_salary_max = $rr->estimated_salary_max;
             $this->expected_join_date = $rr->expected_join_date ? $rr->expected_join_date->format('Y-m-d') : null;
 
             // Populate HR editable fields
-            $this->deskripsi_pekerjaan = $rr->deskripsi_pekerjaan;
-            $this->spesifikasi_kebutuhan = $rr->spesifikasi_kebutuhan;
-            $this->tipe_kerja = $rr->tipe_kerja;
-            $this->lokasi = $rr->lokasi;
+            $this->job_description = $rr->job_description;
+            $this->job_requirements = $rr->job_requirements;
+            $this->employment_type = $rr->employment_type;
+            $this->location = $rr->location;
             $this->application_deadline = $rr->application_deadline ? $rr->application_deadline->format('Y-m-d') : null;
-            $this->tampilkan_gaji = $rr->tampilkan_gaji;
+            $this->show_salary = $rr->show_salary;
             return;
         }
 
@@ -140,12 +140,12 @@ class RRForm extends Component
      */
     protected function populateMppFields(Mpp $mpp)
     {
-        $this->jabatan = $mpp->jabatan;
-        $this->departemen = $mpp->departemen;
-        $this->estimasi_gaji_min = $mpp->estimasi_gaji_min;
-        $this->estimasi_gaji_max = $mpp->estimasi_gaji_max;
-        $this->expected_join_date = $mpp->target_waktu_absolut ? $mpp->target_waktu_absolut->format('Y-m-d') : null;
-        $this->kuota = $mpp->sisaKuota();
+        $this->job_title = $mpp->job_title;
+        $this->department = $mpp->department;
+        $this->estimated_salary_min = $mpp->estimated_salary_min;
+        $this->estimated_salary_max = $mpp->estimated_salary_max;
+        $this->expected_join_date = $mpp->absolute_target_date ? $mpp->absolute_target_date->format('Y-m-d') : null;
+        $this->quota = $mpp->sisaKuota();
     }
 
     /**
@@ -155,12 +155,12 @@ class RRForm extends Component
      */
     protected function clearMppFields()
     {
-        $this->jabatan = null;
-        $this->departemen = null;
-        $this->estimasi_gaji_min = null;
-        $this->estimasi_gaji_max = null;
+        $this->job_title = null;
+        $this->department = null;
+        $this->estimated_salary_min = null;
+        $this->estimated_salary_max = null;
         $this->expected_join_date = null;
-        $this->kuota = null;
+        $this->quota = null;
     }
 
     /**
@@ -210,45 +210,45 @@ class RRForm extends Component
 
         // Lakukan validasi input
         $this->validate([
-            'deskripsi_pekerjaan' => 'required|string|max:5000',
-            'spesifikasi_kebutuhan' => 'nullable|string|max:5000',
-            'tipe_kerja' => 'required|in:full-time,contract',
-            'lokasi' => 'required|in:remote,on-site',
+            'job_description' => 'required|string|max:5000',
+            'job_requirements' => 'nullable|string|max:5000',
+            'employment_type' => 'required|in:full-time,contract',
+            'location' => 'required|in:remote,on-site',
             'application_deadline' => 'required|date|after_or_equal:today',
-            'kuota' => 'required|integer|min:1|max:' . $maxKuota,
+            'quota' => 'required|integer|min:1|max:' . $maxKuota,
         ], [
-            'deskripsi_pekerjaan.required' => 'Deskripsi Pekerjaan wajib diisi.',
-            'tipe_kerja.required' => 'Tipe Kerja wajib diisi.',
-            'lokasi.required' => 'Lokasi wajib diisi.',
+            'job_description.required' => 'Deskripsi Pekerjaan wajib diisi.',
+            'employment_type.required' => 'Tipe Kerja wajib diisi.',
+            'location.required' => 'Lokasi wajib diisi.',
             'application_deadline.required' => 'Application Deadline wajib diisi.',
             'application_deadline.after_or_equal' => 'Application Deadline minimal hari ini.',
-            'kuota.required' => 'Kuota wajib diisi.',
-            'kuota.min' => 'Kuota minimal 1.',
-            'kuota.max' => 'Kuota tidak boleh melebihi sisa kebutuhan MPP (' . $maxKuota . ').',
+            'quota.required' => 'Kuota wajib diisi.',
+            'quota.min' => 'Kuota minimal 1.',
+            'quota.max' => 'Kuota tidak boleh melebihi sisa kebutuhan MPP (' . $maxKuota . ').',
         ]);
 
         if ($this->isEdit) {
             $rr = RecruitmentRequest::findOrFail($this->lowonganId);
 
             // Double check edit permission sebelum disimpan
-            if ($rr->status === 'Published' || $rr->status === 'Completed/Closed' || $rr->hiredCount() > 0) {
+            if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
                 session()->flash('error', 'Recruitment Request yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
                 return redirect()->route('rr.index');
             }
 
             $rr->update([
-                'deskripsi_pekerjaan' => $this->deskripsi_pekerjaan,
-                'spesifikasi_kebutuhan' => $this->spesifikasi_kebutuhan ?: '',
-                'tipe_kerja' => $this->tipe_kerja,
-                'lokasi' => $this->lokasi,
+                'job_description' => $this->job_description,
+                'job_requirements' => $this->job_requirements ?: '',
+                'employment_type' => $this->employment_type,
+                'location' => $this->location,
                 'application_deadline' => $this->application_deadline,
-                'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
-                'kuota' => $this->kuota,
+                'show_salary' => $this->show_salary ? true : false,
+                'quota' => $this->quota,
             ]);
 
             // Sync kuota ke lowongan jika sudah publish
             if ($rr->lowongan) {
-                $rr->lowongan->update(['kuota' => $this->kuota]);
+                $rr->lowongan->update(['quota' => $this->quota]);
             }
 
             session()->flash('message', 'Recruitment Request berhasil diperbarui.');
@@ -280,19 +280,19 @@ class RRForm extends Component
             // Simpan RR baru sebagai Draft
             RecruitmentRequest::create([
                 'mpp_id' => $mpp->id,
-                'jabatan' => $mpp->jabatan,
-                'departemen' => $mpp->departemen,
-                'estimasi_gaji_min' => $mpp->estimasi_gaji_min,
-                'estimasi_gaji_max' => $mpp->estimasi_gaji_max,
-                'expected_join_date' => $mpp->target_waktu_absolut,
-                'deskripsi_pekerjaan' => $this->deskripsi_pekerjaan,
-                'spesifikasi_kebutuhan' => $this->spesifikasi_kebutuhan ?: '',
-                'tipe_kerja' => $this->tipe_kerja,
-                'lokasi' => $this->lokasi,
+                'job_title' => $mpp->job_title,
+                'department' => $mpp->department,
+                'estimated_salary_min' => $mpp->estimated_salary_min,
+                'estimated_salary_max' => $mpp->estimated_salary_max,
+                'expected_join_date' => $mpp->absolute_target_date,
+                'job_description' => $this->job_description,
+                'job_requirements' => $this->job_requirements ?: '',
+                'employment_type' => $this->employment_type,
+                'location' => $this->location,
                 'application_deadline' => $this->application_deadline,
-                'tampilkan_gaji' => $this->tampilkan_gaji ? true : false,
+                'show_salary' => $this->show_salary ? true : false,
                 'status' => 'Ready to Publish',
-                'kuota' => $this->kuota,
+                'quota' => $this->quota,
             ]);
 
             session()->flash('message', 'Recruitment Request berhasil dibuat dan berstatus Ready to Publish.');

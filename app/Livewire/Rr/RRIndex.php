@@ -63,29 +63,29 @@ class RRIndex extends Component
     public function publish($id)
     {
         $rr = RecruitmentRequest::findOrFail($id);
-        if ($rr->status === 'Draft' || $rr->status === 'Ready to Publish') {
+        if ($rr->status->value === 'Draft' || $rr->status->value === 'Ready to Publish') {
             $rr->update(['status' => 'Published']);
 
             // Buat Lowongan otomatis
             $rr->lowongan()->updateOrCreate(
                 ['recruitment_request_id' => $rr->id],
                 [
-                    'kuota' => $rr->kuota,
-                    'jabatan' => $rr->jabatan,
-                    'departemen' => $rr->departemen,
-                    'tipe_kerja' => $rr->tipe_kerja,
-                    'lokasi' => $rr->lokasi,
+                    'quota' => $rr->quota,
+                    'job_title' => $rr->job_title,
+                    'department' => $rr->department,
+                    'employment_type' => $rr->employment_type,
+                    'location' => $rr->location,
                     'application_deadline' => $rr->application_deadline,
-                    'tampilkan_gaji' => $rr->tampilkan_gaji,
-                    'estimasi_gaji_min' => $rr->estimasi_gaji_min,
-                    'estimasi_gaji_max' => $rr->estimasi_gaji_max,
-                    'deskripsi_pekerjaan' => $rr->deskripsi_pekerjaan,
-                    'spesifikasi_kebutuhan' => $rr->spesifikasi_kebutuhan,
+                    'show_salary' => $rr->show_salary,
+                    'estimated_salary_min' => $rr->estimated_salary_min,
+                    'estimated_salary_max' => $rr->estimated_salary_max,
+                    'job_description' => $rr->job_description,
+                    'job_requirements' => $rr->job_requirements,
                     'status' => 'Published'
                 ]
             );
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dipublikasikan dan Lowongan telah dibuat.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan dan Lowongan telah dibuat.');
         }
     }
 
@@ -99,7 +99,7 @@ class RRIndex extends Component
     public function close($id)
     {
         $rr = RecruitmentRequest::findOrFail($id);
-        if ($rr->status !== 'Completed/Closed' && $rr->status !== 'Closed' && $rr->status !== 'Completed') {
+        if ($rr->status->value !== 'Completed/Closed' && $rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
             $rr->update(['status' => 'Completed/Closed']);
 
             // Tutup juga lowongan jika ada
@@ -107,7 +107,7 @@ class RRIndex extends Component
                 $rr->lowongan->update(['status' => 'Closed']);
             }
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil ditutup.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
         }
      }
 
@@ -120,7 +120,7 @@ class RRIndex extends Component
     public function unpublish($id)
     {
         $rr = RecruitmentRequest::findOrFail($id);
-        if ($rr->status === 'Published') {
+        if ($rr->status->value === 'Published') {
             $rr->update(['status' => 'Ready to Publish']);
 
             // Nonaktifkan lowongan terkait
@@ -128,7 +128,7 @@ class RRIndex extends Component
                 $rr->lowongan->update(['status' => 'Closed']);
             }
 
-            session()->flash('message', 'Recruitment Request "' . $rr->jabatan . '" berhasil dinonaktifkan.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dinonaktifkan.');
         }
     }
 
@@ -142,7 +142,7 @@ class RRIndex extends Component
     {
         $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($id);
 
-        if ($rr->hiredCount() > 0 || $rr->status !== 'Ready to Publish') {
+        if ($rr->hiredCount() > 0 || $rr->status->value !== 'Ready to Publish') {
             session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Ready to Publish tidak dapat dihapus.');
             return;
         }
@@ -177,8 +177,8 @@ class RRIndex extends Component
 
         if ($this->search !== '') {
             $query->where(function ($q) {
-                $q->where('jabatan', 'like', '%' . $this->search . '%')
-                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+                $q->where('job_title', 'like', '%' . $this->search . '%')
+                  ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }
 

@@ -15,26 +15,26 @@ class Lowongan extends Model
 
     protected $fillable = [
         'recruitment_request_id',
-        'kuota',
-        'jabatan',
-        'departemen',
-        'tipe_kerja',
-        'lokasi',
+        'quota',
+        'job_title',
+        'department',
+        'employment_type',
+        'location',
         'application_deadline',
-        'tampilkan_gaji',
-        'estimasi_gaji_min',
-        'estimasi_gaji_max',
-        'deskripsi_pekerjaan',
-        'spesifikasi_kebutuhan',
+        'show_salary',
+        'estimated_salary_min',
+        'estimated_salary_max',
+        'job_description',
+        'job_requirements',
         'status',
     ];
 
     protected $casts = [
         'application_deadline' => 'date',
-        'tampilkan_gaji' => 'boolean',
-        'estimasi_gaji_min' => 'integer',
-        'estimasi_gaji_max' => 'integer',
-        'kuota' => 'integer',
+        'show_salary' => 'boolean',
+        'estimated_salary_min' => 'integer',
+        'estimated_salary_max' => 'integer',
+        'quota' => 'integer',
         'status' => \App\Enums\LowonganStatus::class,
     ];
 

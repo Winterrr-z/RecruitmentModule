@@ -1,11 +1,11 @@
 <div>
-    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->nama ?? 'Detail Kandidat', 'url' => null]]" />
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => $backLabel, 'url' => $backUrl], ['label' => $candidate->name ?? 'Detail Kandidat', 'url' => null]]" />
     <x-toast-alert />
 
     <!-- Content Header & Back button -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <a href="{{ route('ats.dashboard') }}" class="p-2 hover:bg-surface-container rounded-md transition-colors text-on-surface-variant flex items-center" title="Kembali ke Dashboard">
+            <a href="{{ $backUrl }}" class="p-2 hover:bg-surface-container rounded-md transition-colors text-on-surface-variant flex items-center" title="Kembali">
                 <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <div>
@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->nama) === 'final') && in_array($candidate->status, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->kuota > 0)
+        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->name) === 'final') && in_array($candidate->status, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->quota > 0)
             <a href="{{ route('ats.offering.send', ['candidateId' => $candidate->id]) }}" 
                class="inline-flex items-center justify-center gap-2 px-5 h-11 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)] text-sm">
                 <span class="material-symbols-outlined text-[20px]">mail</span>
@@ -30,17 +30,17 @@
         <div class="bg-surface-container-lowest p-6 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
             <div class="flex flex-col items-center text-center pb-6 border-b border-surface-container-high/40">
                 <div class="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-2xl mb-4">
-                    {{ strtoupper(substr($candidate->nama, 0, 2)) }}
+                    {{ strtoupper(substr($candidate->name, 0, 2)) }}
                 </div>
-                <h3 class="text-title-md font-headline-lg text-on-surface mb-1">{{ $candidate->nama }}</h3>
+                <h3 class="text-title-md font-headline-lg text-on-surface mb-1">{{ $candidate->name }}</h3>
                 <p class="text-label-sm font-label-sm text-on-surface-variant/70 mb-3">ID: #{{ $candidate->id }}</p>
                 
                 <!-- Status & Stage badge -->
                 <div class="flex flex-wrap gap-2 justify-center">
                     <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold">
-                        {{ $candidate->currentStage->nama }}
+                        {{ $candidate->currentStage->name }}
                     </span>
-                    @switch($candidate->status)
+                    @switch($candidate->status->value)
                         @case('Rejected')
                             <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-950/20 text-red-950 border border-red-950/30 rounded-full text-xs font-bold">
                                 Rejected
@@ -92,12 +92,12 @@
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Telepon</span>
-                    <span class="text-body-md text-on-surface font-semibold">{{ $candidate->telepon }}</span>
+                    <span class="text-body-md text-on-surface font-semibold">{{ $candidate->phone }}</span>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Lowongan Pekerjaan</span>
-                    <span class="text-body-md text-primary font-bold">{{ $candidate->lowongan?->jabatan ?: 'Kandidat Mandiri' }}</span>
-                    <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->departemen ?: 'Tanpa Lowongan' }}</div>
+                    <span class="text-body-md text-primary font-bold">{{ $candidate->lowongan?->job_title ?: 'Kandidat Mandiri' }}</span>
+                    <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->department ?: 'Tanpa Lowongan' }}</div>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Sumber Pendaftaran</span>
@@ -165,10 +165,10 @@
                             @forelse($movements as $m)
                                 <tr>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-on-surface font-semibold">
-                                        {{ $m->fromStage->nama }}
+                                        {{ $m->fromStage->name }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-primary font-bold">
-                                        {{ $m->toStage->nama }}
+                                        {{ $m->toStage->name }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-on-surface-variant/80">
                                         {{ $m->moved_at ? $m->moved_at->format('d M Y H:i') : '-' }}
@@ -210,12 +210,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         <!-- Scorecard Section -->
-        @if($candidate->currentStage->butuh_scorecard)
+        @if($candidate->currentStage->needs_scorecard)
             <div class="bg-surface-container-lowest p-6 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 class="text-title-md font-headline-lg text-on-surface mb-1">Scorecard Evaluasi</h3>
-                        <p class="text-body-md text-xs text-on-surface-variant/70">Kriteria penilaian wawancara pada stage: <span class="font-bold text-primary">{{ $candidate->currentStage->nama }}</span></p>
+                        <p class="text-body-md text-xs text-on-surface-variant/70">Kriteria penilaian wawancara pada stage: <span class="font-bold text-primary">{{ $candidate->currentStage->name }}</span></p>
                     </div>
                     <a href="{{ route('ats.candidate.scorecard', ['candidateId' => $candidate->id, 'stageId' => $candidate->current_stage_id]) }}" 
                        class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all text-xs active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.15)]">
@@ -238,11 +238,11 @@
                             <tbody class="divide-y divide-surface-container/30">
                                 @foreach($scorecards as $s)
                                     <tr>
-                                        <td class="px-4 py-3 text-sm text-on-surface font-semibold">{{ $s->kriteria }}</td>
-                                        <td class="px-4 py-3 text-sm text-center text-on-surface-variant/80">{{ $s->bobot }}%</td>
-                                        <td class="px-4 py-3 text-sm text-center text-on-surface font-bold text-primary">{{ $s->nilai }}</td>
+                                        <td class="px-4 py-3 text-sm text-on-surface font-semibold">{{ $s->criteria }}</td>
+                                        <td class="px-4 py-3 text-sm text-center text-on-surface-variant/80">{{ $s->weight }}%</td>
+                                        <td class="px-4 py-3 text-sm text-center text-on-surface font-bold text-primary">{{ $s->score }}</td>
                                         <td class="px-4 py-3 text-sm text-right text-on-surface-variant/80 font-bold">
-                                            {{ number_format(($s->bobot * $s->nilai) / 100, 2) }}
+                                            {{ number_format(($s->weight * $s->score) / 100, 2) }}
                                         </td>
                                     </tr>
                                 @endforeach
@@ -268,12 +268,12 @@
         @endif
 
         <!-- Schedule Section -->
-        @if($candidate->currentStage->butuh_jadwal)
+        @if($candidate->currentStage->needs_schedule)
             <div class="bg-surface-container-lowest p-6 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 class="text-title-md font-headline-lg text-on-surface mb-1">Jadwal Interview</h3>
-                        <p class="text-body-md text-xs text-on-surface-variant/70">Pengaturan jadwal wawancara untuk stage: <span class="font-bold text-primary">{{ $candidate->currentStage->nama }}</span></p>
+                        <p class="text-body-md text-xs text-on-surface-variant/70">Pengaturan jadwal wawancara untuk stage: <span class="font-bold text-primary">{{ $candidate->currentStage->name }}</span></p>
                     </div>
                     <a href="{{ route('ats.candidate.schedule', ['candidateId' => $candidate->id, 'stageId' => $candidate->current_stage_id]) }}" 
                        class="inline-flex items-center justify-center gap-2 px-4 h-10 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all text-xs active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.15)]">
@@ -293,32 +293,32 @@
                                     <div>
                                         <span class="block text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/65">Tanggal &amp; Waktu</span>
                                         <span class="text-sm font-bold text-on-surface">
-                                            {{ $sched->tanggal ? $sched->tanggal->format('d M Y') : '-' }} @ {{ substr($sched->waktu, 0, 5) }}
+                                            {{ $sched->date ? $sched->date->format('d M Y') : '-' }} @ {{ substr($sched->time, 0, 5) }}
                                         </span>
                                     </div>
                                 </div>
 
-                                @if($sched->tempat)
+                                @if($sched->venue)
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center">
                                             <span class="material-symbols-outlined text-[18px]">location_on</span>
                                         </div>
                                         <div>
                                             <span class="block text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/65">Lokasi / Ruangan</span>
-                                            <span class="text-sm font-semibold text-on-surface">{{ $sched->tempat }}</span>
+                                            <span class="text-sm font-semibold text-on-surface">{{ $sched->venue }}</span>
                                         </div>
                                     </div>
                                 @endif
 
-                                @if($sched->tautan_virtual)
+                                @if($sched->virtual_link)
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center">
                                             <span class="material-symbols-outlined text-[18px]">videocam</span>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <span class="block text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/65">Virtual Meeting Link</span>
-                                            <a href="{{ $sched->tautan_virtual }}" target="_blank" class="text-xs font-semibold text-primary hover:underline block truncate">
-                                                {{ $sched->tautan_virtual }}
+                                            <a href="{{ $sched->virtual_link }}" target="_blank" class="text-xs font-semibold text-primary hover:underline block truncate">
+                                                {{ $sched->virtual_link }}
                                             </a>
                                         </div>
                                     </div>

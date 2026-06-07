@@ -24,9 +24,9 @@ class CandidateFactory extends Factory
         return [
             'lowongan_id' => Lowongan::factory(),
             'user_id' => null,
-            'nama' => $this->faker->name(),
+            'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'telepon' => $this->faker->phoneNumber(),
+            'phone' => $this->faker->phoneNumber(),
             'cv_path' => 'cv/sample.pdf',
             'portofolio_path' => null,
             'current_stage_id' => 1, // Default ke stage Applied yang di-seed

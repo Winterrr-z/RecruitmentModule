@@ -98,23 +98,17 @@ Route::post('/offering/{token}/respond', [App\Livewire\OfferingResponse::class, 
 // ---------------------------------------------------------------------------
 if (app()->environment(['local', 'testing'])) {
     Route::get('/dev/login', function () {
-        $user = User::first() ?? User::factory()->create([
-            'name'  => 'Admin Utama',
-            'email' => 'raja.wijayaaa@gmail.com',
-            'job_title' => 'HR Manager',
-            'departemen' => 'Human Capital and General Affairs',
-            'role'  => 'hr',
-        ]);
+        $user = User::where('role', 'hr')->first();
+        if (!$user) return "Tidak ada user HR. Harap jalankan 'php artisan db:seed' terlebih dahulu.";
+        
         Auth::login($user);
         return redirect()->route('dashboard');
     })->name('dev.login');
 
     Route::get('/dev/login-applicant', function () {
-        $user = User::where('role', 'applicant')->first() ?? User::factory()->create([
-            'name'  => 'Pelamar Demo',
-            'email' => 'pelamar@email.com',
-            'role'  => 'applicant',
-        ]);
+        $user = User::where('role', 'applicant')->first();
+        if (!$user) return "Tidak ada user Applicant. Harap jalankan 'php artisan db:seed' terlebih dahulu.";
+        
         Auth::login($user);
         return redirect()->route('candidate.dashboard');
     })->name('dev.login.applicant');

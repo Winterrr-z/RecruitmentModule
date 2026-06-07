@@ -36,22 +36,22 @@ class PublicJobList extends Component
     {
         $query = Lowongan::query()
             ->where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('jabatan', 'like', '%' . $this->search . '%')
-                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+                $q->where('job_title', 'like', '%' . $this->search . '%')
+                  ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }
 
         if (!empty($this->selectedTipeKerja)) {
-            $query->where('tipe_kerja', $this->selectedTipeKerja);
+            $query->where('employment_type', $this->selectedTipeKerja);
         }
 
         if (!empty($this->selectedLokasi)) {
-            $query->where('lokasi', $this->selectedLokasi);
+            $query->where('location', $this->selectedLokasi);
         }
 
         $lowongans = $query->orderBy('created_at', 'desc')->paginate(10);

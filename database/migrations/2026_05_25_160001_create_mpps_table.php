@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('mpps', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_plan', 200);
-            $table->string('departemen', 100);
-            $table->string('jabatan', 100);
-            $table->integer('jumlah_kebutuhan');
-            $table->integer('estimasi_gaji_min')->nullable();
-            $table->integer('estimasi_gaji_max')->nullable();
-            $table->integer('sla_hari');
-            $table->date('target_waktu_absolut');
+            $table->string('plan_name', 200);
+            $table->string('department', 100);
+            $table->string('job_title', 100);
+            $table->integer('quota');
+            $table->integer('estimated_salary_min')->nullable();
+            $table->integer('estimated_salary_max')->nullable();
+            $table->integer('sla_days');
+            $table->date('absolute_target_date');
             $table->string('status', 20)->default('Draft');
             $table->text('note')->nullable();
             $table->timestamp('last_activity_at')->nullable();

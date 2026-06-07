@@ -14,7 +14,7 @@ class AtsScorecardForm extends Component
     public $candidate;
     public $stage;
 
-    // Evaluation list input fields: [['id' => null, 'kriteria' => '', 'bobot' => '', 'nilai' => '']]
+    // Evaluation list input fields: [['id' => null, 'criteria' => '', 'weight' => '', 'score' => '']]
     public $kriteriaList = [];
 
     // Weighted calculations
@@ -37,20 +37,20 @@ class AtsScorecardForm extends Component
             foreach ($existing as $scorecard) {
                 $this->kriteriaList[] = [
                     'id' => $scorecard->id,
-                    'kriteria' => $scorecard->kriteria,
-                    'bobot' => $scorecard->bobot,
-                    'nilai' => $scorecard->nilai,
+                    'criteria' => $scorecard->criteria,
+                    'weight' => $scorecard->weight,
+                    'score' => $scorecard->score,
                 ];
             }
         } else {
             // Load from stage template
-            $template = $this->stage->scorecard_kriteria ?: [];
+            $template = $this->stage->scorecard_criteria ?: [];
             foreach ($template as $item) {
                 $this->kriteriaList[] = [
                     'id' => null,
-                    'kriteria' => $item['kriteria'],
-                    'bobot' => $item['bobot'],
-                    'nilai' => 0, // default
+                    'criteria' => $item['criteria'],
+                    'weight' => $item['weight'],
+                    'score' => 0, // default
                 ];
             }
         }
@@ -68,11 +68,11 @@ class AtsScorecardForm extends Component
         $weightedSum = 0;
 
         foreach ($this->kriteriaList as $item) {
-            $bobot = (int)($item['bobot'] ?? 0);
-            $nilai = (int)($item['nilai'] ?? 0);
+            $weight = (int)($item['weight'] ?? 0);
+            $score = (int)($item['score'] ?? 0);
 
-            $this->totalBobot += $bobot;
-            $weightedSum += ($bobot * $nilai);
+            $this->totalBobot += $weight;
+            $weightedSum += ($weight * $score);
         }
 
         $this->totalWeightedScore = $this->totalBobot > 0 ? round($weightedSum / 100, 2) : 0;
@@ -98,8 +98,8 @@ class AtsScorecardForm extends Component
 
         // 2. Validate scores (nilai must be between 1 and 100)
         foreach ($this->kriteriaList as $index => $item) {
-            if (!isset($item['nilai']) || $item['nilai'] === '' || (int)$item['nilai'] < 1 || (int)$item['nilai'] > 100) {
-                $this->addError("kriteriaList.{$index}.nilai", 'Nilai harus berkisar antara 1-100.');
+            if (!isset($item['score']) || $item['score'] === '' || (int)$item['score'] < 1 || (int)$item['score'] > 100) {
+                $this->addError("kriteriaList.{$index}.score", 'Nilai harus berkisar antara 1-100.');
                 return;
             }
         }
@@ -116,9 +116,9 @@ class AtsScorecardForm extends Component
                 Scorecard::create([
                     'candidate_id' => $this->candidateId,
                     'stage_id' => $this->stageId,
-                    'kriteria' => trim($item['kriteria']),
-                    'bobot' => (int)$item['bobot'],
-                    'nilai' => (int)$item['nilai'],
+                    'criteria' => trim($item['criteria']),
+                    'weight' => (int)$item['weight'],
+                    'score' => (int)$item['score'],
                 ]);
             }
         });

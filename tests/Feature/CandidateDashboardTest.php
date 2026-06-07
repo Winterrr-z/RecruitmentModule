@@ -36,54 +36,54 @@ class CandidateDashboardTest extends TestCase
         $user = User::factory()->create(['role' => 'applicant']);
         
         $mpp = Mpp::create([
-            'nama_plan' => 'Plan A',
-            'departemen' => 'IT',
-            'jabatan' => 'Developer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 60,
-            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
+            'plan_name' => 'Plan A',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $lowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Developer',
-            'departemen' => 'IT',
+            'job_title' => 'Developer',
+            'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja',
-            'spesifikasi_kebutuhan' => 'Bisa ngoding',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Kerja',
+            'job_requirements' => 'Bisa ngoding',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(10)->format('Y-m-d'),
             'status' => 'Published',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         // Assumes Stage ID 1 (Applied) is seeded by migration
         $stageAppliedId = 1;
 
         $stageRejected = Stage::create([
-            'nama' => 'Rejected',
-            'urutan' => 99,
+            'name' => 'Rejected',
+            'sequence' => 99,
         ]);
 
         // Active application
         Candidate::create([
             'lowongan_id' => $lowongan->id,
             'user_id' => $user->id,
-            'nama' => 'User',
+            'name' => 'User',
             'email' => $user->email,
-            'telepon' => '0812345',
+            'phone' => '0812345',
             'current_stage_id' => $stageAppliedId,
             'status' => 'Applied',
         ]);
@@ -92,9 +92,9 @@ class CandidateDashboardTest extends TestCase
         Candidate::create([
             'lowongan_id' => $lowongan->id,
             'user_id' => $user->id,
-            'nama' => 'User',
+            'name' => 'User',
             'email' => $user->email,
-            'telepon' => '0812345',
+            'phone' => '0812345',
             'current_stage_id' => $stageRejected->id,
             'status' => 'Rejected',
         ]);

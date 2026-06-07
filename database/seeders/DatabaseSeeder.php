@@ -55,47 +55,47 @@ class DatabaseSeeder extends Seeder
         // 2. Seed Stages (Ensure exact IDs needed by the application)
         $stageApplied = Stage::create([
             'id' => 1,
-            'nama' => 'Applied',
-            'deskripsi' => 'Kandidat baru saja melamar lowongan',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 1,
+            'name' => 'Applied',
+            'description' => 'Kandidat baru saja melamar lowongan',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 1,
         ]);
 
         $stageScreening = Stage::create([
             'id' => 3,
-            'nama' => 'Screening',
-            'deskripsi' => 'Penyaringan berkas dan kualifikasi awal',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 2,
+            'name' => 'Screening',
+            'description' => 'Penyaringan berkas dan kualifikasi awal',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 2,
         ]);
 
         $stageInterview = Stage::create([
             'id' => 4,
-            'nama' => 'Interview',
-            'deskripsi' => 'Wawancara dengan HR atau User',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => true,
-            'urutan' => 3,
+            'name' => 'Interview',
+            'description' => 'Wawancara dengan HR atau User',
+            'needs_scorecard' => false,
+            'needs_schedule' => true,
+            'sequence' => 3,
         ]);
 
         $stageTechnical = Stage::create([
             'id' => 5,
-            'nama' => 'Technical Test',
-            'deskripsi' => 'Ujian kompetensi teknis',
-            'butuh_scorecard' => true,
-            'butuh_jadwal' => false,
-            'urutan' => 4,
+            'name' => 'Technical Test',
+            'description' => 'Ujian kompetensi teknis',
+            'needs_scorecard' => true,
+            'needs_schedule' => false,
+            'sequence' => 4,
         ]);
 
         $stageFinal = Stage::create([
             'id' => 2,
-            'nama' => 'Final',
-            'deskripsi' => 'Tahap keputusan penawaran (offering)',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 999,
+            'name' => 'Final',
+            'description' => 'Tahap keputusan penawaran (offering)',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 999,
         ]);
 
         $stagesArray = [$stageApplied, $stageScreening, $stageInterview, $stageTechnical, $stageFinal];
@@ -105,7 +105,7 @@ class DatabaseSeeder extends Seeder
             
             // Buat 1 atau 2 Recruitment Request untuk setiap MPP, dengan membagi kuota
             $rrsCount = rand(1, 2);
-            $sisaKuota = $mpp->jumlah_kebutuhan;
+            $sisaKuota = $mpp->quota;
 
             for ($i = 0; $i < $rrsCount; $i++) {
                 if ($sisaKuota <= 0) break;
@@ -115,37 +115,44 @@ class DatabaseSeeder extends Seeder
 
                 $rr = RecruitmentRequest::factory()->create([
                     'mpp_id' => $mpp->id,
-                    'kuota' => $kuotaRR,
+                    'quota' => $kuotaRR,
                 ]);
 
                 // Jika RR dipublikasi atau closed, otomatis buat Lowongan
-                if (in_array($rr->status, ['Published', 'Completed', 'Closed'])) {
-                    $lowonganStatus = $rr->status === 'Published' ? 'Published' : $rr->status;
+                if (in_array($rr->status->value, ['Published', 'Completed', 'Closed'])) {
+                    $lowonganStatus = match ($rr->status) {
+                        \App\Enums\RrStatus::PUBLISHED => \App\Enums\LowonganStatus::PUBLISHED,
+                        \App\Enums\RrStatus::COMPLETED => \App\Enums\LowonganStatus::COMPLETED_CLOSED,
+                        \App\Enums\RrStatus::CLOSED => \App\Enums\LowonganStatus::CLOSED,
+                        default => \App\Enums\LowonganStatus::DRAFT,
+                    };
 
                     $lowongan = Lowongan::factory()->create([
                         'recruitment_request_id' => $rr->id,
-                        'jabatan' => $mpp->jabatan,
-                        'departemen' => $mpp->departemen,
-                        'kuota' => $rr->kuota,
+                        'job_title' => $mpp->job_title,
+                        'department' => $mpp->department,
+                        'quota' => $rr->quota,
                         'status' => $lowonganStatus,
                     ]);
 
                     // Generate candidates for this lowongan
                     Candidate::factory()->count(rand(2, 8))->create([
                         'lowongan_id' => $lowongan->id,
-                        'user_id' => function() use ($applicants) {
-                            // 50% pelamar memiliki user account
-                            return rand(0, 1) ? $applicants->random()->id : null;
+                    ])->each(function ($candidate) use ($applicants, $stagesArray) {
+                        // 50% pelamar memiliki user account
+                        if (rand(0, 1)) {
+                            $user = $applicants->random();
+                            $candidate->user_id = $user->id;
+                            $candidate->name = $user->name;
+                            $candidate->email = $user->email;
                         }
-                    ])->each(function ($candidate) use ($stagesArray) {
-                        
+
                         // Secara acak majukan kandidat ke beberapa tahap
                         $maxStageIndex = rand(0, count($stagesArray) - 1);
                         
-                        $candidate->update([
-                            'current_stage_id' => $stagesArray[$maxStageIndex]->id,
-                            'status' => $maxStageIndex === 4 ? rand(0, 1) ? 'Hired' : 'Rejected' : 'In Progress'
-                        ]);
+                        $candidate->current_stage_id = $stagesArray[$maxStageIndex]->id;
+                        $candidate->status = $maxStageIndex === 4 ? (rand(0, 1) ? \App\Enums\CandidateStatus::HIRED : \App\Enums\CandidateStatus::REJECTED) : \App\Enums\CandidateStatus::IN_PROGRESS;
+                        $candidate->save();
 
                         if ($maxStageIndex > 0) {
                             for ($i = 1; $i <= $maxStageIndex; $i++) {
@@ -160,20 +167,20 @@ class DatabaseSeeder extends Seeder
                                 ]);
 
                                 // Jika stage ini butuh scorecard, buatkan draf / hasil penilaiannya
-                                if ($currentLoopStage->butuh_scorecard) {
+                                if ($currentLoopStage->needs_scorecard) {
                                     $kriteriaList = [
-                                        ['nama' => 'Problem Solving & Logic', 'bobot' => 40],
-                                        ['nama' => 'Technical Knowledge', 'bobot' => 40],
-                                        ['nama' => 'Communication Skill', 'bobot' => 20],
+                                        ['name' => 'Problem Solving & Logic', 'weight' => 40],
+                                        ['name' => 'Technical Knowledge', 'weight' => 40],
+                                        ['name' => 'Communication Skill', 'weight' => 20],
                                     ];
 
                                     foreach ($kriteriaList as $k) {
                                         Scorecard::create([
                                             'candidate_id' => $candidate->id,
                                             'stage_id' => $currentLoopStage->id,
-                                            'kriteria' => $k['nama'],
-                                            'bobot' => $k['bobot'],
-                                            'nilai' => rand(65, 95), // Nilai acak antara 65 - 95
+                                            'criteria' => $k['name'],
+                                            'weight' => $k['weight'],
+                                            'score' => rand(65, 95), // Nilai acak antara 65 - 95
                                         ]);
                                     }
                                 }
@@ -186,17 +193,17 @@ class DatabaseSeeder extends Seeder
 
         // 4. Seed Blacklist
         Blacklist::create([
-            'nama' => 'Spammer Name',
+            'name' => 'Spammer Name',
             'email' => 'spammer@fake.com',
-            'telepon' => '089988887777',
-            'alasan' => 'Mengirimkan puluhan lamaran fiktif dengan file CV yang rusak.',
+            'phone' => '089988887777',
+            'reason' => 'Mengirimkan puluhan lamaran fiktif dengan file CV yang rusak.',
         ]);
 
         Blacklist::create([
-            'nama' => 'Fraudulent Candidate',
+            'name' => 'Fraudulent Candidate',
             'email' => 'fraud@cheat.com',
-            'telepon' => '087766665555',
-            'alasan' => 'Memalsukan surat pengalaman kerja dan sertifikat kompetensi.',
+            'phone' => '087766665555',
+            'reason' => 'Memalsukan surat pengalaman kerja dan sertifikat kompetensi.',
         ]);
     }
 }

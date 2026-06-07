@@ -89,11 +89,11 @@ class MppIndex extends Component
      */
     public function render()
     {
-        $departments = Mpp::select('departemen')
-            ->whereNotNull('departemen')
+        $departments = Mpp::select('department')
+            ->whereNotNull('department')
             ->distinct()
-            ->orderBy('departemen')
-            ->pluck('departemen');
+            ->orderBy('department')
+            ->pluck('department');
 
         $query = Mpp::with('lowongans.candidates')
             ->select('mpps.*')
@@ -108,25 +108,25 @@ class MppIndex extends Component
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('nama_plan', 'like', '%' . $this->search . '%')
-                  ->orWhere('jabatan', 'like', '%' . $this->search . '%')
-                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+                $q->where('plan_name', 'like', '%' . $this->search . '%')
+                  ->orWhere('job_title', 'like', '%' . $this->search . '%')
+                  ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }
 
         if (!empty($this->selectedDepartment)) {
-            $query->where('departemen', $this->selectedDepartment);
+            $query->where('department', $this->selectedDepartment);
         }
 
         if (!empty($this->status)) {
             if ($this->status === 'completed') {
-                $query->havingRaw('hired_count >= jumlah_kebutuhan');
+                $query->havingRaw('hired_count >= quota');
             } else {
                 $query->where('status', $this->status);
             }
         }
 
-        $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= jumlah_kebutuhan THEN 1 ELSE 0 END ASC");
+        $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= quota THEN 1 ELSE 0 END ASC");
 
         if ($this->sortBy === 'oldest') {
             $query->orderBy('created_at', 'asc');

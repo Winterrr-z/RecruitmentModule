@@ -16,28 +16,28 @@ class RecruitmentRequest extends Model
 
     protected $fillable = [
         'mpp_id',
-        'kuota',
-        'jabatan',
-        'departemen',
-        'estimasi_gaji_min',
-        'estimasi_gaji_max',
+        'job_title',
+        'department',
+        'estimated_salary_min',
+        'estimated_salary_max',
         'expected_join_date',
-        'deskripsi_pekerjaan',
-        'spesifikasi_kebutuhan',
-        'tipe_kerja',
-        'lokasi',
+        'job_description',
+        'job_requirements',
+        'employment_type',
+        'location',
         'application_deadline',
-        'tampilkan_gaji',
+        'show_salary',
         'status',
+        'quota',
     ];
 
     protected $casts = [
         'expected_join_date' => 'date',
         'application_deadline' => 'date',
-        'tampilkan_gaji' => 'boolean',
-        'estimasi_gaji_min' => 'integer',
-        'estimasi_gaji_max' => 'integer',
-        'kuota' => 'integer',
+        'show_salary' => 'boolean',
+        'estimated_salary_min' => 'integer',
+        'estimated_salary_max' => 'integer',
+        'quota' => 'integer',
         'status' => \App\Enums\RrStatus::class,
     ];
 

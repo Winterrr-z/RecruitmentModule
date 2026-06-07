@@ -34,22 +34,22 @@ class AtsStageConfigTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Ats\AtsStageConfig::class)
-            ->set('nama', 'Interview HR')
-            ->set('deskripsi', 'Interview dengan tim HR')
-            ->set('butuh_scorecard', true)
-            ->set('scorecardKriteria', [['kriteria' => 'Keahlian Teknis', 'bobot' => 100]])
-            ->set('butuh_jadwal', true)
-            ->set('tipe_wawancara', 'online')
+            ->set('name', 'Interview HR')
+            ->set('description', 'Interview dengan tim HR')
+            ->set('needs_scorecard', true)
+            ->set('scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
+            ->set('needs_schedule', true)
+            ->set('interview_type', 'online')
             ->call('save')
             ->assertHasNoErrors()
             ->assertSet('showModal', false);
 
         $this->assertDatabaseHas('stages', [
-            'nama' => 'Interview HR',
-            'deskripsi' => 'Interview dengan tim HR',
-            'butuh_scorecard' => true,
-            'butuh_jadwal' => true,
-            'urutan' => 2,
+            'name' => 'Interview HR',
+            'description' => 'Interview dengan tim HR',
+            'needs_scorecard' => true,
+            'needs_schedule' => true,
+            'sequence' => 2,
         ]);
     }
 
@@ -58,27 +58,27 @@ class AtsStageConfigTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
         
         $stage = Stage::create([
-            'nama' => 'Test Stage',
-            'deskripsi' => 'A test stage',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 3,
+            'name' => 'Test Stage',
+            'description' => 'A test stage',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 3,
         ]);
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Ats\AtsStageConfig::class)
             ->call('editStage', $stage->id)
-            ->assertSet('nama', 'Test Stage')
-            ->set('nama', 'Test Stage Edited')
-            ->set('butuh_scorecard', true)
-            ->set('scorecardKriteria', [['kriteria' => 'Keahlian Teknis', 'bobot' => 100]])
+            ->assertSet('name', 'Test Stage')
+            ->set('name', 'Test Stage Edited')
+            ->set('needs_scorecard', true)
+            ->set('scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
             ->call('save')
             ->assertHasNoErrors();
 
         $this->assertDatabaseHas('stages', [
             'id' => $stage->id,
-            'nama' => 'Test Stage Edited',
-            'butuh_scorecard' => true,
+            'name' => 'Test Stage Edited',
+            'needs_scorecard' => true,
         ]);
     }
 
@@ -99,11 +99,11 @@ class AtsStageConfigTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
         
         $stage = Stage::create([
-            'nama' => 'Custom Stage',
-            'deskripsi' => 'Will be deleted',
-            'butuh_scorecard' => false,
-            'butuh_jadwal' => false,
-            'urutan' => 3,
+            'name' => 'Custom Stage',
+            'description' => 'Will be deleted',
+            'needs_scorecard' => false,
+            'needs_schedule' => false,
+            'sequence' => 3,
         ]);
 
         Livewire::actingAs($user)
@@ -119,13 +119,13 @@ class AtsStageConfigTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
         
         $stage3 = Stage::create([
-            'nama' => 'Stage 3',
-            'urutan' => 3,
+            'name' => 'Stage 3',
+            'sequence' => 3,
         ]);
 
         $stage4 = Stage::create([
-            'nama' => 'Stage 4',
-            'urutan' => 4,
+            'name' => 'Stage 4',
+            'sequence' => 4,
         ]);
 
         // Move Stage 4 up (swapping with Stage 3)
@@ -133,8 +133,8 @@ class AtsStageConfigTest extends TestCase
             ->test(\App\Livewire\Ats\AtsStageConfig::class)
             ->call('moveUp', $stage4->id);
 
-        $this->assertEquals(2, $stage4->fresh()->urutan);
-        $this->assertEquals(3, $stage3->fresh()->urutan);
+        $this->assertEquals(2, $stage4->fresh()->sequence);
+        $this->assertEquals(3, $stage3->fresh()->sequence);
     }
 
     public function test_cannot_reorder_system_stages()
@@ -169,8 +169,8 @@ class AtsStageConfigTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
 
         $customStage = Stage::create([
-            'nama' => 'Custom 1',
-            'urutan' => 2,
+            'name' => 'Custom 1',
+            'sequence' => 2,
         ]);
 
         // Try moving Custom 1 up (which would swap with Applied at urutan 1)
@@ -179,7 +179,7 @@ class AtsStageConfigTest extends TestCase
             ->call('moveUp', $customStage->id)
             ->assertSee('Tidak dapat memindahkan stage sebelum Applied.');
 
-        $this->assertEquals(2, $customStage->fresh()->urutan);
+        $this->assertEquals(2, $customStage->fresh()->sequence);
     }
 
     public function test_cannot_move_custom_stage_after_final()
@@ -187,8 +187,8 @@ class AtsStageConfigTest extends TestCase
         $user = User::factory()->create(['role' => 'hr']);
 
         $customStage = Stage::create([
-            'nama' => 'Custom 1',
-            'urutan' => 2,
+            'name' => 'Custom 1',
+            'sequence' => 2,
         ]);
 
         // Try moving Custom 1 down (which would swap with Final at urutan 3)
@@ -197,6 +197,6 @@ class AtsStageConfigTest extends TestCase
             ->call('moveDown', $customStage->id)
             ->assertSee('Tidak dapat memindahkan stage setelah Final.');
 
-        $this->assertEquals(2, $customStage->fresh()->urutan);
+        $this->assertEquals(2, $customStage->fresh()->sequence);
     }
 }

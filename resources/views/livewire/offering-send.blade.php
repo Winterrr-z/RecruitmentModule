@@ -24,7 +24,7 @@
                 <h4 class="text-xs font-bold uppercase tracking-wider text-primary border-b border-surface-container-high/65 pb-1">Informasi Pelamar</h4>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Nama Lengkap</span>
-                    <span class="text-body-md text-on-surface font-semibold">{{ $candidate->nama }}</span>
+                    <span class="text-body-md text-on-surface font-semibold">{{ $candidate->name }}</span>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Email</span>
@@ -33,7 +33,7 @@
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Tahap Saat Ini</span>
                     <span class="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                        {{ $candidate->currentStage->nama }}
+                        {{ $candidate->currentStage->name }}
                     </span>
                 </div>
                 <div>
@@ -49,21 +49,21 @@
                 <h4 class="text-xs font-bold uppercase tracking-wider text-primary border-b border-surface-container-high/65 pb-1">Informasi Lowongan</h4>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Jabatan</span>
-                    <span class="text-body-md text-on-surface font-semibold">{{ $lowongan->jabatan }}</span>
+                    <span class="text-body-md text-on-surface font-semibold">{{ $lowongan->job_title }}</span>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Departemen</span>
-                    <span class="text-body-md text-on-surface font-semibold">{{ $lowongan->departemen }}</span>
+                    <span class="text-body-md text-on-surface font-semibold">{{ $lowongan->department }}</span>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Kuota Tersisa</span>
-                    <span class="text-body-md font-bold {{ $lowongan->kuota > 0 ? 'text-green-600' : 'text-error' }}">
-                        {{ $lowongan->kuota }} posisi
+                    <span class="text-body-md font-bold {{ $lowongan->quota > 0 ? 'text-green-600' : 'text-error' }}">
+                        {{ $lowongan->quota }} posisi
                     </span>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Tipe / Lokasi</span>
-                    <span class="text-body-md text-on-surface font-semibold capitalize">{{ $lowongan->tipe_kerja }} ({{ $lowongan->lokasi }})</span>
+                    <span class="text-body-md text-on-surface font-semibold capitalize">{{ $lowongan->employment_type }} ({{ $lowongan->location }})</span>
                 </div>
             </div>
         </div>

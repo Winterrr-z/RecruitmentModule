@@ -23,7 +23,7 @@
                 <div class="text-white flex-1 text-center md:text-left">
                     <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Selamat! Anda Diterima 🎉</h2>
                     <p class="text-white/80 font-medium">
-                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->lowongan?->jabatan ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
+                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->lowongan?->job_title ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
                     </p>
                 </div>
             </div>
@@ -52,7 +52,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($activeApplications as $candidate)
                     @php
-                        $stageName = $candidate->currentStage?->nama;
+                        $stageName = $candidate->currentStage?->name;
                         $stageIcon = $this->getStageIcon($stageName);
                     @endphp
 
@@ -60,7 +60,7 @@
                         {{-- Info Lamaran --}}
                         <div>
                             <h3 class="font-title-md text-title-md text-on-surface font-bold">
-                                {{ $candidate->lowongan?->jabatan ?? 'Posisi tidak tersedia' }}
+                                {{ $candidate->lowongan?->job_title ?? 'Posisi tidak tersedia' }}
                             </h3>
                             <p class="font-body-md text-xs text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}
@@ -86,7 +86,7 @@
                                 </span>
 
                                 {{-- Tanggal Jadwal (jika stage butuh jadwal) --}}
-                                @if($candidate->currentStage?->butuh_jadwal)
+                                @if($candidate->currentStage?->needs_schedule)
                                     @php
                                         $schedule = $candidate->interviewSchedules->where('stage_id', $candidate->current_stage_id)->first();
                                     @endphp
@@ -94,9 +94,9 @@
                                         <div class="w-full max-w-[240px] px-3 py-2 rounded-lg bg-primary/5 border border-primary/10 text-xs text-primary flex items-center justify-center gap-1.5 font-semibold">
                                             <span class="material-symbols-outlined text-[16px] shrink-0">calendar_month</span>
                                             <span class="truncate">
-                                                {{ $schedule->tanggal->translatedFormat('d M Y') }}
-                                                @if($schedule->waktu)
-                                                    · {{ \Carbon\Carbon::parse($schedule->waktu)->format('H:i') }}
+                                                {{ $schedule->date->translatedFormat('d M Y') }}
+                                                @if($schedule->time)
+                                                    · {{ \Carbon\Carbon::parse($schedule->time)->format('H:i') }}
                                                 @endif
                                             </span>
                                         </div>
@@ -214,7 +214,7 @@
                         {{-- Info Lamaran --}}
                         <div class="mb-6">
                             <h3 class="font-title-md text-title-md text-on-surface">
-                                {{ $candidate->lowongan?->jabatan ?? 'Posisi tidak tersedia' }}
+                                {{ $candidate->lowongan?->job_title ?? 'Posisi tidak tersedia' }}
                             </h3>
                             <p class="font-body-md text-body-md text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}

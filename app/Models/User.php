@@ -22,7 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'departemen',
+        'department',
         'job_title',
         'phone_number',
         'profile_photo_path',

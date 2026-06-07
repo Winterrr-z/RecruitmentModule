@@ -1,7 +1,7 @@
 <div>
     <x-breadcrumb :items="[
         ['label' => 'Recruitment Request', 'url' => route('rr.index')],
-        ['label' => $rr->jabatan ?? 'Detail RR', 'url' => null]
+        ['label' => $rr->job_title ?? 'Detail RR', 'url' => null]
     ]" />
     
     <!-- Main Detail Content -->
@@ -13,7 +13,7 @@
         <section class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->jabatan }}</h1>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->job_title }}</h1>
                     
                     @if($rr->status->value === 'Ready to Publish')
                         <span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Ready to Publish</span>
@@ -32,7 +32,7 @@
                 
                 @if($rr->mpp)
                     <span class="font-body-md text-sm text-on-surface-variant/70 font-semibold bg-surface-container-low border border-surface-container-high px-3 py-1.5 rounded-md self-start sm:self-auto">
-                        Terhubung ke: <a href="{{ route('mpp.show', $rr->mpp_id) }}" class="text-primary hover:underline font-bold">MPP-{{ str_pad($rr->mpp_id, 3, '0', STR_PAD_LEFT) }} ({{ $rr->mpp->nama_plan }})</a>
+                        Terhubung ke: <a href="{{ route('mpp.show', $rr->mpp_id) }}" class="text-primary hover:underline font-bold">MPP-{{ str_pad($rr->mpp_id, 3, '0', STR_PAD_LEFT) }} ({{ $rr->mpp->plan_name }})</a>
                     </span>
                 @endif
             </div>
@@ -60,7 +60,7 @@
             <div class="bg-surface-container-lowest p-6 rounded-md border border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.02)] flex flex-col justify-between">
                 <p class="text-label-sm font-label-sm text-on-surface-variant/80 uppercase tracking-wider">Fulfillment Kuota</p>
                 <div class="text-headline-lg font-headline-lg text-secondary mt-2">
-                    {{ $hiredCandidates }} <span class="text-title-md font-semibold text-on-surface-variant/50">/ {{ $rr->kuota }} Orang</span>
+                    {{ $hiredCandidates }} <span class="text-title-md font-semibold text-on-surface-variant/50">/ {{ $rr->quota }} Orang</span>
                 </div>
             </div>
         </section>
@@ -77,7 +77,7 @@
                         Deskripsi Pekerjaan
                     </h4>
                     <div class="text-body-md text-on-surface whitespace-pre-line bg-surface-container-low/50 p-6 rounded-md border border-surface-container leading-relaxed">
-                        {{ $rr->deskripsi_pekerjaan }}
+                        {{ $rr->job_description }}
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@
                         Spesifikasi Kebutuhan
                     </h4>
                     <div class="text-body-md text-on-surface whitespace-pre-line bg-surface-container-low/50 p-6 rounded-md border border-surface-container leading-relaxed">
-                        {{ $rr->spesifikasi_kebutuhan ?: 'Tidak ada kualifikasi khusus yang dilampirkan.' }}
+                        {{ $rr->job_requirements ?: 'Tidak ada kualifikasi khusus yang dilampirkan.' }}
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@
                         @foreach($stages as $stageInfo)
                             <div>
                                 <div class="flex justify-between items-center text-sm font-semibold mb-1">
-                                    <span class="text-on-surface-variant">{{ $stageInfo['nama'] }}</span>
+                                    <span class="text-on-surface-variant">{{ $stageInfo['name'] }}</span>
                                     <span class="text-primary">{{ $stageInfo['count'] }} Kandidat</span>
                                 </div>
                                 <div class="w-full bg-surface-container-low h-3 rounded-full overflow-hidden">
@@ -144,7 +144,7 @@
                             <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">work</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Tipe Kerja</span>
-                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->tipe_kerja }}</span>
+                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->employment_type }}</span>
                             </div>
                         </div>
 
@@ -153,7 +153,7 @@
                             <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">location_on</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Lokasi</span>
-                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->lokasi }}</span>
+                                <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->location }}</span>
                             </div>
                         </div>
 
@@ -174,18 +174,18 @@
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Estimasi Rentang Gaji</span>
                                 <span class="font-body-md text-sm font-bold text-primary block mt-0.5">
-                                    @if($rr->estimasi_gaji_min && $rr->estimasi_gaji_max)
-                                        Rp {{ number_format($rr->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($rr->estimasi_gaji_max, 0, ',', '.') }}
-                                    @elseif($rr->estimasi_gaji_min)
-                                        Rp {{ number_format($rr->estimasi_gaji_min, 0, ',', '.') }}
-                                    @elseif($rr->estimasi_gaji_max)
-                                        Rp {{ number_format($rr->estimasi_gaji_max, 0, ',', '.') }}
+                                    @if($rr->estimated_salary_min && $rr->estimated_salary_max)
+                                        Rp {{ number_format($rr->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($rr->estimated_salary_max, 0, ',', '.') }}
+                                    @elseif($rr->estimated_salary_min)
+                                        Rp {{ number_format($rr->estimated_salary_min, 0, ',', '.') }}
+                                    @elseif($rr->estimated_salary_max)
+                                        Rp {{ number_format($rr->estimated_salary_max, 0, ',', '.') }}
                                     @else
                                         Negosiasi
                                     @endif
                                 </span>
                                 <div class="mt-1">
-                                    @if($rr->tampilkan_gaji)
+                                    @if($rr->show_salary)
                                         <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 bg-green-500/10 px-2 py-0.5 rounded">
                                             <span class="material-symbols-outlined text-[12px]">visibility</span>
                                             Tampil Publik

@@ -22,18 +22,18 @@ class LowonganFactory extends Factory
     {
         return [
             'recruitment_request_id' => \App\Models\RecruitmentRequest::factory(),
-            'jabatan' => $this->faker->jobTitle(),
-            'departemen' => $this->faker->randomElement(['IT', 'HR', 'Finance', 'Marketing', 'Operations']),
-            'estimasi_gaji_min' => $this->faker->numberBetween(4000000, 6000000),
-            'estimasi_gaji_max' => $this->faker->numberBetween(7000000, 15000000),
-            'deskripsi_pekerjaan' => $this->faker->paragraphs(3, true),
-            'spesifikasi_kebutuhan' => $this->faker->paragraphs(2, true),
-            'tipe_kerja' => $this->faker->randomElement(['full-time', 'contract']),
-            'lokasi' => $this->faker->randomElement(['remote', 'on-site']),
+            'job_title' => $this->faker->jobTitle(),
+            'department' => $this->faker->randomElement(['IT', 'HR', 'Finance', 'Marketing', 'Operations']),
+            'estimated_salary_min' => $this->faker->numberBetween(4000000, 6000000),
+            'estimated_salary_max' => $this->faker->numberBetween(7000000, 15000000),
+            'job_description' => $this->faker->paragraphs(3, true),
+            'job_requirements' => $this->faker->paragraphs(2, true),
+            'employment_type' => $this->faker->randomElement(['full-time', 'contract']),
+            'location' => $this->faker->randomElement(['remote', 'on-site']),
             'application_deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
-            'tampilkan_gaji' => $this->faker->boolean(),
+            'show_salary' => $this->faker->boolean(),
             'status' => \App\Enums\LowonganStatus::PUBLISHED,
-            'kuota' => $this->faker->numberBetween(1, 5),
+            'quota' => $this->faker->numberBetween(1, 5),
         ];
     }
 }

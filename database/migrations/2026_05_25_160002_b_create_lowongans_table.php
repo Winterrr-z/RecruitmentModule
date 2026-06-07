@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('lowongans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('recruitment_request_id')->constrained('recruitment_requests')->onDelete('cascade');
-            $table->integer('kuota');
-            $table->string('jabatan', 100);
-            $table->string('departemen', 100);
-            $table->enum('tipe_kerja', ['full-time', 'contract']);
-            $table->enum('lokasi', ['remote', 'on-site']);
+            $table->integer('quota');
+            $table->string('job_title', 100);
+            $table->string('department', 100);
+            $table->enum('employment_type', ['full-time', 'contract']);
+            $table->enum('location', ['remote', 'on-site']);
             $table->date('application_deadline');
-            $table->boolean('tampilkan_gaji')->default(false);
-            $table->integer('estimasi_gaji_min')->nullable();
-            $table->integer('estimasi_gaji_max')->nullable();
-            $table->text('deskripsi_pekerjaan');
-            $table->text('spesifikasi_kebutuhan')->nullable();
+            $table->boolean('show_salary')->default(false);
+            $table->integer('estimated_salary_min')->nullable();
+            $table->integer('estimated_salary_max')->nullable();
+            $table->text('job_description');
+            $table->text('job_requirements')->nullable();
             $table->string('status', 30)->default('Published');
             $table->timestamps();
         });

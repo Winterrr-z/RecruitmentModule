@@ -76,32 +76,32 @@ class CareerJobList extends Component
         // --- Base query ---
         $query = Lowongan::query()
             ->where('status', 'Published')
-            ->where('kuota', '>', 0)
+            ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
 
         // --- Search (shared) ---
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('jabatan', 'like', '%' . $this->search . '%')
-                  ->orWhere('departemen', 'like', '%' . $this->search . '%');
+                $q->where('job_title', 'like', '%' . $this->search . '%')
+                  ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }
 
         if ($isLoggedIn) {
             // --- Sidebar checkbox filters (logged-in) ---
             if (!empty($this->selectedDepartments)) {
-                $query->whereIn('departemen', $this->selectedDepartments);
+                $query->whereIn('department', $this->selectedDepartments);
             }
             if (!empty($this->selectedTypes)) {
-                $query->whereIn('tipe_kerja', $this->selectedTypes);
+                $query->whereIn('employment_type', $this->selectedTypes);
             }
         } else {
             // --- Dropdown filters (guest) ---
             if (!empty($this->selectedTipeKerja)) {
-                $query->where('tipe_kerja', $this->selectedTipeKerja);
+                $query->where('employment_type', $this->selectedTipeKerja);
             }
             if (!empty($this->selectedLokasi)) {
-                $query->where('lokasi', $this->selectedLokasi);
+                $query->where('location', $this->selectedLokasi);
             }
         }
 
@@ -114,12 +114,12 @@ class CareerJobList extends Component
         if ($isLoggedIn) {
             $departments = Lowongan::query()
                 ->where('status', 'Published')
-                ->where('kuota', '>', 0)
+                ->where('quota', '>', 0)
                 ->where('application_deadline', '>=', Carbon::today())
-                ->selectRaw('departemen, count(*) as total')
-                ->groupBy('departemen')
-                ->orderBy('departemen')
-                ->pluck('total', 'departemen')
+                ->selectRaw('department, count(*) as total')
+                ->groupBy('department')
+                ->orderBy('department')
+                ->pluck('total', 'department')
                 ->toArray();
         }
 

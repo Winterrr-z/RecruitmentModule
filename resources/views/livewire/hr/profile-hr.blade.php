@@ -36,7 +36,7 @@
                         <h3 class="text-xl font-extrabold text-on-surface tracking-tight">{{ $user->name }}</h3>
                         <p class="text-sm text-on-surface-variant mt-1 flex items-center justify-center gap-1.5">
                             <span class="material-symbols-outlined text-[16px] text-primary"></span>
-                            <span class="font-medium uppercase tracking-wider text-xs text-primary">{{ $user->departemen }}</span>
+                            <span class="font-medium uppercase tracking-wider text-xs text-primary">{{ $user->department }}</span>
                         </p>
                     </div>
 
@@ -118,8 +118,8 @@
                         <span class="material-symbols-outlined text-on-surface-variant/50 text-[20px] mt-0.5">corporate_fare</span>
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant/60 mb-0.5">Departemen</p>
-                            @if($user->departemen)
-                                <p class="text-sm font-semibold text-on-surface">{{ $user->departemen }}</p>
+                            @if($user->department)
+                                <p class="text-sm font-semibold text-on-surface">{{ $user->department }}</p>
                             @else
                                 <p class="text-sm text-on-surface-variant/40 italic">Belum diisi</p>
                             @endif

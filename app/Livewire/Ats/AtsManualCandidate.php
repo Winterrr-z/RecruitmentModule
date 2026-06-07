@@ -15,31 +15,31 @@ class AtsManualCandidate extends Component
     public $lowongan;
 
     // Form fields
-    public $nama = '';
+    public $name = '';
     public $email = '';
-    public $telepon = '';
+    public $phone = '';
     public $cv;
     public $portofolio;
 
     protected function rules()
     {
         return [
-            'nama' => 'required|string|max:100',
+            'name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
-            'telepon' => 'required|string|max:20',
-            'cv' => 'required|file|mimes:pdf|max:5120', // max 5MB
-            'portofolio' => 'nullable|file|mimes:pdf|max:5120', // max 5MB
+            'phone' => 'required|string|max:20',
+            'cv' => 'required|file|mimetypes:application/pdf|mimes:pdf|max:5120', // max 5MB
+            'portofolio' => 'nullable|file|mimetypes:application/pdf|mimes:pdf|max:5120', // max 5MB
         ];
     }
 
     protected $messages = [
-        'nama.required' => 'Nama lengkap wajib diisi.',
-        'nama.max' => 'Nama lengkap maksimal 100 karakter.',
+        'name.required' => 'Nama lengkap wajib diisi.',
+        'name.max' => 'Nama lengkap maksimal 100 karakter.',
         'email.required' => 'Email wajib diisi.',
         'email.email' => 'Format email tidak valid.',
         'email.max' => 'Email maksimal 100 karakter.',
-        'telepon.required' => 'Nomor telepon wajib diisi.',
-        'telepon.max' => 'Nomor telepon maksimal 20 karakter.',
+        'phone.required' => 'Nomor telepon wajib diisi.',
+        'phone.max' => 'Nomor telepon maksimal 20 karakter.',
         'cv.required' => 'File CV wajib diunggah.',
         'cv.mimes' => 'CV harus berupa file PDF.',
         'cv.max' => 'Ukuran CV maksimal 5MB.',
@@ -64,9 +64,9 @@ class AtsManualCandidate extends Component
         // Save candidate
         Candidate::create([
             'lowongan_id' => $this->lowonganId ?: null,
-            'nama' => $this->nama,
+            'name' => $this->name,
             'email' => $this->email,
-            'telepon' => $this->telepon,
+            'phone' => $this->phone,
             'cv_path' => $cvPath,
             'portofolio_path' => $portofolioPath,
             'current_stage_id' => 1, // Applied
@@ -74,7 +74,7 @@ class AtsManualCandidate extends Component
             'source' => 'manual',
         ]);
 
-        session()->flash('message', "Kandidat manual '{$this->nama}' berhasil ditambahkan.");
+        session()->flash('message', "Kandidat manual '{$this->name}' berhasil ditambahkan.");
 
         return redirect()->route('ats.dashboard', ['selectedLowonganId' => $this->lowonganId ?: null]);
     }

@@ -16,9 +16,22 @@ class AtsCandidateDetail extends Component
     public $scorecards = [];
     public $totalWeightedScore = 0;
     public $notes = [];
+    public $backUrl;
+    public $backLabel;
 
     public function mount($candidateId)
     {
+        $referer = request()->headers->get('referer');
+        $from = request()->query('from');
+
+        if ($from === 'candidates' || ($referer && str_contains($referer, '/ats/candidates'))) {
+            $this->backUrl = route('ats.candidates');
+            $this->backLabel = 'All Candidates';
+        } else {
+            $this->backUrl = route('ats.dashboard');
+            $this->backLabel = 'Pipeline';
+        }
+
         $this->candidateId = $candidateId;
         $this->candidate = Candidate::with('lowongan', 'currentStage')->findOrFail($candidateId);
         $this->movements = $this->candidate->candidateMovements()
@@ -62,7 +75,7 @@ class AtsCandidateDetail extends Component
 
         // Calculate total weighted score: Σ(bobot * nilai) / 100
         if ($this->scorecards->isNotEmpty()) {
-            $sumWeighted = $this->scorecards->sum(fn($s) => $s->bobot * $s->nilai);
+            $sumWeighted = $this->scorecards->sum(fn($s) => $s->weight * $s->score);
             $this->totalWeightedScore = round($sumWeighted / 100, 2);
         } else {
             $this->totalWeightedScore = 0;

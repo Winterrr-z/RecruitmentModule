@@ -28,51 +28,51 @@ class OfferingWorkflowTest extends TestCase
         parent::setUp();
 
         // Ensure default stages exist (Applied: 1, Final: 2)
-        Stage::firstOrCreate(['id' => 1], ['nama' => 'Applied', 'deskripsi' => 'Default applied stage', 'urutan' => 1]);
-        Stage::firstOrCreate(['id' => 2], ['nama' => 'Final', 'deskripsi' => 'Default final stage', 'urutan' => 2]);
+        Stage::firstOrCreate(['id' => 1], ['name' => 'Applied', 'description' => 'Default applied stage', 'sequence' => 1]);
+        Stage::firstOrCreate(['id' => 2], ['name' => 'Final', 'description' => 'Default final stage', 'sequence' => 2]);
 
         $this->user = User::factory()->create(['role' => 'hr']);
 
         $this->mpp = Mpp::create([
-            'nama_plan' => 'Plan IT Support',
-            'departemen' => 'IT',
-            'jabatan' => 'IT Support',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Plan IT Support',
+            'department' => 'IT',
+            'job_title' => 'IT Support',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => 'Approved',
         ]);
 
         $rr = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $this->lowongan = Lowongan::create([
             'recruitment_request_id' => $rr->id,
-            'jabatan' => 'IT Support',
-            'departemen' => 'IT',
+            'job_title' => 'IT Support',
+            'department' => 'IT',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job description',
-            'spesifikasi_kebutuhan' => 'Job requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Job description',
+            'job_requirements' => 'Job requirements',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->candidate = Candidate::create([
             'lowongan_id' => $this->lowongan->id,
-            'nama' => 'Candidate Tester',
+            'name' => 'Candidate Tester',
             'email' => 'tester@example.com',
-            'telepon' => '081234567890',
+            'phone' => '081234567890',
             'current_stage_id' => 1, // Applied
             'status' => 'Applied',
         ]);
@@ -101,12 +101,12 @@ class OfferingWorkflowTest extends TestCase
             ->assertSet('isValid', true);
 
         // 3. Set lowongan quota to 0
-        $this->lowongan->update(['kuota' => 0]);
+        $this->lowongan->update(['quota' => 0]);
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\OfferingSend::class, ['candidateId' => $this->candidate->id])
             ->assertSet('isValid', false)
-            ->assertSet('errorMessage', 'Kuota lowongan untuk jabatan "' . $this->lowongan->jabatan . '" sudah habis.');
+            ->assertSet('errorMessage', 'Kuota lowongan untuk jabatan "' . $this->lowongan->job_title . '" sudah habis.');
     }
 
     public function test_can_send_offering_letter()
@@ -178,7 +178,7 @@ class OfferingWorkflowTest extends TestCase
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(0, $this->lowongan->kuota);
+        $this->assertEquals(0, $this->lowongan->quota);
         $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
 
         $this->mpp = $this->mpp->fresh();
@@ -204,7 +204,7 @@ class OfferingWorkflowTest extends TestCase
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(1, $this->lowongan->kuota); // remains 1
+        $this->assertEquals(1, $this->lowongan->quota); // remains 1
     }
 
     public function test_offering_response_can_accept_offering_post_route()
@@ -224,7 +224,7 @@ class OfferingWorkflowTest extends TestCase
         $this->assertNull($this->candidate->offering_token);
         
         $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(0, $this->lowongan->kuota);
+        $this->assertEquals(0, $this->lowongan->quota);
         $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
     }
 
@@ -233,9 +233,9 @@ class OfferingWorkflowTest extends TestCase
         // 1. Expired candidate
         $expiredCandidate = Candidate::create([
             'lowongan_id' => $this->lowongan->id,
-            'nama' => 'Expired Candidate',
+            'name' => 'Expired Candidate',
             'email' => 'expired@example.com',
-            'telepon' => '081234567895',
+            'phone' => '081234567895',
             'current_stage_id' => 2,
             'status' => 'Offered',
             'offering_token' => 'expired-token-1',
@@ -245,9 +245,9 @@ class OfferingWorkflowTest extends TestCase
         // 2. Active candidate
         $activeCandidate = Candidate::create([
             'lowongan_id' => $this->lowongan->id,
-            'nama' => 'Active Candidate',
+            'name' => 'Active Candidate',
             'email' => 'active@example.com',
-            'telepon' => '081234567896',
+            'phone' => '081234567896',
             'current_stage_id' => 2,
             'status' => 'Offered',
             'offering_token' => 'active-token-1',

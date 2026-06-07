@@ -104,7 +104,7 @@
                         <!-- Header Card -->
                         <div class="flex justify-between items-start gap-4 mb-4">
                             <span class="inline-flex px-2.5 py-0.5 rounded bg-primary/5 text-primary text-xs font-bold uppercase tracking-wide">
-                                {{ $lowongan->departemen }}
+                                {{ $lowongan->department }}
                             </span>
                             <span class="text-xs text-on-surface-variant/50">
                                 {{ $lowongan->created_at->diffForHumans() }}
@@ -113,28 +113,28 @@
 
                         <!-- Job Title -->
                         <h3 class="text-title-md font-bold text-on-surface mb-3 line-clamp-2 hover:text-primary transition-colors">
-                            {{ $lowongan->jabatan }}
+                            {{ $lowongan->job_title }}
                         </h3>
 
                         <!-- Badges -->
                         <div class="flex flex-wrap gap-2 mb-6">
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded bg-primary-fixed text-on-primary-fixed-variant text-xs font-semibold capitalize">
                                 <span class="material-symbols-outlined text-[14px]">work</span>
-                                {{ $lowongan->tipe_kerja }}
+                                {{ $lowongan->employment_type }}
                             </span>
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed-variant text-xs font-semibold capitalize">
                                 <span class="material-symbols-outlined text-[14px]">location_on</span>
-                                {{ $lowongan->lokasi }}
+                                {{ $lowongan->location }}
                             </span>
                         </div>
 
                         <!-- Details Section -->
                         <div class="space-y-3 pt-4 border-t border-surface-container-low text-sm text-on-surface-variant/80">
                             <!-- Salary Range -->
-                            @if($lowongan->tampilkan_gaji)
+                            @if($lowongan->show_salary)
                                 <div class="flex items-center gap-2.5 text-on-surface font-semibold">
                                     <span class="material-symbols-outlined text-primary text-[18px]">payments</span>
-                                    <span>Rp {{ number_format($lowongan->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimasi_gaji_max, 0, ',', '.') }}</span>
+                                    <span>Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}</span>
                                 </div>
                             @endif
 

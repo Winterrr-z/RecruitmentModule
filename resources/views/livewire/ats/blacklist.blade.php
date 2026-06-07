@@ -47,7 +47,7 @@
                         <tr class="hover:bg-surface/30 transition-colors group text-on-surface">
                             <!-- Nama -->
                             <td class="px-6 py-4 whitespace-nowrap font-bold text-sm">
-                                {{ $item->nama }}
+                                {{ $item->name }}
                             </td>
                             <!-- Email -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant/80">
@@ -55,11 +55,11 @@
                             </td>
                             <!-- Telepon -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant/80">
-                                {{ $item->telepon }}
+                                {{ $item->phone }}
                             </td>
                             <!-- Alasan -->
                             <td class="px-6 py-4 text-sm text-error font-semibold">
-                                {{ $item->alasan }}
+                                {{ $item->reason }}
                             </td>
                             <!-- Tanggal -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-on-surface-variant/60">
@@ -68,7 +68,7 @@
                             <!-- Aksi -->
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button wire:click="deleteBlacklist({{ $item->id }})" 
-                                        wire:confirm="Apakah Anda yakin ingin menghapus '{{ $item->nama }}' dari daftar blacklist?"
+                                        wire:confirm="Apakah Anda yakin ingin menghapus '{{ $item->name }}' dari daftar blacklist?"
                                         class="p-2 hover:bg-error/10 text-error rounded-md transition-colors" 
                                         title="Hapus dari Blacklist">
                                     <span class="material-symbols-outlined text-[20px]">delete</span>
@@ -154,7 +154,7 @@
                                 @forelse($pickerCandidates as $cand)
                                     <button type="button" wire:click="selectCandidate({{ $cand->id }})" class="w-full text-left p-2.5 hover:bg-primary/5 transition-colors flex items-center justify-between gap-4 text-xs">
                                         <div>
-                                            <span class="font-bold text-on-surface block">{{ $cand->nama }}</span>
+                                            <span class="font-bold text-on-surface block">{{ $cand->name }}</span>
                                             <span class="text-on-surface-variant/60 block">{{ $cand->email }}</span>
                                         </div>
                                         <span class="px-2 py-0.5 bg-surface-container text-on-surface-variant/70 rounded text-[10px] font-semibold">Pilih</span>
@@ -174,11 +174,11 @@
             <form wire:submit.prevent="save" class="space-y-6">
                 <!-- Nama -->
                 <div>
-                    <label for="nama" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Lengkap <span class="text-error">*</span></label>
-                    <input type="text" id="nama" wire:model="nama" 
+                    <label for="name" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Lengkap <span class="text-error">*</span></label>
+                    <input type="text" id="name" wire:model="name" 
                            placeholder="Nama lengkap kandidat"
-                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('nama') border-error @enderror">
-                    @error('nama')
+                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('name') border-error @enderror">
+                    @error('name')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}
@@ -204,11 +204,11 @@
 
                     <!-- Telepon -->
                     <div>
-                        <label for="telepon" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nomor Telepon <span class="text-error">*</span></label>
-                        <input type="text" id="telepon" wire:model="telepon" 
+                        <label for="phone" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nomor Telepon <span class="text-error">*</span></label>
+                        <input type="text" id="phone" wire:model="phone" 
                                placeholder="Nomor telepon"
-                               class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('telepon') border-error @enderror">
-                        @error('telepon')
+                               class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('phone') border-error @enderror">
+                        @error('phone')
                             <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[14px]">error</span>
                                 {{ $message }}
@@ -219,11 +219,11 @@
 
                 <!-- Alasan -->
                 <div>
-                    <label for="alasan" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Blacklist <span class="text-error">*</span></label>
-                    <textarea id="alasan" wire:model="alasan" rows="2"
+                    <label for="reason" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Blacklist <span class="text-error">*</span></label>
+                    <textarea id="reason" wire:model="reason" rows="2"
                               placeholder="Tuliskan alasan pemblokiran secara detail..."
-                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('alasan') border-error @enderror"></textarea>
-                    @error('alasan')
+                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('reason') border-error @enderror"></textarea>
+                    @error('reason')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}

@@ -21,14 +21,14 @@ class MppForm extends Component
     public $isEdit = false;
 
     // Form fields
-    public $nama_plan;
-    public $departemen;
-    public $jabatan;
-    public $jumlah_kebutuhan = 1;
-    public $estimasi_gaji_min;
-    public $estimasi_gaji_max;
-    public $sla_hari;
-    public $target_waktu_absolut;
+    public $plan_name;
+    public $department;
+    public $job_title;
+    public $quota = 1;
+    public $estimated_salary_min;
+    public $estimated_salary_max;
+    public $sla_days;
+    public $absolute_target_date;
     public $note;
 
     public function mount($id = null)
@@ -45,17 +45,17 @@ class MppForm extends Component
                 return redirect()->route('mpp.index');
             }
 
-            $this->nama_plan = $mpp->nama_plan;
-            $this->departemen = $mpp->departemen;
-            $this->jabatan = $mpp->jabatan;
-            $this->jumlah_kebutuhan = $mpp->jumlah_kebutuhan;
+            $this->plan_name = $mpp->plan_name;
+            $this->department = $mpp->department;
+            $this->job_title = $mpp->job_title;
+            $this->quota = $mpp->quota;
             
             // Format integers from DB with commas
-            $this->estimasi_gaji_min = $mpp->estimasi_gaji_min ? number_format($mpp->estimasi_gaji_min, 0, '.', ',') : null;
-            $this->estimasi_gaji_max = $mpp->estimasi_gaji_max ? number_format($mpp->estimasi_gaji_max, 0, '.', ',') : null;
+            $this->estimated_salary_min = $mpp->estimated_salary_min ? number_format($mpp->estimated_salary_min, 0, '.', ',') : null;
+            $this->estimated_salary_max = $mpp->estimated_salary_max ? number_format($mpp->estimated_salary_max, 0, '.', ',') : null;
             
-            $this->sla_hari = $mpp->sla_hari;
-            $this->target_waktu_absolut = $mpp->target_waktu_absolut ? $mpp->target_waktu_absolut->format('Y-m-d') : null;
+            $this->sla_days = $mpp->sla_days;
+            $this->absolute_target_date = $mpp->absolute_target_date ? $mpp->absolute_target_date->format('Y-m-d') : null;
             $this->note = $mpp->note;
         }
     }
@@ -67,12 +67,12 @@ class MppForm extends Component
 
     public function updatedEstimasiGajiMin($value)
     {
-        $this->estimasi_gaji_min = $this->formatNumber($value);
+        $this->estimated_salary_min = $this->formatNumber($value);
     }
 
     public function updatedEstimasiGajiMax($value)
     {
-        $this->estimasi_gaji_max = $this->formatNumber($value);
+        $this->estimated_salary_max = $this->formatNumber($value);
     }
 
     protected function formatNumber($value)
@@ -91,61 +91,61 @@ class MppForm extends Component
 
     protected function calculateTargetWaktu()
     {
-        if (is_numeric($this->sla_hari) && $this->sla_hari > 0) {
-            $this->target_waktu_absolut = now()->addDays((int)$this->sla_hari)->format('Y-m-d');
+        if (is_numeric($this->sla_days) && $this->sla_days > 0) {
+            $this->absolute_target_date = now()->addDays((int)$this->sla_days)->format('Y-m-d');
         } else {
-            $this->target_waktu_absolut = null;
+            $this->absolute_target_date = null;
         }
     }
 
     public function save()
     {
         // Keep formatted copies in case validation fails
-        $formattedMin = $this->estimasi_gaji_min;
-        $formattedMax = $this->estimasi_gaji_max;
+        $formattedMin = $this->estimated_salary_min;
+        $formattedMax = $this->estimated_salary_max;
 
         // Temporarily strip commas for validation
-        $this->estimasi_gaji_min = $this->getNumericSalary($this->estimasi_gaji_min);
-        $this->estimasi_gaji_max = $this->getNumericSalary($this->estimasi_gaji_max);
+        $this->estimated_salary_min = $this->getNumericSalary($this->estimated_salary_min);
+        $this->estimated_salary_max = $this->getNumericSalary($this->estimated_salary_max);
 
         try {
             $this->validate([
-                'nama_plan' => 'required|string|max:200',
-                'departemen' => 'required|string|max:100',
-                'jabatan' => 'required|string|max:100',
-                'jumlah_kebutuhan' => 'required|integer|min:1',
-                'estimasi_gaji_min' => 'nullable|integer|min:0',
-                'estimasi_gaji_max' => 'nullable|integer' . ($this->estimasi_gaji_min ? '|gt:estimasi_gaji_min' : '|min:0'),
-                'sla_hari' => 'required|integer|min:1',
+                'plan_name' => 'required|string|max:200',
+                'department' => 'required|string|max:100',
+                'job_title' => 'required|string|max:100',
+                'quota' => 'required|integer|min:1',
+                'estimated_salary_min' => 'nullable|integer|min:0',
+                'estimated_salary_max' => 'nullable|integer' . ($this->estimated_salary_min ? '|gt:estimated_salary_min' : '|min:0'),
+                'sla_days' => 'required|integer|min:1',
                 'note' => 'nullable|string|max:1000',
             ], [
-                'nama_plan.required' => 'Nama Plan wajib diisi.',
-                'departemen.required' => 'Departemen wajib diisi.',
-                'jabatan.required' => 'Jabatan wajib diisi.',
-                'jumlah_kebutuhan.required' => 'Jumlah Kebutuhan wajib diisi.',
-                'jumlah_kebutuhan.min' => 'Jumlah Kebutuhan minimal 1 Orang.',
-                'estimasi_gaji_max.gt' => 'Estimasi Gaji Max harus lebih besar dari Gaji Min.',
-                'sla_hari.required' => 'SLA wajib diisi.',
-                'sla_hari.min' => 'SLA minimal 1 hari.',
+                'plan_name.required' => 'Nama Plan wajib diisi.',
+                'department.required' => 'Departemen wajib diisi.',
+                'job_title.required' => 'Jabatan wajib diisi.',
+                'quota.required' => 'Jumlah Kebutuhan wajib diisi.',
+                'quota.min' => 'Jumlah Kebutuhan minimal 1 Orang.',
+                'estimated_salary_max.gt' => 'Estimasi Gaji Max harus lebih besar dari Gaji Min.',
+                'sla_days.required' => 'SLA wajib diisi.',
+                'sla_days.min' => 'SLA minimal 1 hari.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Restore formatted copies
-            $this->estimasi_gaji_min = $formattedMin;
-            $this->estimasi_gaji_max = $formattedMax;
+            $this->estimated_salary_min = $formattedMin;
+            $this->estimated_salary_max = $formattedMax;
             throw $e;
         }
 
         $this->calculateTargetWaktu();
 
         $data = [
-            'nama_plan' => $this->nama_plan,
-            'departemen' => $this->departemen,
-            'jabatan' => $this->jabatan,
-            'jumlah_kebutuhan' => $this->jumlah_kebutuhan,
-            'estimasi_gaji_min' => $this->estimasi_gaji_min,
-            'estimasi_gaji_max' => $this->estimasi_gaji_max,
-            'sla_hari' => $this->sla_hari,
-            'target_waktu_absolut' => $this->target_waktu_absolut,
+            'plan_name' => $this->plan_name,
+            'department' => $this->department,
+            'job_title' => $this->job_title,
+            'quota' => $this->quota,
+            'estimated_salary_min' => $this->estimated_salary_min,
+            'estimated_salary_max' => $this->estimated_salary_max,
+            'sla_days' => $this->sla_days,
+            'absolute_target_date' => $this->absolute_target_date,
             'note' => $this->note ?: null,
             'last_activity_at' => now(),
             'syarat_pendidikan' => 'Minimal D3',

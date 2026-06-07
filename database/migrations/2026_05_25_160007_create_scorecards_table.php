@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('candidate_id')->constrained('candidates')->onDelete('cascade');
             $table->foreignId('stage_id')->constrained('stages');
-            $table->string('kriteria', 100);
-            $table->integer('bobot');
-            $table->integer('nilai');
+            $table->string('criteria', 100);
+            $table->integer('weight');
+            $table->integer('score');
             $table->timestamps();
         });
     }

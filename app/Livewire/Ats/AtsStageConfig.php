@@ -19,34 +19,34 @@ class AtsStageConfig extends Component
     public $editingStageId = null;
 
     // Form inputs
-    public $nama = '';
-    public $deskripsi = '';
-    public $butuh_scorecard = false;
-    public $butuh_jadwal = false;
+    public $name = '';
+    public $description = '';
+    public $needs_scorecard = false;
+    public $needs_schedule = false;
 
     // Scorecard configuration templates
     public $scorecardKriteria = [];
     
     // Scheduling configuration templates
-    public $tipe_wawancara = 'online';
-    public $lokasi_default = '';
-    public $tautan_virtual_default = '';
+    public $interview_type = 'online';
+    public $default_location = '';
+    public $default_virtual_link = '';
 
     // Rule validation
     protected function rules()
     {
         return [
-            'nama' => 'required|string|max:100|unique:stages,nama,' . ($this->editingStageId ?? 'NULL'),
-            'deskripsi' => 'nullable|string',
-            'butuh_scorecard' => 'boolean',
-            'butuh_jadwal' => 'boolean',
+            'name' => 'required|string|max:100|unique:stages,nama,' . ($this->editingStageId ?? 'NULL'),
+            'description' => 'nullable|string',
+            'needs_scorecard' => 'boolean',
+            'needs_schedule' => 'boolean',
         ];
     }
 
     protected $messages = [
-        'nama.required' => 'Nama stage wajib diisi.',
-        'nama.unique' => 'Nama stage sudah digunakan.',
-        'nama.max' => 'Nama stage maksimal 100 karakter.',
+        'name.required' => 'Nama stage wajib diisi.',
+        'name.unique' => 'Nama stage sudah digunakan.',
+        'name.max' => 'Nama stage maksimal 100 karakter.',
     ];
 
     public function mount()
@@ -57,14 +57,14 @@ class AtsStageConfig extends Component
 
     public function loadStages()
     {
-        $this->stages = Stage::orderBy('urutan', 'asc')->get();
+        $this->stages = Stage::orderBy('sequence', 'asc')->get();
     }
 
     public function addKriteria()
     {
         $this->scorecardKriteria[] = [
-            'kriteria' => '',
-            'bobot' => 0,
+            'criteria' => '',
+            'weight' => 0,
         ];
     }
 
@@ -85,21 +85,21 @@ class AtsStageConfig extends Component
         DB::transaction(function () {
             // Get all intermediate custom stages
             $middleStages = Stage::whereNotIn('id', [1, 2])
-                ->orderBy('urutan', 'asc')
+                ->orderBy('sequence', 'asc')
                 ->get();
 
             // Set Applied to 1
-            Stage::where('id', 1)->update(['urutan' => 1]);
+            Stage::where('id', 1)->update(['sequence' => 1]);
 
             // Set middle stages starting from 2
             $current = 2;
             foreach ($middleStages as $stage) {
-                $stage->update(['urutan' => $current]);
+                $stage->update(['sequence' => $current]);
                 $current++;
             }
 
             // Set Final to N
-            Stage::where('id', 2)->update(['urutan' => $current]);
+            Stage::where('id', 2)->update(['sequence' => $current]);
         });
     }
 
@@ -116,16 +116,16 @@ class AtsStageConfig extends Component
         $this->resetValidation();
         $stage = Stage::findOrFail($id);
         $this->editingStageId = $stage->id;
-        $this->nama = $stage->nama;
-        $this->deskripsi = $stage->deskripsi;
-        $this->butuh_scorecard = (bool)$stage->butuh_scorecard;
-        $this->butuh_jadwal = (bool)$stage->butuh_jadwal;
+        $this->name = $stage->name;
+        $this->description = $stage->description;
+        $this->needs_scorecard = (bool)$stage->needs_scorecard;
+        $this->needs_schedule = (bool)$stage->needs_schedule;
 
         // Load predefined criteria and scheduling configs
-        $this->scorecardKriteria = $stage->scorecard_kriteria ?: [['kriteria' => '', 'bobot' => 0]];
-        $this->tipe_wawancara = $stage->tipe_wawancara ?: 'online';
-        $this->lokasi_default = $stage->lokasi_default ?: '';
-        $this->tautan_virtual_default = $stage->tautan_virtual_default ?: '';
+        $this->scorecardKriteria = $stage->scorecard_criteria ?: [['criteria' => '', 'weight' => 0]];
+        $this->interview_type = $stage->interview_type ?: 'online';
+        $this->default_location = $stage->default_location ?: '';
+        $this->default_virtual_link = $stage->default_virtual_link ?: '';
 
         $this->isEdit = true;
         $this->showModal = true;
@@ -136,7 +136,7 @@ class AtsStageConfig extends Component
         $this->validate();
 
         // 1. Scorecard criteria validation
-        if ($this->butuh_scorecard) {
+        if ($this->needs_scorecard) {
             if (empty($this->scorecardKriteria)) {
                 $this->addError('scorecardKriteria', 'Wajib menambahkan minimal satu kriteria penilaian.');
                 return;
@@ -144,15 +144,15 @@ class AtsStageConfig extends Component
 
             $totalWeight = 0;
             foreach ($this->scorecardKriteria as $index => $item) {
-                if (empty(trim($item['kriteria']))) {
+                if (empty(trim($item['criteria']))) {
                     $this->addError("scorecardKriteria.{$index}.kriteria", 'Nama kriteria wajib diisi.');
                     return;
                 }
-                if (!isset($item['bobot']) || intval($item['bobot']) <= 0 || intval($item['bobot']) > 100) {
+                if (!isset($item['weight']) || intval($item['weight']) <= 0 || intval($item['weight']) > 100) {
                     $this->addError("scorecardKriteria.{$index}.bobot", 'Bobot kriteria harus bernilai antara 1-100%.');
                     return;
                 }
-                $totalWeight += intval($item['bobot']);
+                $totalWeight += intval($item['weight']);
             }
 
             if ($totalWeight !== 100) {
@@ -162,30 +162,30 @@ class AtsStageConfig extends Component
         }
 
         // 2. Scheduling validation
-        if ($this->butuh_jadwal) {
-            if (empty($this->tipe_wawancara)) {
-                $this->addError('tipe_wawancara', 'Tipe wawancara wajib dipilih.');
+        if ($this->needs_schedule) {
+            if (empty($this->interview_type)) {
+                $this->addError('interview_type', 'Tipe wawancara wajib dipilih.');
                 return;
             }
-            if (($this->tipe_wawancara === 'offline' || $this->tipe_wawancara === 'hybrid') && empty(trim($this->lokasi_default))) {
-                $this->addError('lokasi_default', 'Lokasi default wajib diisi untuk wawancara offline/hybrid.');
+            if (($this->interview_type === 'offline' || $this->interview_type === 'hybrid') && empty(trim($this->default_location))) {
+                $this->addError('default_location', 'Lokasi default wajib diisi untuk wawancara offline/hybrid.');
                 return;
             }
-            if (($this->tipe_wawancara === 'online' || $this->tipe_wawancara === 'hybrid') && !empty($this->tautan_virtual_default) && !filter_var($this->tautan_virtual_default, FILTER_VALIDATE_URL)) {
-                $this->addError('tautan_virtual_default', 'Format tautan virtual default tidak valid.');
+            if (($this->interview_type === 'online' || $this->interview_type === 'hybrid') && !empty($this->default_virtual_link) && !filter_var($this->default_virtual_link, FILTER_VALIDATE_URL)) {
+                $this->addError('default_virtual_link', 'Format tautan virtual default tidak valid.');
                 return;
             }
         }
 
         $data = [
-            'nama' => $this->nama,
-            'deskripsi' => $this->deskripsi,
-            'butuh_scorecard' => $this->butuh_scorecard,
-            'butuh_jadwal' => $this->butuh_jadwal,
-            'scorecard_kriteria' => $this->butuh_scorecard ? array_values($this->scorecardKriteria) : null,
-            'tipe_wawancara' => $this->butuh_jadwal ? $this->tipe_wawancara : null,
-            'lokasi_default' => $this->butuh_jadwal ? $this->lokasi_default : null,
-            'tautan_virtual_default' => $this->butuh_jadwal ? $this->tautan_virtual_default : null,
+            'name' => $this->name,
+            'description' => $this->description,
+            'needs_scorecard' => $this->needs_scorecard,
+            'needs_schedule' => $this->needs_schedule,
+            'scorecard_criteria' => $this->needs_scorecard ? array_values($this->scorecardKriteria) : null,
+            'interview_type' => $this->needs_schedule ? $this->interview_type : null,
+            'default_location' => $this->needs_schedule ? $this->default_location : null,
+            'default_virtual_link' => $this->needs_schedule ? $this->default_virtual_link : null,
         ];
 
         if ($this->isEdit) {
@@ -194,10 +194,10 @@ class AtsStageConfig extends Component
             session()->flash('message', 'Stage berhasil diperbarui.');
         } else {
             // Get current Final's order
-            $finalUrutan = Stage::where('id', 2)->value('urutan') ?? 2;
+            $finalUrutan = Stage::where('id', 2)->value('sequence') ?? 2;
             
             // Create stage with Final's current sequence, pushing it before Final
-            $data['urutan'] = $finalUrutan;
+            $data['sequence'] = $finalUrutan;
             Stage::create($data);
             session()->flash('message', 'Stage baru berhasil ditambahkan.');
         }
@@ -239,8 +239,8 @@ class AtsStageConfig extends Component
         $stage = Stage::findOrFail($id);
         
         // Find stage with highest urutan that is smaller than current
-        $prevStage = Stage::where('urutan', '<', $stage->urutan)
-            ->orderBy('urutan', 'desc')
+        $prevStage = Stage::where('sequence', '<', $stage->sequence)
+            ->orderBy('sequence', 'desc')
             ->first();
 
         if ($prevStage) {
@@ -251,9 +251,9 @@ class AtsStageConfig extends Component
             }
 
             DB::transaction(function () use ($stage, $prevStage) {
-                $tempUrutan = $stage->urutan;
-                $stage->update(['urutan' => $prevStage->urutan]);
-                $prevStage->update(['urutan' => $tempUrutan]);
+                $tempUrutan = $stage->sequence;
+                $stage->update(['sequence' => $prevStage->sequence]);
+                $prevStage->update(['sequence' => $tempUrutan]);
             });
             session()->flash('message', 'Urutan stage berhasil diperbarui.');
         }
@@ -271,8 +271,8 @@ class AtsStageConfig extends Component
         $stage = Stage::findOrFail($id);
         
         // Find stage with lowest urutan that is larger than current
-        $nextStage = Stage::where('urutan', '>', $stage->urutan)
-            ->orderBy('urutan', 'asc')
+        $nextStage = Stage::where('sequence', '>', $stage->sequence)
+            ->orderBy('sequence', 'asc')
             ->first();
 
         if ($nextStage) {
@@ -283,9 +283,9 @@ class AtsStageConfig extends Component
             }
 
             DB::transaction(function () use ($stage, $nextStage) {
-                $tempUrutan = $stage->urutan;
-                $stage->update(['urutan' => $nextStage->urutan]);
-                $nextStage->update(['urutan' => $tempUrutan]);
+                $tempUrutan = $stage->sequence;
+                $stage->update(['sequence' => $nextStage->sequence]);
+                $nextStage->update(['sequence' => $tempUrutan]);
             });
             session()->flash('message', 'Urutan stage berhasil diperbarui.');
         }
@@ -296,19 +296,19 @@ class AtsStageConfig extends Component
     public function resetForm()
     {
         $this->editingStageId = null;
-        $this->nama = '';
-        $this->deskripsi = '';
-        $this->butuh_scorecard = false;
-        $this->butuh_jadwal = false;
-        $this->scorecardKriteria = [['kriteria' => '', 'bobot' => 0]];
-        $this->tipe_wawancara = 'online';
-        $this->lokasi_default = '';
-        $this->tautan_virtual_default = '';
+        $this->name = '';
+        $this->description = '';
+        $this->needs_scorecard = false;
+        $this->needs_schedule = false;
+        $this->scorecardKriteria = [['criteria' => '', 'weight' => 0]];
+        $this->interview_type = 'online';
+        $this->default_location = '';
+        $this->default_virtual_link = '';
     }
 
     public function render()
     {
-        $finalUrutan = Stage::where('id', 2)->value('urutan') ?? 2;
+        $finalUrutan = Stage::where('id', 2)->value('sequence') ?? 2;
         return view('livewire.ats.stage-config', [
             'finalUrutan' => $finalUrutan,
         ]);

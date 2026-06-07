@@ -6,7 +6,7 @@
         <h3 class="text-headline-lg text-on-surface mb-1">Tambah Kandidat secara Manual</h3>
         <p class="text-body-md text-sm text-on-surface-variant/70">
             @if($lowongan)
-                Form pendaftaran pelamar secara manual untuk Lowongan: <span class="font-bold text-primary">{{ $lowongan->jabatan }} ({{ $lowongan->departemen }})</span>
+                Form pendaftaran pelamar secara manual untuk Lowongan: <span class="font-bold text-primary">{{ $lowongan->job_title }} ({{ $lowongan->department }})</span>
             @else
                 Form pendaftaran pelamar secara manual sebagai <span class="font-bold text-primary">Kandidat Mandiri (Tanpa Lowongan)</span>
             @endif
@@ -18,11 +18,11 @@
 
         <!-- Nama Lengkap -->
         <div>
-            <label for="nama" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Lengkap <span class="text-error">*</span></label>
-            <input type="text" id="nama" wire:model="nama" 
+            <label for="name" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Lengkap <span class="text-error">*</span></label>
+            <input type="text" id="name" wire:model="name" 
                    placeholder="Contoh: Budi Santoso"
-                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('nama') border-error @enderror">
-            @error('nama')
+                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('name') border-error @enderror">
+            @error('name')
                 <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">error</span>
                     {{ $message }}
@@ -48,11 +48,11 @@
 
             <!-- Telepon -->
             <div>
-                <label for="telepon" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nomor Telepon <span class="text-error">*</span></label>
-                <input type="text" id="telepon" wire:model="telepon" 
+                <label for="phone" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nomor Telepon <span class="text-error">*</span></label>
+                <input type="text" id="phone" wire:model="phone" 
                        placeholder="Contoh: 08123456789"
-                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('telepon') border-error @enderror">
-                @error('telepon')
+                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('phone') border-error @enderror">
+                @error('phone')
                     <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                         <span class="material-symbols-outlined text-[14px]">error</span>
                         {{ $message }}

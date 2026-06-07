@@ -10,22 +10,22 @@ class Stage extends Model
     protected $table = 'stages';
 
     protected $fillable = [
-        'nama',
-        'deskripsi',
-        'butuh_scorecard',
-        'butuh_jadwal',
-        'urutan',
-        'scorecard_kriteria',
-        'tipe_wawancara',
-        'lokasi_default',
-        'tautan_virtual_default',
+        'name',
+        'description',
+        'needs_scorecard',
+        'needs_schedule',
+        'sequence',
+        'scorecard_criteria',
+        'interview_type',
+        'default_location',
+        'default_virtual_link',
     ];
 
     protected $casts = [
-        'butuh_scorecard' => 'boolean',
-        'butuh_jadwal' => 'boolean',
-        'urutan' => 'integer',
-        'scorecard_kriteria' => 'array',
+        'needs_scorecard' => 'boolean',
+        'needs_schedule' => 'boolean',
+        'sequence' => 'integer',
+        'scorecard_criteria' => 'array',
     ];
 
     public function candidates(): HasMany

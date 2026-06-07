@@ -1,12 +1,12 @@
 <div>
-    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->nama ?? 'Detail Kandidat', 'url' => route('ats.candidate.detail', ['candidateId' => $candidate->id])], ['label' => 'Atur Jadwal', 'url' => null]]" />
+    <x-breadcrumb :items="[['label' => 'ATS', 'url' => null], ['label' => 'All Candidates', 'url' => route('ats.dashboard')], ['label' => $candidate->name ?? 'Detail Kandidat', 'url' => route('ats.candidate.detail', ['candidateId' => $candidate->id])], ['label' => 'Atur Jadwal', 'url' => null]]" />
     
     <div class="max-w-xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30">
         <!-- Header -->
     <div class="mb-6 pb-4 border-b border-surface-container-high/50">
         <h3 class="text-headline-lg text-on-surface mb-1">Atur Jadwal Interview</h3>
         <p class="text-body-md text-sm text-on-surface-variant/70">
-            Kandidat: <span class="font-bold text-primary">{{ $candidate->nama }}</span> | Stage: <span class="font-bold text-primary">{{ $stage->nama }}</span>
+            Kandidat: <span class="font-bold text-primary">{{ $candidate->name }}</span> | Stage: <span class="font-bold text-primary">{{ $stage->name }}</span>
         </p>
     </div>
 
@@ -17,10 +17,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <!-- Tanggal -->
             <div>
-                <label for="tanggal" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Tanggal Wawancara <span class="text-error">*</span></label>
-                <input type="date" id="tanggal" wire:model="tanggal" 
-                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('tanggal') border-error @enderror">
-                @error('tanggal')
+                <label for="date" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Tanggal Wawancara <span class="text-error">*</span></label>
+                <input type="date" id="date" wire:model="date" 
+                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('date') border-error @enderror">
+                @error('date')
                     <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                         <span class="material-symbols-outlined text-[14px]">error</span>
                         {{ $message }}
@@ -30,10 +30,10 @@
 
             <!-- Waktu -->
             <div>
-                <label for="waktu" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Waktu Wawancara <span class="text-error">*</span></label>
-                <input type="time" id="waktu" wire:model="waktu" 
-                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('waktu') border-error @enderror">
-                @error('waktu')
+                <label for="time" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Waktu Wawancara <span class="text-error">*</span></label>
+                <input type="time" id="time" wire:model="time" 
+                       class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('time') border-error @enderror">
+                @error('time')
                     <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                         <span class="material-symbols-outlined text-[14px]">error</span>
                         {{ $message }}
@@ -44,11 +44,11 @@
 
         <!-- Tempat -->
         <div>
-            <label for="tempat" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Lokasi / Ruangan (On-site)</label>
-            <input type="text" id="tempat" wire:model="tempat" 
+            <label for="venue" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Lokasi / Ruangan (On-site)</label>
+            <input type="text" id="venue" wire:model="venue" 
                    placeholder="Contoh: Ruang Meeting Lantai 3, Gedung Utama"
-                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('tempat') border-error @enderror">
-            @error('tempat')
+                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('venue') border-error @enderror">
+            @error('venue')
                 <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">error</span>
                     {{ $message }}
@@ -58,11 +58,11 @@
 
         <!-- Tautan Virtual -->
         <div>
-            <label for="tautan_virtual" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Tautan Virtual Meeting (Remote)</label>
-            <input type="url" id="tautan_virtual" wire:model="tautan_virtual" 
+            <label for="virtual_link" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Tautan Virtual Meeting (Remote)</label>
+            <input type="url" id="virtual_link" wire:model="virtual_link" 
                    placeholder="Contoh: https://meet.google.com/abc-defg-hij"
-                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('tautan_virtual') border-error @enderror">
-            @error('tautan_virtual')
+                   class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('virtual_link') border-error @enderror">
+            @error('virtual_link')
                 <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                     <span class="material-symbols-outlined text-[14px]">error</span>
                     {{ $message }}

@@ -117,9 +117,9 @@ class OfferingResponse extends Component
                 // Gunakan Pessimistic Locking untuk mencegah race condition pada saat pengurangan kuota
                 $lowongan = $candidate->lowongan()->lockForUpdate()->first();
                 if ($lowongan) {
-                    $lowongan->kuota = max(0, $lowongan->kuota - 1);
+                    $lowongan->quota = max(0, $lowongan->quota - 1);
 
-                    if ($lowongan->kuota == 0) {
+                    if ($lowongan->quota == 0) {
                         $lowongan->status = 'Completed/Closed';
                         $lowongan->save();
                         

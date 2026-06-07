@@ -26,12 +26,12 @@ class RRTest extends TestCase
     public function test_cannot_create_rr_from_draft_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Test Plan',
-            'departemen' => 'IT',
-            'jabatan' => 'Engineer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 60,
-            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
+            'plan_name' => 'Test Plan',
+            'department' => 'IT',
+            'job_title' => 'Engineer',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
             'status' => \App\Enums\MppStatus::DRAFT,
         ]);
 
@@ -46,20 +46,20 @@ class RRTest extends TestCase
     public function test_can_create_rr_from_approved_mpp()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Approved Plan',
-            'departemen' => 'Finance',
-            'jabatan' => 'Accountant',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 60,
-            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
+            'plan_name' => 'Approved Plan',
+            'department' => 'Finance',
+            'job_title' => 'Accountant',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         Livewire::test(\App\Livewire\Rr\RRForm::class, ['mppId' => $mpp->id])
-            ->set('deskripsi_pekerjaan', 'Tugas Akuntan')
-            ->set('spesifikasi_kebutuhan', 'Lulusan S1 Akuntansi')
-            ->set('tipe_kerja', 'full-time')
-            ->set('lokasi', 'on-site')
+            ->set('job_description', 'Tugas Akuntan')
+            ->set('job_requirements', 'Lulusan S1 Akuntansi')
+            ->set('employment_type', 'full-time')
+            ->set('location', 'on-site')
             ->set('application_deadline', now()->addDays(10)->format('Y-m-d'))
             ->call('save')
             ->assertHasNoErrors()
@@ -67,48 +67,48 @@ class RRTest extends TestCase
 
         $this->assertDatabaseHas('recruitment_requests', [
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Accountant',
+            'job_title' => 'Accountant',
             'status' => 'Ready to Publish',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
         ]);
     }
 
     public function test_rr_detail_page_contains_livewire_component()
     {
         $mpp = Mpp::create([
-            'nama_plan' => 'Test Detail',
-            'departemen' => 'HR',
-            'jabatan' => 'HR Manager',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 60,
-            'target_waktu_absolut' => now()->addDays(60)->format('Y-m-d'),
+            'plan_name' => 'Test Detail',
+            'department' => 'HR',
+            'job_title' => 'HR Manager',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $lowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'HR Manager',
-            'departemen' => 'HR',
+            'job_title' => 'HR Manager',
+            'department' => 'HR',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Kerja HR',
-            'spesifikasi_kebutuhan' => 'Minimal S1',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Kerja HR',
+            'job_requirements' => 'Minimal S1',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(10)->format('Y-m-d'),
             'status' => 'Ready to Publish',
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $user = User::factory()->create(['role' => 'hr']);

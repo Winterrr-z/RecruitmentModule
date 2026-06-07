@@ -19,9 +19,9 @@ class CandidateJobDetail extends Component
     public $lowongan;
 
     // Form properties
-    public string $nama = '';
+    public string $name = '';
     public string $email = '';
-    public string $telepon = '';
+    public string $phone = '';
     public $cv;
     public $portofolio;
 
@@ -38,7 +38,7 @@ class CandidateJobDetail extends Component
 
         if (auth()->check()) {
             $user = auth()->user();
-            $this->nama = $user->name;
+            $this->name = $user->name;
             $this->email = $user->email;
             
             if ($user->role === 'applicant') {
@@ -65,11 +65,11 @@ class CandidateJobDetail extends Component
         }
 
         $this->validate([
-            'telepon' => ['required', 'string', 'max:20'],
-            'cv' => ['required', 'file', 'mimes:pdf', 'max:5120'], // max 5MB
-            'portofolio' => ['nullable', 'file', 'mimes:pdf', 'max:5120'], // max 5MB
+            'phone' => ['required', 'string', 'max:20'],
+            'cv' => ['required', 'file', 'mimetypes:application/pdf', 'mimes:pdf', 'max:5120'], // max 5MB
+            'portofolio' => ['nullable', 'file', 'mimetypes:application/pdf', 'mimes:pdf', 'max:5120'], // max 5MB
         ], [
-            'telepon.required' => 'Nomor telepon wajib diisi.',
+            'phone.required' => 'Nomor telepon wajib diisi.',
             'cv.required' => 'CV PDF wajib diunggah.',
             'cv.mimes' => 'CV harus berformat PDF.',
             'cv.max' => 'Ukuran CV maksimal 5MB.',
@@ -80,7 +80,7 @@ class CandidateJobDetail extends Component
         // Cek blacklist
         $isBlacklisted = DB::table('blacklist')
             ->where('email', $this->email)
-            ->orWhere('telepon', $this->telepon)
+            ->orWhere('phone', $this->phone)
             ->exists();
 
         if ($isBlacklisted) {
@@ -97,9 +97,9 @@ class CandidateJobDetail extends Component
         Candidate::create([
             'lowongan_id' => $this->lowongan->id,
             'user_id' => auth()->id(),
-            'nama' => $this->nama,
+            'name' => $this->name,
             'email' => $this->email,
-            'telepon' => $this->telepon,
+            'phone' => $this->phone,
             'cv_path' => $cvPath,
             'portofolio_path' => $portofolioPath,
             'current_stage_id' => 1, // Applied

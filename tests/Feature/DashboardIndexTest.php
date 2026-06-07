@@ -26,51 +26,51 @@ class DashboardIndexTest extends TestCase
         parent::setUp();
 
         // Setup default stages
-        Stage::firstOrCreate(['id' => 1], ['nama' => 'Applied', 'deskripsi' => 'Default applied stage', 'urutan' => 1]);
-        Stage::firstOrCreate(['id' => 2], ['nama' => 'Final', 'deskripsi' => 'Default final stage', 'urutan' => 2]);
+        Stage::firstOrCreate(['id' => 1], ['name' => 'Applied', 'description' => 'Default applied stage', 'sequence' => 1]);
+        Stage::firstOrCreate(['id' => 2], ['name' => 'Final', 'description' => 'Default final stage', 'sequence' => 2]);
 
         $this->user = User::factory()->create(['role' => 'hr']);
 
         $this->mpp = Mpp::create([
-            'nama_plan' => 'Plan Admin',
-            'departemen' => 'General',
-            'jabatan' => 'Admin Officer',
-            'jumlah_kebutuhan' => 1,
-            'sla_hari' => 30,
-            'target_waktu_absolut' => now()->addDays(30)->format('Y-m-d'),
+            'plan_name' => 'Plan Admin',
+            'department' => 'General',
+            'job_title' => 'Admin Officer',
+            'quota' => 1,
+            'sla_days' => 30,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
             'status' => 'Approved',
         ]);
 
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $this->lowongan = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Admin Officer',
-            'departemen' => 'General',
+            'job_title' => 'Admin Officer',
+            'department' => 'General',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job desc',
-            'spesifikasi_kebutuhan' => 'Requirements',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'on-site',
+            'job_description' => 'Job desc',
+            'job_requirements' => 'Requirements',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         $this->candidate = Candidate::create([
             'lowongan_id' => $this->lowongan->id,
-            'nama' => 'New Guy',
+            'name' => 'New Guy',
             'email' => 'newguy@example.com',
-            'telepon' => '081234567890',
+            'phone' => '081234567890',
             'current_stage_id' => 1, // Applied
             'status' => 'Applied',
         ]);
@@ -96,8 +96,8 @@ class DashboardIndexTest extends TestCase
         InterviewSchedule::create([
             'candidate_id' => $this->candidate->id,
             'stage_id' => 1,
-            'tanggal' => now()->toDateString(),
-            'waktu' => '10:00',
+            'date' => now()->toDateString(),
+            'time' => '10:00',
         ]);
 
         Livewire::actingAs($this->user)
@@ -114,27 +114,27 @@ class DashboardIndexTest extends TestCase
         // Add a second active lowongan
         $rr_temp = \App\Models\RecruitmentRequest::create([
             'mpp_id' => $this->mpp->id,
-            'jabatan' => 'Test Jabatan',
-            'departemen' => 'IT',
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
             'status' => 'Published',
-            'deskripsi_pekerjaan' => 'Test Desc',
-            'tipe_kerja' => 'full-time',
-            'lokasi' => 'remote',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
         $lowongan2 = Lowongan::create([
             'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
-            'jabatan' => 'Security Guard',
-            'departemen' => 'General',
+            'job_title' => 'Security Guard',
+            'department' => 'General',
             'status' => 'Published',
             'expected_join_date' => now()->addDays(30)->format('Y-m-d'),
-            'deskripsi_pekerjaan' => 'Job desc',
-            'spesifikasi_kebutuhan' => 'Requirements',
-            'tipe_kerja' => 'contract',
-            'lokasi' => 'on-site',
+            'job_description' => 'Job desc',
+            'job_requirements' => 'Requirements',
+            'employment_type' => 'contract',
+            'location' => 'on-site',
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
-            'kuota' => 1,
+            'quota' => 1,
         ]);
 
         Livewire::actingAs($this->user)

@@ -35,11 +35,11 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
                                     <span class="font-bold text-primary bg-primary/5 w-8 h-8 rounded-full flex items-center justify-center text-sm font-headline-lg">
-                                        {{ $stage->urutan }}
+                                        {{ $stage->sequence }}
                                     </span>
                                     <div class="flex flex-col">
                                         <!-- Move Up button -->
-                                        @if(!in_array($stage->id, [1, 2]) && $stage->urutan > 2)
+                                        @if(!in_array($stage->id, [1, 2]) && $stage->sequence > 2)
                                             <button wire:click="moveUp({{ $stage->id }})" class="text-primary hover:text-primary-container p-0.5 rounded transition-colors" title="Naikkan Urutan">
                                                 <span class="material-symbols-outlined text-[18px]">keyboard_arrow_up</span>
                                             </button>
@@ -48,7 +48,7 @@
                                         @endif
 
                                         <!-- Move Down button -->
-                                        @if(!in_array($stage->id, [1, 2]) && $stage->urutan < ($finalUrutan - 1))
+                                        @if(!in_array($stage->id, [1, 2]) && $stage->sequence < ($finalUrutan - 1))
                                             <button wire:click="moveDown({{ $stage->id }})" class="text-primary hover:text-primary-container p-0.5 rounded transition-colors" title="Turunkan Urutan">
                                                 <span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
                                             </button>
@@ -60,18 +60,18 @@
                             </td>
                             <!-- Nama Stage -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="font-title-md text-sm font-bold text-on-surface">{{ $stage->nama }}</span>
+                                <span class="font-title-md text-sm font-bold text-on-surface">{{ $stage->name }}</span>
                                 @if(in_array($stage->id, [1, 2]))
                                     <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase tracking-wider">System Default</span>
                                 @endif
                             </td>
                             <!-- Deskripsi -->
                             <td class="px-6 py-4">
-                                <span class="font-body-md text-sm text-on-surface-variant/80">{{ $stage->deskripsi ?: '-' }}</span>
+                                <span class="font-body-md text-sm text-on-surface-variant/80">{{ $stage->description ?: '-' }}</span>
                             </td>
                             <!-- Butuh Scorecard -->
                             <td class="px-6 py-4 text-center">
-                                @if($stage->butuh_scorecard)
+                                @if($stage->needs_scorecard)
                                     <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-500/10 text-green-700 border border-green-500/20 rounded-full text-xs font-bold">
                                         <span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>
                                         Ya
@@ -85,7 +85,7 @@
                             </td>
                             <!-- Butuh Jadwal -->
                             <td class="px-6 py-4 text-center">
-                                @if($stage->butuh_jadwal)
+                                @if($stage->needs_schedule)
                                     <span class="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold">
                                         <span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
                                         Ya
@@ -118,7 +118,7 @@
                                                 <span class="material-symbols-outlined text-[20px]">delete</span>
                                             </button>
                                         @else
-                                            <button wire:click="deleteStage({{ $stage->id }})" wire:confirm="Apakah Anda yakin ingin menghapus stage '{{ $stage->nama }}' ini?" class="p-2 hover:bg-error/10 rounded-md transition-colors text-error" title="Hapus Stage">
+                                            <button wire:click="deleteStage({{ $stage->id }})" wire:confirm="Apakah Anda yakin ingin menghapus stage '{{ $stage->name }}' ini?" class="p-2 hover:bg-error/10 rounded-md transition-colors text-error" title="Hapus Stage">
                                                 <span class="material-symbols-outlined text-[20px]">delete</span>
                                             </button>
                                         @endif
@@ -179,11 +179,11 @@
                 <div class="p-6 overflow-y-auto custom-scrollbar space-y-6 flex-1">
                     <!-- Nama Stage -->
                     <div>
-                    <label for="nama" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Stage <span class="text-error">*</span></label>
-                    <input type="text" id="nama" wire:model="nama" 
+                    <label for="name" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Stage <span class="text-error">*</span></label>
+                    <input type="text" id="name" wire:model="name" 
                            placeholder="Contoh: Technical Test, HR Interview"
-                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('nama') border-error @enderror">
-                    @error('nama')
+                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('name') border-error @enderror">
+                    @error('name')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}
@@ -193,11 +193,11 @@
 
                 <!-- Deskripsi -->
                 <div>
-                    <label for="deskripsi" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Deskripsi Stage</label>
-                    <textarea id="deskripsi" wire:model="deskripsi" rows="3"
+                    <label for="description" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Deskripsi Stage</label>
+                    <textarea id="description" wire:model="description" rows="3"
                               placeholder="Penjelasan singkat mengenai proses seleksi pada tahap ini..."
-                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('deskripsi') border-error @enderror"></textarea>
-                    @error('deskripsi')
+                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('description') border-error @enderror"></textarea>
+                    @error('description')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}
@@ -210,7 +210,7 @@
                     <!-- Butuh Scorecard Toggle -->
                     <div class="flex items-center">
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model.live="butuh_scorecard" class="sr-only peer">
+                            <input type="checkbox" wire:model.live="needs_scorecard" class="sr-only peer">
                             <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             <span class="ml-3 font-body-md text-sm font-semibold text-on-surface">Butuh Scorecard</span>
                         </label>
@@ -219,7 +219,7 @@
                     <!-- Butuh Jadwal Toggle -->
                     <div class="flex items-center">
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model.live="butuh_jadwal" class="sr-only peer">
+                            <input type="checkbox" wire:model.live="needs_schedule" class="sr-only peer">
                             <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             <span class="ml-3 font-body-md text-sm font-semibold text-on-surface">Butuh Jadwal</span>
                         </label>
@@ -227,7 +227,7 @@
                 </div>
 
                 <!-- Scorecard Template Section -->
-                @if($butuh_scorecard)
+                @if($needs_scorecard)
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
                         <div class="flex items-center justify-between border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Kriteria Scorecard</span>
@@ -283,7 +283,7 @@
                 @endif
 
                 <!-- Penjadwalan Template Section -->
-                @if($butuh_jadwal)
+                @if($needs_schedule)
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
                         <div class="border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Konfigurasi Penjadwalan</span>
@@ -291,39 +291,39 @@
 
                         <!-- Tipe Wawancara Select -->
                         <div>
-                            <label for="tipe_wawancara" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tipe Wawancara <span class="text-error">*</span></label>
-                            <select id="tipe_wawancara" wire:model.live="tipe_wawancara" 
+                            <label for="interview_type" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tipe Wawancara <span class="text-error">*</span></label>
+                            <select id="interview_type" wire:model.live="interview_type" 
                                     class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface cursor-pointer">
                                 <option value="online">Online</option>
                                 <option value="offline">Offline (On-site)</option>
                                 <option value="hybrid">Hybrid</option>
                             </select>
-                            @error('tipe_wawancara')
+                            @error('interview_type')
                                 <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <!-- Lokasi Default (Offline/Hybrid) -->
-                        @if($tipe_wawancara === 'offline' || $tipe_wawancara === 'hybrid')
+                        @if($interview_type === 'offline' || $interview_type === 'hybrid')
                             <div>
-                                <label for="lokasi_default" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lokasi / Ruangan Default <span class="text-error">*</span></label>
-                                <input type="text" id="lokasi_default" wire:model.blur="lokasi_default" 
+                                <label for="default_location" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lokasi / Ruangan Default <span class="text-error">*</span></label>
+                                <input type="text" id="default_location" wire:model.blur="default_location" 
                                        placeholder="misal: Ruang Rapat Lt. 2, Kantor Cabang Jakarta"
                                        class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                @error('lokasi_default')
+                                @error('default_location')
                                     <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                 @enderror
                             </div>
                         @endif
 
                         <!-- Tautan Virtual Default (Online/Hybrid) -->
-                        @if($tipe_wawancara === 'online' || $tipe_wawancara === 'hybrid')
+                        @if($interview_type === 'online' || $interview_type === 'hybrid')
                             <div>
-                                <label for="tautan_virtual_default" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tautan Meeting Virtual Default (Opsional)</label>
-                                <input type="text" id="tautan_virtual_default" wire:model.blur="tautan_virtual_default" 
+                                <label for="default_virtual_link" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tautan Meeting Virtual Default (Opsional)</label>
+                                <input type="text" id="default_virtual_link" wire:model.blur="default_virtual_link" 
                                        placeholder="misal: https://meet.google.com/abc-defg-hij"
                                        class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                @error('tautan_virtual_default')
+                                @error('default_virtual_link')
                                     <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                 @enderror
                             </div>

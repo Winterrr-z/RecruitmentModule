@@ -82,8 +82,8 @@
                 @endphp
                 <div class="flex-grow flex flex-col gap-4">
                     <div class="text-center">
-                        <h4 class="font-bold text-primary text-base">{{ $currentJob->jabatan }}</h4>
-                        <p class="text-xs text-on-surface-variant/70">{{ $currentJob->departemen }} • Kuota: {{ $currentJob->kuota }} posisi</p>
+                        <h4 class="font-bold text-primary text-base">{{ $currentJob->job_title }}</h4>
+                        <p class="text-xs text-on-surface-variant/70">{{ $currentJob->department }} • Kuota: {{ $currentJob->quota }} posisi</p>
                     </div>
 
                     <!-- Donut Chart Container -->
@@ -192,12 +192,12 @@
                                             <ul class="space-y-1.5 max-h-28 overflow-y-auto">
                                                 @foreach ($dateInfo['schedules'] as $sched)
                                                     <li class="text-[11px] text-on-surface border-b border-surface-container-high last:border-0 pb-1 last:pb-0">
-                                                        <div class="font-bold truncate">{{ $sched->candidate->nama }}</div>
+                                                        <div class="font-bold truncate">{{ $sched->candidate->name }}</div>
                                                         <div class="text-[9px] text-on-surface-variant flex items-center gap-1 mt-0.5">
                                                             <span class="material-symbols-outlined text-[9px]">schedule</span>
-                                                            <span>{{ substr($sched->waktu, 0, 5) }}</span>
-                                                            @if ($sched->tempat)
-                                                                <span class="truncate">• {{ $sched->tempat }}</span>
+                                                            <span>{{ substr($sched->time, 0, 5) }}</span>
+                                                            @if ($sched->venue)
+                                                                <span class="truncate">• {{ $sched->venue }}</span>
                                                             @endif
                                                         </div>
                                                     </li>

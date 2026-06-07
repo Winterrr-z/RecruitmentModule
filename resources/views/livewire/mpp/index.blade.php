@@ -110,29 +110,29 @@
                         </div>
                         <h4 class="text-title-md font-title-md text-on-surface group-hover:text-primary transition-colors">
                             <a href="{{ route('mpp.show', $mpp->id) }}" class="after:absolute after:inset-0">
-                                {{ $mpp->nama_plan }}
+                                {{ $mpp->plan_name }}
                             </a>
                         </h4>
                         <p class="text-label-sm font-label-sm text-on-surface-variant">
-                            {{ $mpp->departemen }}
+                            {{ $mpp->department }}
                         </p>
                     </div>
                     <div class="space-y-4 pt-4 border-t border-surface-container">
                         <div class="flex justify-between items-center">
                             <span class="text-label-sm font-label-sm text-on-surface-variant">Kuota:</span>
                             <span class="text-label-sm font-label-sm font-bold text-on-surface">
-                                {{ $mpp->jumlah_kebutuhan }} Orang
+                                {{ $mpp->quota }} Orang
                             </span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-label-sm font-label-sm text-on-surface-variant">Estimasi Gaji:</span>
                             <span class="text-label-sm font-label-sm font-bold text-primary">
-                                @if($mpp->estimasi_gaji_min && $mpp->estimasi_gaji_max)
-                                    Rp {{ number_format($mpp->estimasi_gaji_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimasi_gaji_max, 0, ',', '.') }}
-                                @elseif($mpp->estimasi_gaji_min)
-                                    Rp {{ number_format($mpp->estimasi_gaji_min, 0, ',', '.') }}
-                                @elseif($mpp->estimasi_gaji_max)
-                                    Rp {{ number_format($mpp->estimasi_gaji_max, 0, ',', '.') }}
+                                @if($mpp->estimated_salary_min && $mpp->estimated_salary_max)
+                                    Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                                @elseif($mpp->estimated_salary_min)
+                                    Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }}
+                                @elseif($mpp->estimated_salary_max)
+                                    Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
                                 @else
                                     -
                                 @endif
