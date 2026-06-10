@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class ResetPasswordHr
@@ -15,6 +16,7 @@ use Livewire\Component;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.guest')]
 class ResetPasswordHr extends Component
 {
     /** @var string Token reset password. */
@@ -88,7 +90,6 @@ class ResetPasswordHr extends Component
      */
     public function render()
     {
-        return view('livewire.hr.reset-password-hr')
-            ->layout('layouts.guest');
+        return view('livewire.hr.reset-password-hr');
     }
 }

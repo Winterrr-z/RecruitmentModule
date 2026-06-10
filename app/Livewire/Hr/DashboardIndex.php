@@ -8,28 +8,33 @@ use App\Models\InterviewSchedule;
 use App\Models\Stage;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class DashboardIndex extends Component
 {
     // Metric counts
-    public $activeVacancyCount = 0;
-    public $newCandidateCount = 0;
-    public $todayInterviewCount = 0;
+    public int $activeVacancyCount = 0;
+    public int $newCandidateCount = 0;
+    public int $todayInterviewCount = 0;
 
     // Donut Carousel
-    public $activeVacancies = [];
-    public $currentVacancyIndex = 0;
-    public $stages = [];
+    /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Vacancy[] */
+    public $activeVacancies;
+    public int $currentVacancyIndex = 0;
+
+    /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Stage[] */
+    public $stages;
 
     // Calendar
-    public $currentMonth;
-    public $currentYear;
-    public $monthName;
-    public $calendarGrid = [];
+    public int $currentMonth;
+    public int $currentYear;
+    public string $monthName = '';
+    public array $calendarGrid = [];
 
     // Global Bar Chart
-    public $barChartLabels = [];
-    public $barChartValues = [];
+    public array $barChartLabels = [];
+    public array $barChartValues = [];
 
     public function mount()
     {
@@ -190,6 +195,6 @@ class DashboardIndex extends Component
 
     public function render()
     {
-        return view('livewire.hr.dashboard-index')->layout('layouts.hr');
+        return view('livewire.hr.dashboard-index');
     }
 }

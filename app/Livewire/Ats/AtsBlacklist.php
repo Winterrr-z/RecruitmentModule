@@ -6,7 +6,9 @@ use App\Models\Blacklist;
 use App\Models\Candidate;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsBlacklist extends Component
 {
     use WithPagination;
@@ -189,6 +191,6 @@ class AtsBlacklist extends Component
         return view('livewire.ats.blacklist', [
             'blacklistList' => $blacklistList,
             'pickerCandidates' => $pickerCandidates,
-        ])->layout('layouts.hr');
+        ]);
     }
 }

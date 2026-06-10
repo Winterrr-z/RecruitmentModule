@@ -5,6 +5,7 @@ namespace App\Livewire\Hr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class ChangePasswordHr
@@ -14,6 +15,7 @@ use Livewire\Component;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.hr')]
 class ChangePasswordHr extends Component
 {
     /** @var string Password lama. */
@@ -68,7 +70,6 @@ class ChangePasswordHr extends Component
      */
     public function render()
     {
-        return view('livewire.hr.change-password-hr')
-            ->layout('layouts.hr');
+        return view('livewire.hr.change-password-hr');
     }
 }

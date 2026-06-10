@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class LoginHr
@@ -16,6 +17,7 @@ use Livewire\Component;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.guest')]
 class LoginHr extends Component
 {
     /** @var string Alamat email. */
@@ -124,7 +126,6 @@ class LoginHr extends Component
      */
     public function render()
     {
-        return view('livewire.hr.login-hr')
-            ->layout('layouts.guest');
+        return view('livewire.hr.login-hr');
     }
 }

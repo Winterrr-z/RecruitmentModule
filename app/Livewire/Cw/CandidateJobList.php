@@ -5,7 +5,9 @@ namespace App\Livewire\Cw;
 use App\Models\Vacancy;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.applicant')]
 class CandidateJobList extends Component
 {
     /** @var string Kata kunci pencarian. */
@@ -74,7 +76,6 @@ class CandidateJobList extends Component
                 ->toArray();
         });
 
-        return view('livewire.cw.career-job-list-logged-in', compact('vacancies', 'departments'))
-            ->layout('layouts.applicant');
+        return view('livewire.cw.career-job-list-logged-in', compact('vacancies', 'departments'));
     }
 }

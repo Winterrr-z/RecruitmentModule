@@ -15,8 +15,10 @@ class RrRepository
         $query = Rr::with('vacancy', 'mpp')->withCount('candidates');
 
         if (!empty($filters['status'])) {
-            if (in_array($filters['status'], ['Completed/Closed', 'Completed', 'Closed'])) {
-                $query->whereIn('status', ['Completed/Closed', 'Completed', 'Closed']);
+            if ($filters['status'] === 'Completed') {
+                $query->whereIn('status', ['Completed', 'Closed']);
+            } elseif ($filters['status'] === 'Closed') {
+                $query->where('status', 'Closed');
             } else {
                 $query->whereRaw('lower(status) = ?', [strtolower($filters['status'])]);
             }
@@ -29,7 +31,10 @@ class RrRepository
             });
         }
 
-        $query->orderByRaw("CASE WHEN lower(status) IN ('completed/closed', 'completed', 'closed') THEN 1 ELSE 0 END ASC");
+        $query->orderByRaw("CASE 
+            WHEN lower(status) IN ('draft', 'ready to publish') THEN 0 
+            WHEN lower(status) = 'published' THEN 1 
+            ELSE 2 END ASC");
 
         if (($filters['sortBy'] ?? 'newest') === 'oldest') {
             $query->orderBy('created_at', 'asc');
@@ -48,7 +53,7 @@ class RrRepository
         return [
             'total_active' => Rr::where('status', 'Published')->count(),
             'ready_to_publish' => Rr::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
-            'completed' => Rr::whereIn('status', ['Completed/Closed', 'Completed', 'Closed'])->count(),
+            'completed' => Rr::whereIn('status', ['Completed', 'Closed'])->count(),
         ];
     }
 }

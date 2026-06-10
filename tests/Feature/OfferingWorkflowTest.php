@@ -179,10 +179,10 @@ class OfferingWorkflowTest extends TestCase
         
         $this->vacancy = $this->vacancy->fresh();
         $this->assertEquals(0, $this->vacancy->quota);
-        $this->assertEquals(\App\Enums\VacancyStatus::COMPLETED_CLOSED, $this->vacancy->status);
+        $this->assertEquals(\App\Enums\VacancyStatus::CLOSED, $this->vacancy->status);
 
         $this->mpp = $this->mpp->fresh();
-        $this->assertEquals(\App\Enums\MppStatus::COMPLETED_CLOSED, $this->mpp->status);
+        $this->assertEquals(\App\Enums\MppStatus::COMPLETED, $this->mpp->status);
     }
 
     public function test_offering_response_can_reject_offering_livewire()
@@ -225,7 +225,7 @@ class OfferingWorkflowTest extends TestCase
         
         $this->vacancy = $this->vacancy->fresh();
         $this->assertEquals(0, $this->vacancy->quota);
-        $this->assertEquals(\App\Enums\VacancyStatus::COMPLETED_CLOSED, $this->vacancy->status);
+        $this->assertEquals(\App\Enums\VacancyStatus::CLOSED, $this->vacancy->status);
     }
 
     public function test_offering_expire_cron_job()

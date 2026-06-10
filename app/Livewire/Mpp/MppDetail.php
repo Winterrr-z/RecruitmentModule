@@ -75,9 +75,9 @@ class MppDetail extends Component
         // Cari sisa kuota
         $this->remainingQuota = $this->mpp->sisaKuota();
 
-        // Cari apakah ada RR di bawah MPP ini yang tidak berstatus Completed/Closed
+        // Cari apakah ada RR di bawah MPP ini yang berstatus aktif (Ready to Publish / Published)
         $this->hasActiveRr = $this->mppVacancies->contains(function ($rr) {
-            return $rr->status !== 'Completed/Closed';
+            return in_array($rr->status->value ?? $rr->status, ['Ready to Publish', 'Published']);
         });
     }
 
@@ -107,7 +107,7 @@ class MppDetail extends Component
             session()->flash('message', 'Manpower Planning berhasil ditutup.');
             $this->loadMpp();
         } else {
-            session()->flash('error', 'Tidak dapat menutup plan. Pastikan plan sudah di-approve dan tidak ada kandidat aktif.');
+            session()->flash('error', 'Tidak dapat menutup plan. Pastikan plan sudah di-approve dan tidak ada Recruitment Request yang aktif.');
         }
     }
 

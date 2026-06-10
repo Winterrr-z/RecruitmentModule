@@ -87,17 +87,15 @@
             @foreach($mpps as $mpp)
                 @php 
                     $computedStatus = $mpp->getComputedStatus();
-                    $isCompleted = $computedStatus === 'Closed' || $computedStatus === 'Filled';
-                    $badge = $mpp->getStatusBadge();
+                    $isCompleted = $computedStatus === 'Closed' || $computedStatus === 'Completed';
                 @endphp
                 <div class="group relative p-8 rounded-md border transition-all duration-300 text-on-surface
                     {{ $isCompleted 
                         ? 'bg-surface-container-low border-surface-container/60 opacity-70 grayscale shadow-none' 
                         : 'bg-surface-container-lowest border-surface-container/30 shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] hover:shadow-[0px_40px_80px_-15px_rgba(107,56,212,0.1)] hover:-translate-y-1' }}">
-                    <div class="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 {{ $badge['bg'] }} {{ $badge['color'] }} rounded-md text-[11px] font-bold z-10">
-                        <span class="w-2 h-2 {{ $badge['dotColor'] }} rounded-full animate-pulse"></span>
-                        {{ $badge['label'] }}
-                    </div>
+                    @if($computedStatus && !in_array($computedStatus, ['Closed', 'Completed']))
+                        <x-mpp-status-badge :status="$computedStatus" class="absolute top-6 right-6 z-10" />
+                    @endif
                     <div class="mb-6">
                         <div class="flex items-center gap-3 mb-3">
                             @if($mpp->status === \App\Enums\MppStatus::APPROVED)

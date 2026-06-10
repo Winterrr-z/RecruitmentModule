@@ -28,7 +28,7 @@ class MppFactory extends Factory
             'estimated_salary_max' => $this->faker->numberBetween(7000000, 15000000),
             'sla_days' => $this->faker->numberBetween(14, 45),
             'absolute_target_date' => $this->faker->dateTimeBetween('+1 month', '+3 months')->format('Y-m-d'),
-            'status' => $this->faker->randomElement([\App\Enums\MppStatus::DRAFT, \App\Enums\MppStatus::APPROVED, \App\Enums\MppStatus::COMPLETED_CLOSED, \App\Enums\MppStatus::CLOSED]),
+            'status' => $this->faker->randomElement([\App\Enums\MppStatus::DRAFT, \App\Enums\MppStatus::APPROVED, \App\Enums\MppStatus::COMPLETED, \App\Enums\MppStatus::CLOSED]),
             'note' => $this->faker->sentence(),
             'last_activity_at' => now(),
         ];

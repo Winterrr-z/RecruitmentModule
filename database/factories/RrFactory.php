@@ -34,7 +34,7 @@ class RrFactory extends Factory
             'location' => $this->faker->randomElement(['remote', 'on-site']),
             'application_deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
             'show_salary' => $this->faker->boolean(),
-            'status' => $this->faker->randomElement([\App\Enums\RrStatus::DRAFT, \App\Enums\RrStatus::READY_TO_PUBLISH, \App\Enums\RrStatus::PUBLISHED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]),
+            'status' => $this->faker->randomElement([\App\Enums\RrStatus::READY_TO_PUBLISH, \App\Enums\RrStatus::PUBLISHED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]),
         ];
     }
 }

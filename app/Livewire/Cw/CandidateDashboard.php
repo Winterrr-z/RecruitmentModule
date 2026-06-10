@@ -4,6 +4,7 @@ namespace App\Livewire\Cw;
 
 use App\Models\Candidate;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class CandidateDashboard
@@ -16,6 +17,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.applicant')]
 class CandidateDashboard extends Component
 {
     /**
@@ -173,7 +175,6 @@ class CandidateDashboard extends Component
         $hiredApplications = $allInactive->where('status', \App\Enums\CandidateStatus::HIRED);
         $inactiveApplications = $allInactive->where('status', '!=', \App\Enums\CandidateStatus::HIRED);
 
-        return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications', 'hiredApplications'))
-            ->layout('layouts.applicant');
+        return view('livewire.cw.candidate-dashboard', compact('activeApplications', 'inactiveApplications', 'hiredApplications'));
     }
 }

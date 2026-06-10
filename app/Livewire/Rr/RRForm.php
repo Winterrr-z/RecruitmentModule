@@ -117,9 +117,10 @@ class RRForm extends Component
                 return redirect()->route('rr.index');
             }
 
-            // Validasi: rr yang lain completed/closed dibawah mpp yang sama
+            // Validasi: rr yang lain closed/completed dibawah mpp yang sama
             $hasActiveRr = Rr::where('mpp_id', $mpp->id)
-                ->where('status', '!=', 'Completed/Closed')
+                ->where('status', '!=', 'Closed')
+                ->where('status', '!=', 'Completed')
                 ->exists();
             if ($hasActiveRr) {
                 session()->flash('error', 'Manpower Planning ini masih memiliki Recruitment Request yang aktif.');
@@ -177,7 +178,8 @@ class RRForm extends Component
             // Validasi sisa kuota & RR aktif
             $remainingQuota = $mpp->sisaKuota();
             $hasActiveRr = Rr::where('mpp_id', $mpp->id)
-                ->where('status', '!=', 'Completed/Closed')
+                ->where('status', '!=', 'Closed')
+                ->where('status', '!=', 'Completed')
                 ->exists();
 
             if ($remainingQuota <= 0 || $hasActiveRr) {
@@ -231,8 +233,9 @@ class RRForm extends Component
             $rr = Rr::findOrFail($this->vacancyId);
 
             // Double check edit permission sebelum disimpan
-            if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
-                session()->flash('error', 'Recruitment Request yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
+            // Cegah ubah data jika RR sudah Publish, Completed, atau punya Hired
+            if ($rr->status->value === 'Published' || $rr->status->value === 'Completed' || $rr->status->value === 'Closed' || $rr->hiredCount() > 0) {
+                $this->addError('general', 'Tidak dapat mengubah data RR yang sudah dipublikasi, selesai, atau memiliki kandidat.');
                 return redirect()->route('rr.index');
             }
 
@@ -270,7 +273,8 @@ class RRForm extends Component
 
             // Validasi RR aktif yang lain sebelum disubmit
             $hasActiveRr = Rr::where('mpp_id', $mpp->id)
-                ->where('status', '!=', 'Completed/Closed')
+                ->where('status', '!=', 'Closed')
+                ->where('status', '!=', 'Completed')
                 ->exists();
             if ($hasActiveRr) {
                 session()->flash('error', 'Manpower Planning ini masih memiliki Recruitment Request yang aktif.');
@@ -308,10 +312,11 @@ class RRForm extends Component
      */
     public function render()
     {
-        // Ambil semua MPP Approved yang tidak memiliki RR aktif (selain Completed/Closed)
+        // Ambil semua MPP Approved yang tidak memiliki RR aktif
         $query = Mpp::where('status', \App\Enums\MppStatus::APPROVED)
             ->whereDoesntHave('rrs', function ($query) {
-                $query->where('status', '!=', \App\Enums\RrStatus::COMPLETED_CLOSED);
+                $query->where('status', '!=', 'Closed')
+                      ->where('status', '!=', 'Completed');
             });
 
         // Jika sedang edit, masukkan MPP yang terikat saat ini agar opsi dropdown tidak kosong/error

@@ -4,6 +4,7 @@ namespace App\Livewire\Hr;
 
 use Illuminate\Support\Facades\Password;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class ForgotPasswordHr
@@ -12,6 +13,7 @@ use Livewire\Component;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.guest')]
 class ForgotPasswordHr extends Component
 {
     /** @var string Alamat email HR. */
@@ -47,7 +49,6 @@ class ForgotPasswordHr extends Component
      */
     public function render()
     {
-        return view('livewire.hr.forgot-password-hr')
-            ->layout('layouts.guest');
+        return view('livewire.hr.forgot-password-hr');
     }
 }

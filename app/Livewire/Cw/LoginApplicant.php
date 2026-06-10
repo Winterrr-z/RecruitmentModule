@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class LoginApplicant
@@ -16,6 +17,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.auth')]
 class LoginApplicant extends Component
 {
     /** @var string Alamat email. */
@@ -131,7 +133,6 @@ class LoginApplicant extends Component
      */
     public function render()
     {
-        return view('livewire.cw.login-applicant')
-            ->layout('layouts.auth');
+        return view('livewire.cw.login-applicant');
     }
 }

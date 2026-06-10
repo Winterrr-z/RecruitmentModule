@@ -107,7 +107,7 @@ class RRTest extends TestCase
             'employment_type' => 'full-time',
             'location' => 'on-site',
             'application_deadline' => now()->addDays(10)->format('Y-m-d'),
-            'status' => 'Ready to Publish',
+            'status' => 'Published',
             'quota' => 1,
         ]);
 

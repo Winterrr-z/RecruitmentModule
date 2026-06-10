@@ -90,8 +90,7 @@ class RRIndex extends Component
     }
 
     /**
-     * Tutup RR (ubah status ke 'Completed/Closed').
-     * Akan otomatis menutup Vacancy publik.
+     * Tutup RR (ubah status ke 'Closed').
      *
      * @param int $id
      * @return void
@@ -99,8 +98,9 @@ class RRIndex extends Component
     public function close($id)
     {
         $rr = Rr::findOrFail($id);
-        if ($rr->status->value !== 'Completed/Closed' && $rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
-            $rr->update(['status' => 'Completed/Closed']);
+
+        if ($rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
+            $rr->update(['status' => 'Closed']);
 
             // Tutup juga vacancy jika ada
             if ($rr->vacancy) {

@@ -4,6 +4,7 @@ namespace App\Livewire\Hr;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class ProfileHr
@@ -12,6 +13,7 @@ use Livewire\Component;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.hr')]
 class ProfileHr extends Component
 {
     /**
@@ -21,6 +23,6 @@ class ProfileHr extends Component
     {
         return view('livewire.hr.profile-hr', [
             'user' => Auth::user(),
-        ])->layout('layouts.hr');
+        ]);
     }
 }

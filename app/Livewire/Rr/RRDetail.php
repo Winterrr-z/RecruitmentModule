@@ -6,6 +6,7 @@ use App\Models\Rr;
 use App\Models\Candidate;
 use App\Models\Stage;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
 /**
  * Class RRDetail
@@ -16,6 +17,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.hr')]
 class RRDetail extends Component
 {
     /**
@@ -88,15 +90,14 @@ class RRDetail extends Component
     }
 
     /**
-     * Tutup RR (ubah status ke 'Completed/Closed').
-     *
-     * @return void
+     * Tutup RR (ubah status ke 'Closed').
      */
     public function close()
     {
         $rr = Rr::findOrFail($this->rrId);
-        if ($rr->status->value !== 'Completed/Closed') {
-            $rr->update(['status' => 'Completed/Closed']);
+
+        if ($rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
+            $rr->update(['status' => 'Closed']);
 
             // Tutup vacancy juga
             if ($rr->vacancy) {
@@ -161,6 +162,6 @@ class RRDetail extends Component
             'rejectedCandidates' => $rejectedCandidates,
             'activeCandidates' => $activeCandidates,
             'stages' => $stages,
-        ])->layout('layouts.hr');
+        ]);
     }
 }

@@ -15,9 +15,13 @@
                 <div class="flex items-center gap-4">
                     <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->job_title }}</h1>
                     
-                    @if($rr->status->value === 'Ready to Publish')
+                    @php
+                        $rrStatusVal = $rr->status instanceof \App\Enums\RrStatus ? $rr->status->value : $rr->status;
+                        $normalizedStatus = strtolower(trim($rrStatusVal));
+                    @endphp
+                    @if($normalizedStatus === 'ready to publish')
                         <span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Ready to Publish</span>
-                    @elseif($rr->status->value === 'Published')
+                    @elseif($normalizedStatus === 'published')
                         <span class="inline-flex items-center gap-1.5 px-4 py-1 bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">
                             <span class="relative flex h-2 w-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -25,8 +29,12 @@
                             </span>
                             Published
                         </span>
-                    @else
+                    @elseif($normalizedStatus === 'closed')
+                        <span class="px-4 py-1 bg-error/10 text-error text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-error/20">Closed</span>
+                    @elseif(in_array($normalizedStatus, ['completed/closed', 'completed']))
                         <span class="px-4 py-1 bg-green-100 text-green-800 text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-green-200">Completed</span>
+                    @else
+                        <span class="px-4 py-1 bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Draft</span>
                     @endif
                 </div>
                 
@@ -227,7 +235,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Action button berdasarkan status -->
-                    @if($rr->status->value === 'Ready to Publish' && $totalCandidates === 0)
+                    @if($normalizedStatus === 'ready to publish' && $totalCandidates === 0)
                         <!-- Tombol Edit Draft -->
                         <a href="{{ route('rr.edit', $rr->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">edit</span>
@@ -241,24 +249,24 @@
                         </button>
                     @endif
 
-                    @if($rr->status->value === 'Ready to Publish')
+                    @if($rrStatusVal === 'Ready to Publish')
+                        <!-- Tombol Tutup Vacancy -->
+                        <button wire:click="close" wire:confirm="Tutup vacancy ini?" class="px-8 h-14 bg-[#ef4444] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">cancel</span>
+                            <span>Tutup Vacancy</span>
+                        </button>
+
                         <button wire:click="publish" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">rocket_launch</span>
                             <span>Aktifkan Vacancy</span>
                         </button>
                     @endif
 
-                    @if($rr->status->value === 'Published')
+                    @if($normalizedStatus === 'published')
                         <!-- Tombol Nonaktifkan Vacancy -->
                         <button wire:click="unpublish" wire:confirm="Nonaktifkan vacancy pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">visibility_off</span>
                             <span>Nonaktifkan Vacancy</span>
-                        </button>
-
-                        <!-- Tombol Tutup Vacancy -->
-                        <button wire:click="close" wire:confirm="Tutup vacancy ini?" class="px-8 h-14 bg-[#ef4444] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">cancel</span>
-                            <span>Tutup Vacancy</span>
                         </button>
                     @endif
                 </div>

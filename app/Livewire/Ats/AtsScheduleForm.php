@@ -6,7 +6,9 @@ use App\Models\Candidate;
 use App\Models\Stage;
 use App\Models\InterviewSchedule;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsScheduleForm extends Component
 {
     public $candidateId;
@@ -84,6 +86,6 @@ class AtsScheduleForm extends Component
 
     public function render()
     {
-        return view('livewire.ats.schedule-form')->layout('layouts.hr');
+        return view('livewire.ats.schedule-form');
     }
 }

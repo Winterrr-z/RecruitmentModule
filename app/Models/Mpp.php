@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Casts\CurrencyCast;
 
 class Mpp extends Model
 {
@@ -31,8 +32,8 @@ class Mpp extends Model
     protected $casts = [
         'absolute_target_date' => 'date',
         'quota' => 'integer',
-        'estimated_salary_min' => 'integer',
-        'estimated_salary_max' => 'integer',
+        'estimated_salary_min' => CurrencyCast::class,
+        'estimated_salary_max' => CurrencyCast::class,
         'sla_days' => 'integer',
         'last_activity_at' => 'datetime',
         'status' => \App\Enums\MppStatus::class,
@@ -57,6 +58,10 @@ class Mpp extends Model
 
     public function totalHired(): int
     {
+        if (isset($this->hired_count)) {
+            return (int) $this->hired_count;
+        }
+
         return Candidate::whereHas('vacancy.rr', function ($q) {
             $q->where('mpp_id', $this->id);
         })->where('status', \App\Enums\CandidateStatus::HIRED)->count();
@@ -88,8 +93,23 @@ class Mpp extends Model
         return $this->rrs()->where('status', 'Published')->exists();
     }
 
+    public function hasActiveRr(): bool
+    {
+        return $this->rrs()->whereIn('status', ['Ready to Publish', 'Published'])->exists();
+    }
+
     public function getLastActivityDate(): Carbon
     {
+        if (isset($this->latest_rr_date) || isset($this->latest_candidate_date) || isset($this->latest_movement_date)) {
+            $dates = collect([
+                $this->last_activity_at ?? $this->updated_at,
+                $this->latest_rr_date ? Carbon::parse($this->latest_rr_date) : null,
+                $this->latest_candidate_date ? Carbon::parse($this->latest_candidate_date) : null,
+                $this->latest_movement_date ? Carbon::parse($this->latest_movement_date) : null,
+            ]);
+            return $dates->filter()->max() ?? $this->updated_at;
+        }
+
         $dates = collect();
         $dates->push($this->last_activity_at ?? $this->updated_at);
 
@@ -120,10 +140,10 @@ class Mpp extends Model
         return $dates->filter()->max() ?? $this->updated_at;
     }
 
-    public function getComputedStatus(): string
+    public function getComputedStatus(): ?string
     {
-        if ($this->status === \App\Enums\MppStatus::CLOSED) {
-            return 'Closed';
+        if (in_array($this->status, [\App\Enums\MppStatus::CLOSED, \App\Enums\MppStatus::COMPLETED])) {
+            return $this->status->value;
         }
 
         if ($this->isFilled()) {
@@ -158,62 +178,5 @@ class Mpp extends Model
         }
 
         return 'In Progress';
-    }
-
-    public function getStatusBadge(): array
-    {
-        $status = $this->getComputedStatus();
-
-        return match ($status) {
-            'In Progress' => [
-                'label' => 'In Progress',
-                'color' => 'text-blue-700',
-                'bg' => 'bg-blue-100',
-                'dotColor' => 'bg-blue-500',
-                'icon' => 'sync',
-            ],
-            'Need Attention' => [
-                'label' => 'Need Attention',
-                'color' => 'text-yellow-800',
-                'bg' => 'bg-yellow-100',
-                'dotColor' => 'bg-yellow-500',
-                'icon' => 'warning',
-            ],
-            'Urgent' => [
-                'label' => 'Urgent',
-                'color' => 'text-orange-800',
-                'bg' => 'bg-orange-100',
-                'dotColor' => 'bg-orange-500',
-                'icon' => 'priority_high',
-            ],
-            'Critical' => [
-                'label' => 'Critical',
-                'color' => 'text-red-800',
-                'bg' => 'bg-red-100',
-                'dotColor' => 'bg-red-500',
-                'icon' => 'error',
-            ],
-            'Closed' => [
-                'label' => 'Closed',
-                'color' => 'text-gray-700',
-                'bg' => 'bg-gray-200',
-                'dotColor' => 'bg-gray-500',
-                'icon' => 'lock',
-            ],
-            'Completed' => [
-                'label' => 'Completed',
-                'color' => 'text-green-800',
-                'bg' => 'bg-green-100',
-                'dotColor' => 'bg-green-500',
-                'icon' => 'check_circle',
-            ],
-            default => [
-                'label' => 'Unknown',
-                'color' => 'text-gray-600',
-                'bg' => 'bg-gray-100',
-                'dotColor' => 'bg-gray-400',
-                'icon' => 'help',
-            ],
-        };
     }
 }

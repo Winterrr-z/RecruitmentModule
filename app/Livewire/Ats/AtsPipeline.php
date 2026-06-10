@@ -12,7 +12,9 @@ use App\Models\InterviewSchedule;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsPipeline extends Component
 {
     use WithPagination;
@@ -219,6 +221,6 @@ class AtsPipeline extends Component
             'stages' => $stages,
             'stageCounts' => $stageCounts,
             'candidates' => $candidates,
-        ])->layout('layouts.hr');
+        ]);
     }
 }

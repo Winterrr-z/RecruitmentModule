@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
 
 /**
  * Class EditProfileHr
@@ -14,6 +15,7 @@ use Livewire\WithFileUploads;
  *
  * @package App\Livewire\Hr
  */
+#[Layout('layouts.hr')]
 class EditProfileHr extends Component
 {
     use WithFileUploads;
@@ -120,7 +122,6 @@ class EditProfileHr extends Component
      */
     public function render()
     {
-        return view('livewire.hr.edit-profile-hr')
-            ->layout('layouts.hr');
+        return view('livewire.hr.edit-profile-hr');
     }
 }

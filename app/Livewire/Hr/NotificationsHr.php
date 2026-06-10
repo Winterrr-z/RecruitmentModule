@@ -6,7 +6,9 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class NotificationsHr extends Component
 {
     use WithPagination;
@@ -60,6 +62,6 @@ class NotificationsHr extends Component
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
             'totalCount' => $totalCount,
-        ])->layout('layouts.hr');
+        ]);
     }
 }

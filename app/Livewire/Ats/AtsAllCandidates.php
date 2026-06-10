@@ -7,7 +7,9 @@ use App\Models\Stage;
 use App\Models\Vacancy;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsAllCandidates extends Component
 {
     use WithPagination;
@@ -56,6 +58,6 @@ class AtsAllCandidates extends Component
             'vacancies' => $vacancies,
             'stages' => $stages,
             'candidates' => $candidates,
-        ])->layout('layouts.hr');
+        ]);
     }
 }

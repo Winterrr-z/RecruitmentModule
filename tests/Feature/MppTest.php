@@ -26,13 +26,13 @@ class MppTest extends TestCase
     public function test_can_create_mpp()
     {
         Livewire::test(\App\Livewire\Mpp\MppForm::class)
-            ->set('plan_name', 'Test Plan')
-            ->set('department', 'IT')
-            ->set('job_title', 'Software Engineer')
-            ->set('quota', 2)
-            ->set('estimated_salary_min', '10,000,000')
-            ->set('estimated_salary_max', '15,000,000')
-            ->set('sla_days', 90)
+            ->set('form.plan_name', 'Test Plan')
+            ->set('form.department', 'IT')
+            ->set('form.job_title', 'Software Engineer')
+            ->set('form.quota', 2)
+            ->set('form.estimated_salary_min', '10,000,000')
+            ->set('form.estimated_salary_max', '15,000,000')
+            ->set('form.sla_days', 90)
             ->call('save')
             ->assertHasNoErrors();
 
@@ -116,7 +116,8 @@ class MppTest extends TestCase
         ]);
 
         Livewire::test(\App\Livewire\Mpp\MppIndex::class)
-            ->call('delete', $mpp->id);
+            ->call('delete', $mpp->id)
+            ->assertSee('Tidak dapat menghapus MPP plan yang sudah closed atau completed.');
 
         $this->assertDatabaseHas('mpps', ['id' => $mpp->id]);
     }
@@ -224,7 +225,8 @@ class MppTest extends TestCase
         $this->assertEquals('Completed', $mpp->getComputedStatus());
 
         Livewire::test(\App\Livewire\Mpp\MppIndex::class)
-            ->call('delete', $mpp->id);
+            ->call('delete', $mpp->id)
+            ->assertSee('Tidak dapat menghapus MPP plan yang sudah closed atau completed.');
 
         $this->assertDatabaseHas('mpps', ['id' => $mpp->id]);
     }

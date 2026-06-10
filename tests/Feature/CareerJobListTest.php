@@ -87,7 +87,7 @@ class CareerJobListTest extends TestCase
             'employment_type' => 'full-time',
             'location' => 'remote',
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
-            'status' => 'Ready to Publish',
+            'status' => 'Draft',
             'quota' => 1,
         ]);
 

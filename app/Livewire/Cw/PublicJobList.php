@@ -5,7 +5,9 @@ namespace App\Livewire\Cw;
 use App\Models\Vacancy;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.guest')]
 class PublicJobList extends Component
 {
     /** @var string Kata kunci pencarian. */
@@ -56,7 +58,6 @@ class PublicJobList extends Component
 
         $vacancies = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('livewire.cw.career-job-list', compact('vacancies'))
-            ->layout('layouts.guest');
+        return view('livewire.cw.career-job-list', compact('vacancies'));
     }
 }

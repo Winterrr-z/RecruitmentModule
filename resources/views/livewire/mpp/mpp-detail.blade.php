@@ -8,23 +8,20 @@
         <section class="space-y-4">
             <div class="flex items-center gap-4">
                 <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $mpp->plan_name }}</h1>
-                
-                @php $heroBadge = $mpp->getStatusBadge(); @endphp
-                <span class="px-4 py-1 {{ $heroBadge['bg'] }} {{ $heroBadge['color'] }} text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">{{ $heroBadge['icon'] }}</span>
-                    {{ $heroBadge['label'] }}
-                </span>
+                @php $computedStatus = $mpp->getComputedStatus(); @endphp
+                @if($computedStatus && !in_array($computedStatus, ['Closed', 'Completed']))
+                    <x-mpp-status-badge :status="$computedStatus" class="self-start sm:self-auto" />
+                @endif
             </div>
         </section>
 
         <!-- Step Indicator -->
         <section class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.06)] border border-surface-container/30">
             @php
-                $computedStatus = $mpp->getComputedStatus();
-                $isCompleted = in_array($mpp->status, [\App\Enums\MppStatus::COMPLETED_CLOSED, \App\Enums\MppStatus::CLOSED]) || $computedStatus === 'Filled';
+                $isCompleted = in_array($mpp->status, [\App\Enums\MppStatus::COMPLETED, \App\Enums\MppStatus::CLOSED]) || $computedStatus === 'Completed';
                 
                 $isDraftActive = !$isCompleted;
-                $isApprovedActive = ($mpp->status === \App\Enums\MppStatus::APPROVED || $hasVacancy) && !$isCompleted;
+                $isApprovedActive = (($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' || $hasVacancy) && !$isCompleted;
                 $isVacancyActive = $hasVacancy && !$isCompleted;
                 
                 $slaDisplay = $mpp->sla_days >= 30 ? (int) floor($mpp->sla_days / 30) . ' Bulan' : (int) $mpp->sla_days . ' Hari';
@@ -270,10 +267,17 @@
                                             <span class="text-on-surface-variant">/ {{ $total }}</span>
                                         </td>
                                         <td class="p-4">
-                                            @if($l->status->value === 'Published')
+                                            @php
+                                                $lStatus = $l->status instanceof \App\Enums\RrStatus ? $l->status->value : $l->status;
+                                            @endphp
+                                            @if($lStatus === 'Published')
                                                 <span class="px-2.5 py-0.5 bg-[#dcfce7] text-[#166534] text-xs font-bold rounded-full uppercase">Aktif (Published)</span>
-                                            @elseif($l->status->value === 'Completed/Closed')
+                                            @elseif(in_array($lStatus, ['Completed', 'Closed']))
                                                 <span class="px-2.5 py-0.5 bg-[#f3f4f6] text-[#374151] text-xs font-bold rounded-full uppercase">Closed</span>
+                                            @elseif($lStatus === 'Completed')
+                                                <span class="px-2.5 py-0.5 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase">Completed</span>
+                                            @elseif($lStatus === 'Ready to Publish')
+                                                <span class="px-2.5 py-0.5 bg-secondary-fixed text-on-secondary-fixed-variant text-xs font-bold rounded-full uppercase">Ready to Publish</span>
                                             @else
                                                 <span class="px-2.5 py-0.5 bg-[#fef9c3] text-[#854d0e] text-xs font-bold rounded-full uppercase">Draft</span>
                                             @endif
@@ -306,7 +310,7 @@
                     <!-- Edit Button -->
                     @if($computedStatus === 'Closed' || $computedStatus === 'Filled')
                         {{-- Edit disabled/hidden if closed or filled --}}
-                    @elseif($mpp->status === \App\Enums\MppStatus::APPROVED && $mpp->hasPublishedRr())
+                    @elseif(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $mpp->hasPublishedRr())
                         {{-- Edit disabled if plan is approved and RR is published --}}
                     @else
                         <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
@@ -316,7 +320,7 @@
                     @endif
                     
                     <!-- Tutup Plan Button -->
-                    @if($mpp->status === \App\Enums\MppStatus::APPROVED && !$mpp->hasActiveCandidates())
+                    @if(in_array(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status), ['Approved', 'Draft']) && !$hasActiveRr)
                         <button wire:click="closePlan" wire:confirm="Anda yakin ingin menutup Plan ini?" class="px-6 h-14 bg-error text-white hover:brightness-110 border border-error font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">cancel</span>
                             <span>Tutup Plan</span>
@@ -324,7 +328,7 @@
                     @endif
 
                     <!-- Approve Button -->
-                    @if($mpp->status === \App\Enums\MppStatus::DRAFT)
+                    @if(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Draft')
                         <button wire:click="approve" wire:confirm="Approve MPP ini?" class="px-8 h-14 bg-[#10b981] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(16,185,129,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">check_circle</span>
                             <span>Approve Perencanaan</span>
@@ -332,7 +336,7 @@
                     @endif
 
                     <!-- Buat Vacancy Button -->
-                    @if($mpp->status === \App\Enums\MppStatus::APPROVED && $remainingQuota > 0 && !$hasActiveRr)
+                    @if(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $remainingQuota > 0 && !$hasActiveRr)
                         <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_box</span>
                             <span>Buat Vacancy</span>

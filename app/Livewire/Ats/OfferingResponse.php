@@ -6,7 +6,9 @@ use App\Models\Candidate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.guest')]
 class OfferingResponse extends Component
 {
     public $token;
@@ -120,17 +122,18 @@ class OfferingResponse extends Component
                     $vacancy->quota = max(0, $vacancy->quota - 1);
 
                     if ($vacancy->quota == 0) {
-                        $vacancy->status = 'Completed/Closed';
+                        $vacancy->status = 'Closed';
                         $vacancy->save();
-                        
+
                         $rr = $vacancy->rr;
                         if ($rr) {
-                            $rr->status = 'Completed/Closed';
+                            $rr->status = 'Completed';
                             $rr->save();
-                            
+
                             $mpp = $rr->mpp;
-                            if ($mpp && $mpp->sisaKuota() <= 0) {
-                                $mpp->status = 'Completed/Closed';
+                            // Optionally, compute if MPP is completely filled and save it
+                            if ($mpp && $mpp->isFilled()) {
+                                $mpp->status = 'Completed';
                                 $mpp->save();
                             }
                         }
@@ -151,6 +154,6 @@ class OfferingResponse extends Component
             $this->statusResponse = 'success_reject';
         }
 
-        return view('livewire.ats.offering-response')->layout('layouts.guest');
+        return view('livewire.ats.offering-response');
     }
 }

@@ -3,32 +3,70 @@
 namespace App\Repositories;
 
 use App\Models\Mpp;
-use App\Enums\CandidateStatus;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class MppRepository
 {
     /**
-     * Get a paginated list of Manpower Plans with filters and hired count logic.
+     * Get unique list of departments for filtering.
      */
-    public function getPaginatedList(array $filters, int $perPage = 12): LengthAwarePaginator
+    public function getUniqueDepartments(): Collection
     {
-        $query = Mpp::with('vacancies.candidates')
+        return Mpp::select('department')
+            ->whereNotNull('department')
+            ->distinct()
+            ->orderBy('department')
+            ->pluck('department');
+    }
+
+    /**
+     * Get paginated list of MPP with eager loaded relationships and computed fields via subqueries.
+     */
+    public function getPaginatedList(array $filters = [], int $perPage = 12): LengthAwarePaginator
+    {
+        $query = Mpp::with('rrs.vacancy.candidates')
             ->select('mpps.*')
+            // Subquery for hired count
             ->selectSub(function ($q) {
                 $q->selectRaw('count(*)')
                   ->from('candidates')
                   ->join('vacancies', 'vacancies.id', '=', 'candidates.vacancy_id')
                   ->join('rrs', 'rrs.id', '=', 'vacancies.rr_id')
                   ->whereColumn('rrs.mpp_id', 'mpps.id')
-                  ->where('candidates.status', CandidateStatus::HIRED);
-            }, 'hired_count');
+                  ->where('candidates.status', \App\Enums\CandidateStatus::HIRED->value);
+            }, 'hired_count')
+            // Subquery for latest RR created_at
+            ->selectSub(function ($q) {
+                $q->selectRaw('max(created_at)')
+                  ->from('rrs')
+                  ->whereColumn('mpp_id', 'mpps.id');
+            }, 'latest_rr_date')
+            // Subquery for latest candidate created_at
+            ->selectSub(function ($q) {
+                $q->selectRaw('max(candidates.created_at)')
+                  ->from('candidates')
+                  ->join('vacancies', 'vacancies.id', '=', 'candidates.vacancy_id')
+                  ->join('rrs', 'rrs.id', '=', 'vacancies.rr_id')
+                  ->whereColumn('rrs.mpp_id', 'mpps.id');
+            }, 'latest_candidate_date')
+            // Subquery for latest candidate movement moved_at
+            ->selectSub(function ($q) {
+                $q->selectRaw('max(candidate_movements.moved_at)')
+                  ->from('candidate_movements')
+                  ->join('candidates', 'candidates.id', '=', 'candidate_movements.candidate_id')
+                  ->join('vacancies', 'vacancies.id', '=', 'candidates.vacancy_id')
+                  ->join('rrs', 'rrs.id', '=', 'vacancies.rr_id')
+                  ->whereColumn('rrs.mpp_id', 'mpps.id');
+            }, 'latest_movement_date');
 
+        // Apply filters
         if (!empty($filters['search'])) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('plan_name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('job_title', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('department', 'like', '%' . $filters['search'] . '%');
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('plan_name', 'like', '%' . $search . '%')
+                  ->orWhere('job_title', 'like', '%' . $search . '%')
+                  ->orWhere('department', 'like', '%' . $search . '%');
             });
         }
 
@@ -37,33 +75,21 @@ class MppRepository
         }
 
         if (!empty($filters['status'])) {
-            if ($filters['status'] === 'completed') {
-                $query->havingRaw('hired_count >= quota');
-            } else {
-                $query->where('status', $filters['status']);
-            }
+            $query->where('status', $filters['status']);
         }
 
-        $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= quota THEN 1 ELSE 0 END ASC");
-
-        if (($filters['sortBy'] ?? 'newest') === 'oldest') {
+        // Apply sorting
+        $sortBy = $filters['sortBy'] ?? 'newest';
+        if ($sortBy === 'newest') {
+            $query->orderBy('created_at', 'desc');
+        } elseif ($sortBy === 'oldest') {
             $query->orderBy('created_at', 'asc');
         } else {
-            $query->orderBy('created_at', 'desc');
+            // Default ordering by active first, then newest
+            $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= quota THEN 1 ELSE 0 END ASC")
+                ->orderBy('created_at', 'desc');
         }
 
         return $query->paginate($perPage);
-    }
-
-    /**
-     * Get all unique departments available in MPPs.
-     */
-    public function getUniqueDepartments()
-    {
-        return Mpp::select('department')
-            ->whereNotNull('department')
-            ->distinct()
-            ->orderBy('department')
-            ->pluck('department');
     }
 }

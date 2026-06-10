@@ -302,8 +302,11 @@
                     <label for="reason" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Alasan Masuk Daftar Hitam <span class="text-error">*</span></label>
                     <textarea id="reason" wire:model="blacklistAlasan" rows="4"
                               placeholder="Berikan penjelasan atau pelanggaran/alasan kandidat ini dimasukkan ke dalam daftar hitam (tidak dapat melamar lagi)..."
-                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface 
-                              @error('blacklistAlasan') border-error @enderror"></textarea>
+                              @class([
+                                  'w-full p-4 bg-surface-container-low border rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface',
+                                  'border-error' => $errors->has('blacklistAlasan'),
+                                  'border-surface-container focus:border-primary/55' => !$errors->has('blacklistAlasan'),
+                              ])></textarea>
                     @error('blacklistAlasan')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>

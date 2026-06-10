@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
-
+use Livewire\Attributes\Layout;
 
 /**
  * Class RegisterApplicant
@@ -18,6 +18,7 @@ use Livewire\Component;
  *
  * @package App\Livewire
  */
+#[Layout('layouts.auth')]
 class RegisterApplicant extends Component
 {
     /** @var string Nama lengkap pelamar. */
@@ -109,7 +110,6 @@ class RegisterApplicant extends Component
      */
     public function render()
     {
-        return view('livewire.cw.register-applicant')
-            ->layout('layouts.auth');
+        return view('livewire.cw.register-applicant');
     }
 }

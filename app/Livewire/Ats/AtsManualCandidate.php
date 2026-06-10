@@ -6,7 +6,9 @@ use App\Models\Candidate;
 use App\Models\Vacancy;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsManualCandidate extends Component
 {
     use WithFileUploads;
@@ -81,6 +83,6 @@ class AtsManualCandidate extends Component
 
     public function render()
     {
-        return view('livewire.ats.manual-candidate')->layout('layouts.hr');
+        return view('livewire.ats.manual-candidate');
     }
 }

@@ -161,11 +161,13 @@ class AtsPipelineTest extends TestCase
             ->set('selectedStageId', 2)
             ->assertSee('Jane Smith')
             ->assertDontSee('John Doe')
-            // Filter by job 1
+            // Filter by job 1 — hides Jane (who is at job2)
             ->set('selectedVacancyId', $this->job1->id)
             ->assertDontSee('Jane Smith')
-            // Filter search
+            // Reset vacancy filter, lalu search 'Jane' — harus tampil Jane, bukan John
+            ->set('selectedVacancyId', null)
             ->set('search', 'Jane')
+            ->assertSee('Jane Smith')
             ->assertDontSee('John Doe');
     }
 

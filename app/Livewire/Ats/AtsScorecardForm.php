@@ -6,7 +6,9 @@ use App\Models\Candidate;
 use App\Models\Stage;
 use App\Models\Scorecard;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.hr')]
 class AtsScorecardForm extends Component
 {
     public $candidateId;
@@ -130,6 +132,6 @@ class AtsScorecardForm extends Component
 
     public function render()
     {
-        return view('livewire.ats.scorecard-form')->layout('layouts.hr');
+        return view('livewire.ats.scorecard-form');
     }
 }

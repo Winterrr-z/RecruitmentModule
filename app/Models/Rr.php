@@ -65,7 +65,7 @@ class Rr extends Model
 
     public function isActive(): bool
     {
-        return !in_array($this->status, ['Completed/Closed']);
+        return !in_array($this->status, [\App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]);
     }
 
     public function hiredCount(): int
