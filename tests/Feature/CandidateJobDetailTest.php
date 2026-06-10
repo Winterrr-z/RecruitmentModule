@@ -158,4 +158,12 @@ class CandidateJobDetailTest extends TestCase
 
         $this->assertDatabaseEmpty('candidates');
     }
+
+    public function test_blacklist_info_page_is_accessible()
+    {
+        $this->get(route('blacklist.info'))
+            ->assertSuccessful()
+            ->assertSee('Pendaftaran Dibatasi')
+            ->assertSee('Anda tidak dapat melamar lowongan ini karena data Anda terdaftar dalam daftar hitam perusahaan.');
+    }
 }

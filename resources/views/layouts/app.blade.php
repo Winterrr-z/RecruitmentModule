@@ -97,7 +97,7 @@
                 <a href="{{ route('ats.stages') }}" 
                    class="{{ request()->routeIs('ats.stages') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
                     <span class="material-symbols-outlined text-[18px]">settings</span>
-                    <span class="font-body-md text-sm">Config Stage</span>
+                    <span class="font-body-md text-sm">Stage Configuration</span>
                 </a>
             </div>
         </div>
