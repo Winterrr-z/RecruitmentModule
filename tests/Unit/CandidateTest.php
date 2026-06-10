@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Candidate;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\User;
 use App\Models\Stage;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +18,7 @@ class CandidateTest extends TestCase
         $candidate = new Candidate();
         
         $this->assertEquals([
-            'lowongan_id',
+            'vacancy_id',
             'user_id',
             'name',
             'email',

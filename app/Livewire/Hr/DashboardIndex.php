@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Hr;
 
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use App\Models\InterviewSchedule;
 use App\Models\Stage;
@@ -12,13 +12,13 @@ use Livewire\Component;
 class DashboardIndex extends Component
 {
     // Metric counts
-    public $activeLowonganCount = 0;
+    public $activeVacancyCount = 0;
     public $newCandidateCount = 0;
     public $todayInterviewCount = 0;
 
     // Donut Carousel
-    public $activeLowongans = [];
-    public $currentLowonganIndex = 0;
+    public $activeVacancies = [];
+    public $currentVacancyIndex = 0;
     public $stages = [];
 
     // Calendar
@@ -44,7 +44,7 @@ class DashboardIndex extends Component
     public function loadData()
     {
         // 1. Widget 1: Active vacancy count
-        $this->activeLowonganCount = Lowongan::where('status', 'Published')
+        $this->activeVacancyCount = Vacancy::where('status', 'Published')
             ->where('quota', '>', 0)
             ->where('application_deadline', '>=', now()->toDateString())
             ->count();
@@ -61,7 +61,7 @@ class DashboardIndex extends Component
         $this->stages = Stage::getAllCached();
 
         // 5. Load active vacancies for Donut Carousel
-        $this->activeLowongans = Lowongan::where('status', 'Published')
+        $this->activeVacancies = Vacancy::where('status', 'Published')
             ->where('quota', '>', 0)
             ->where('application_deadline', '>=', now()->toDateString())
             ->get();
@@ -73,19 +73,19 @@ class DashboardIndex extends Component
         $this->loadGlobalBarChart();
     }
 
-    public function nextLowongan()
+    public function nextVacancy()
     {
-        if ($this->activeLowongans->isNotEmpty()) {
-            $this->currentLowonganIndex = ($this->currentLowonganIndex + 1) % $this->activeLowongans->count();
-            $this->dispatch('refresh-donut-chart', data: $this->getCurrentLowonganChartData());
+        if ($this->activeVacancies->isNotEmpty()) {
+            $this->currentVacancyIndex = ($this->currentVacancyIndex + 1) % $this->activeVacancies->count();
+            $this->dispatch('refresh-donut-chart', data: $this->getCurrentVacancyChartData());
         }
     }
 
-    public function previousLowongan()
+    public function previousVacancy()
     {
-        if ($this->activeLowongans->isNotEmpty()) {
-            $this->currentLowonganIndex = ($this->currentLowonganIndex - 1 + $this->activeLowongans->count()) % $this->activeLowongans->count();
-            $this->dispatch('refresh-donut-chart', data: $this->getCurrentLowonganChartData());
+        if ($this->activeVacancies->isNotEmpty()) {
+            $this->currentVacancyIndex = ($this->currentVacancyIndex - 1 + $this->activeVacancies->count()) % $this->activeVacancies->count();
+            $this->dispatch('refresh-donut-chart', data: $this->getCurrentVacancyChartData());
         }
     }
 
@@ -157,21 +157,21 @@ class DashboardIndex extends Component
         $this->barChartValues = collect($barChartData)->pluck('count')->toArray();
     }
 
-    public function getCurrentLowonganChartData()
+    public function getCurrentVacancyChartData()
     {
-        if ($this->activeLowongans->isEmpty()) {
+        if ($this->activeVacancies->isEmpty()) {
             return [
-                'title' => 'Tidak Ada Lowongan Aktif',
+                'title' => 'Tidak Ada Vacancy Aktif',
                 'labels' => [],
                 'values' => [],
             ];
         }
 
-        $lowongan = $this->activeLowongans[$this->currentLowonganIndex];
+        $vacancy = $this->activeVacancies[$this->currentVacancyIndex];
         
         $data = [];
         foreach ($this->stages as $stage) {
-            $count = Candidate::where('lowongan_id', $lowongan->id)
+            $count = Candidate::where('vacancy_id', $vacancy->id)
                 ->where('current_stage_id', $stage->id)
                 ->count();
             
@@ -182,7 +182,7 @@ class DashboardIndex extends Component
         }
 
         return [
-            'title' => $lowongan->job_title . ' (' . $lowongan->department . ')',
+            'title' => $vacancy->job_title . ' (' . $vacancy->department . ')',
             'labels' => collect($data)->pluck('stage')->toArray(),
             'values' => collect($data)->pluck('count')->toArray(),
         ];
@@ -190,6 +190,6 @@ class DashboardIndex extends Component
 
     public function render()
     {
-        return view('livewire.dashboard-index')->layout('layouts.app');
+        return view('livewire.hr.dashboard-index')->layout('layouts.hr');
     }
 }

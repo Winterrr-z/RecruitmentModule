@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use App\Models\Scorecard;
 use App\Models\InterviewSchedule;
@@ -58,7 +58,7 @@ class AtsPipelineTest extends TestCase
             'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $rr1 = \App\Models\RecruitmentRequest::create([
+        $rr1 = \App\Models\Rr::create([
             'mpp_id' => $mpp1->id,
             'job_title' => 'Software Engineer',
             'department' => 'IT',
@@ -72,8 +72,8 @@ class AtsPipelineTest extends TestCase
             'quota' => 5,
         ]);
 
-        $this->job1 = Lowongan::create([
-            'recruitment_request_id' => $rr1->id,
+        $this->job1 = Vacancy::create([
+            'rr_id' => $rr1->id,
             'mpp_id' => $mpp1->id,
             'job_title' => 'Software Engineer',
             'department' => 'IT',
@@ -87,7 +87,7 @@ class AtsPipelineTest extends TestCase
             'quota' => 5,
         ]);
 
-        $rr2 = \App\Models\RecruitmentRequest::create([
+        $rr2 = \App\Models\Rr::create([
             'mpp_id' => $mpp2->id,
             'job_title' => 'HR Manager',
             'department' => 'HR',
@@ -101,8 +101,8 @@ class AtsPipelineTest extends TestCase
             'quota' => 1,
         ]);
 
-        $this->job2 = Lowongan::create([
-            'recruitment_request_id' => $rr2->id,
+        $this->job2 = Vacancy::create([
+            'rr_id' => $rr2->id,
             'mpp_id' => $mpp2->id,
             'job_title' => 'HR Manager',
             'department' => 'HR',
@@ -117,7 +117,7 @@ class AtsPipelineTest extends TestCase
         ]);
 
         $this->candidate = Candidate::create([
-            'lowongan_id' => $this->job1->id,
+            'vacancy_id' => $this->job1->id,
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'phone' => '081234567890',
@@ -144,7 +144,7 @@ class AtsPipelineTest extends TestCase
     {
         // Another candidate at a different stage and job
         $candidate2 = Candidate::create([
-            'lowongan_id' => $this->job2->id,
+            'vacancy_id' => $this->job2->id,
             'name' => 'Jane Smith',
             'email' => 'jane@example.com',
             'phone' => '081234567891',
@@ -162,7 +162,7 @@ class AtsPipelineTest extends TestCase
             ->assertSee('Jane Smith')
             ->assertDontSee('John Doe')
             // Filter by job 1
-            ->set('selectedLowonganId', $this->job1->id)
+            ->set('selectedVacancyId', $this->job1->id)
             ->assertDontSee('Jane Smith')
             // Filter search
             ->set('search', 'Jane')
@@ -197,7 +197,7 @@ class AtsPipelineTest extends TestCase
             ->assertSet('showBlacklistModal', false)
             ->assertSee("Kandidat 'John Doe' berhasil dimasukkan ke daftar hitam (blacklist).");
 
-        $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $this->candidate->fresh()->status);
         $this->assertDatabaseHas('blacklist', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -254,15 +254,15 @@ class AtsPipelineTest extends TestCase
 
     public function test_dashboard_displays_manual_candidate_button()
     {
-        // When no lowongan is selected, it shows the alert button but not the link
+        // When no vacancy is selected, it shows the alert button but not the link
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->assertSee('Input Kandidat')
             ->assertDontSee(route('ats.candidate.manual', $this->job1->id));
 
-        // When lowongan is selected, it shows the direct link
+        // When vacancy is selected, it shows the direct link
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsPipeline::class, ['selectedLowonganId' => $this->job1->id])
+            ->test(\App\Livewire\Ats\AtsPipeline::class, ['selectedVacancyId' => $this->job1->id])
             ->assertSee(route('ats.candidate.manual', $this->job1->id));
     }
 

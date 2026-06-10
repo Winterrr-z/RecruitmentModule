@@ -8,6 +8,6 @@ class SettingsHr extends Component
 {
     public function render()
     {
-        return view('livewire.hr.settings-hr')->layout('layouts.app');
+        return view('livewire.hr.settings-hr')->layout('layouts.hr');
     }
 }

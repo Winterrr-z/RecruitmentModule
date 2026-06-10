@@ -3,7 +3,7 @@
 namespace App\Livewire\Rr;
 
 use App\Models\Mpp;
-use App\Models\RecruitmentRequest;
+use App\Models\Rr;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -15,7 +15,7 @@ use Livewire\Attributes\Layout;
  *
  * @package App\Livewire
  */
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class RRForm extends Component
 {
     /**
@@ -26,7 +26,7 @@ class RRForm extends Component
     /**
      * @var int|null ID RR yang sedang diedit.
      */
-    public $lowonganId;
+    public $vacancyId;
 
     /**
      * @var bool Menandakan apakah sedang dalam mode edit.
@@ -65,7 +65,7 @@ class RRForm extends Component
     {
         // Rute edit: jika $id disediakan
         if ($id) {
-            $rr = RecruitmentRequest::findOrFail($id);
+            $rr = Rr::findOrFail($id);
 
             // Logika rr dapat diedit ketika tidak berada di status active (Published), dan closed/completed.
             if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
@@ -73,7 +73,7 @@ class RRForm extends Component
                 return redirect()->route('rr.index');
             }
 
-            $this->lowonganId = $rr->id;
+            $this->vacancyId = $rr->id;
             $this->isEdit = true;
             $this->isReadOnly = true;
             $this->selectedMppId = $rr->mpp_id;
@@ -118,7 +118,7 @@ class RRForm extends Component
             }
 
             // Validasi: rr yang lain completed/closed dibawah mpp yang sama
-            $hasActiveRr = RecruitmentRequest::where('mpp_id', $mpp->id)
+            $hasActiveRr = Rr::where('mpp_id', $mpp->id)
                 ->where('status', '!=', 'Completed/Closed')
                 ->exists();
             if ($hasActiveRr) {
@@ -176,7 +176,7 @@ class RRForm extends Component
             
             // Validasi sisa kuota & RR aktif
             $remainingQuota = $mpp->sisaKuota();
-            $hasActiveRr = RecruitmentRequest::where('mpp_id', $mpp->id)
+            $hasActiveRr = Rr::where('mpp_id', $mpp->id)
                 ->where('status', '!=', 'Completed/Closed')
                 ->exists();
 
@@ -228,7 +228,7 @@ class RRForm extends Component
         ]);
 
         if ($this->isEdit) {
-            $rr = RecruitmentRequest::findOrFail($this->lowonganId);
+            $rr = Rr::findOrFail($this->vacancyId);
 
             // Double check edit permission sebelum disimpan
             if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
@@ -246,9 +246,9 @@ class RRForm extends Component
                 'quota' => $this->quota,
             ]);
 
-            // Sync kuota ke lowongan jika sudah publish
-            if ($rr->lowongan) {
-                $rr->lowongan->update(['quota' => $this->quota]);
+            // Sync kuota ke vacancy jika sudah publish
+            if ($rr->vacancy) {
+                $rr->vacancy->update(['quota' => $this->quota]);
             }
 
             session()->flash('message', 'Recruitment Request berhasil diperbarui.');
@@ -269,7 +269,7 @@ class RRForm extends Component
             }
 
             // Validasi RR aktif yang lain sebelum disubmit
-            $hasActiveRr = RecruitmentRequest::where('mpp_id', $mpp->id)
+            $hasActiveRr = Rr::where('mpp_id', $mpp->id)
                 ->where('status', '!=', 'Completed/Closed')
                 ->exists();
             if ($hasActiveRr) {
@@ -278,7 +278,7 @@ class RRForm extends Component
             }
 
             // Simpan RR baru sebagai Draft
-            RecruitmentRequest::create([
+            Rr::create([
                 'mpp_id' => $mpp->id,
                 'job_title' => $mpp->job_title,
                 'department' => $mpp->department,
@@ -310,7 +310,7 @@ class RRForm extends Component
     {
         // Ambil semua MPP Approved yang tidak memiliki RR aktif (selain Completed/Closed)
         $query = Mpp::where('status', \App\Enums\MppStatus::APPROVED)
-            ->whereDoesntHave('recruitmentRequests', function ($query) {
+            ->whereDoesntHave('rrs', function ($query) {
                 $query->where('status', '!=', \App\Enums\RrStatus::COMPLETED_CLOSED);
             });
 

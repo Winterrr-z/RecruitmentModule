@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class AtsStageConfig extends Component
 {
     // List of stages

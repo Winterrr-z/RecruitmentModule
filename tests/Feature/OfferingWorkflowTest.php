@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Mpp;
 use App\Models\Candidate;
 use App\Mail\OfferingLetterMail;
@@ -20,7 +20,7 @@ class OfferingWorkflowTest extends TestCase
 
     private $user;
     private $mpp;
-    private $lowongan;
+    private $vacancy;
     private $candidate;
 
     protected function setUp(): void
@@ -43,7 +43,7 @@ class OfferingWorkflowTest extends TestCase
             'status' => 'Approved',
         ]);
 
-        $rr = \App\Models\RecruitmentRequest::create([
+        $rr = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -54,8 +54,8 @@ class OfferingWorkflowTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $this->lowongan = Lowongan::create([
-            'recruitment_request_id' => $rr->id,
+        $this->vacancy = Vacancy::create([
+            'rr_id' => $rr->id,
             'job_title' => 'IT Support',
             'department' => 'IT',
             'status' => 'Published',
@@ -69,7 +69,7 @@ class OfferingWorkflowTest extends TestCase
         ]);
 
         $this->candidate = Candidate::create([
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'name' => 'Candidate Tester',
             'email' => 'tester@example.com',
             'phone' => '081234567890',
@@ -88,7 +88,7 @@ class OfferingWorkflowTest extends TestCase
     {
         // 1. Candidate is in 'Applied' stage, not 'Final'
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\OfferingSend::class, ['candidateId' => $this->candidate->id])
+            ->test(\App\Livewire\Ats\OfferingSend::class, ['candidateId' => $this->candidate->id])
             ->assertSet('isValid', false)
             ->assertSet('errorMessage', 'Kandidat harus berada di stage "Final" untuk dikirimi offering letter.');
 
@@ -97,16 +97,16 @@ class OfferingWorkflowTest extends TestCase
 
         // 2. Candidate is now valid
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\OfferingSend::class, ['candidateId' => $this->candidate->id])
+            ->test(\App\Livewire\Ats\OfferingSend::class, ['candidateId' => $this->candidate->id])
             ->assertSet('isValid', true);
 
-        // 3. Set lowongan quota to 0
-        $this->lowongan->update(['quota' => 0]);
+        // 3. Set vacancy quota to 0
+        $this->vacancy->update(['quota' => 0]);
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\OfferingSend::class, ['candidateId' => $this->candidate->id])
+            ->test(\App\Livewire\Ats\OfferingSend::class, ['candidateId' => $this->candidate->id])
             ->assertSet('isValid', false)
-            ->assertSet('errorMessage', 'Kuota lowongan untuk jabatan "' . $this->lowongan->job_title . '" sudah habis.');
+            ->assertSet('errorMessage', 'Kuota vacancy untuk jabatan "' . $this->vacancy->job_title . '" sudah habis.');
     }
 
     public function test_can_send_offering_letter()
@@ -116,7 +116,7 @@ class OfferingWorkflowTest extends TestCase
         $this->candidate->update(['current_stage_id' => 2]); // Final
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\OfferingSend::class, ['candidateId' => $this->candidate->id])
+            ->test(\App\Livewire\Ats\OfferingSend::class, ['candidateId' => $this->candidate->id])
             ->assertSet('isValid', true)
             ->call('sendOffering')
             ->assertRedirect(route('ats.dashboard'));
@@ -130,14 +130,14 @@ class OfferingWorkflowTest extends TestCase
         Mail::assertSent(OfferingLetterMail::class, function ($mail) {
             return $mail->hasTo($this->candidate->email) &&
                    $mail->candidate->id === $this->candidate->id &&
-                   $mail->lowongan->id === $this->lowongan->id;
+                   $mail->vacancy->id === $this->vacancy->id;
         });
     }
 
     public function test_offering_response_invalid_token()
     {
         // View with non-existent token
-        Livewire::test(\App\Livewire\OfferingResponse::class, ['token' => 'invalid-token-here'])
+        Livewire::test(\App\Livewire\Ats\OfferingResponse::class, ['token' => 'invalid-token-here'])
             ->assertSet('statusResponse', 'invalid')
             ->assertSee('Tautan Tidak Valid');
     }
@@ -151,7 +151,7 @@ class OfferingWorkflowTest extends TestCase
             'offering_token_expires_at' => now()->subHour(),
         ]);
 
-        Livewire::test(\App\Livewire\OfferingResponse::class, ['token' => 'expired-token'])
+        Livewire::test(\App\Livewire\Ats\OfferingResponse::class, ['token' => 'expired-token'])
             ->assertSet('statusResponse', 'expired')
             ->assertSee('Tawaran Sudah Kedaluwarsa');
 
@@ -167,7 +167,7 @@ class OfferingWorkflowTest extends TestCase
             'offering_token_expires_at' => now()->addDays(3),
         ]);
 
-        Livewire::test(\App\Livewire\OfferingResponse::class, ['token' => 'valid-token'])
+        Livewire::test(\App\Livewire\Ats\OfferingResponse::class, ['token' => 'valid-token'])
             ->assertSet('statusResponse', null)
             ->call('handleResponse', 'terima')
             ->assertSet('statusResponse', 'success_accept')
@@ -177,9 +177,9 @@ class OfferingWorkflowTest extends TestCase
         $this->assertEquals(\App\Enums\CandidateStatus::HIRED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
-        $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(0, $this->lowongan->quota);
-        $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
+        $this->vacancy = $this->vacancy->fresh();
+        $this->assertEquals(0, $this->vacancy->quota);
+        $this->assertEquals(\App\Enums\VacancyStatus::COMPLETED_CLOSED, $this->vacancy->status);
 
         $this->mpp = $this->mpp->fresh();
         $this->assertEquals(\App\Enums\MppStatus::COMPLETED_CLOSED, $this->mpp->status);
@@ -193,7 +193,7 @@ class OfferingWorkflowTest extends TestCase
             'offering_token_expires_at' => now()->addDays(3),
         ]);
 
-        Livewire::test(\App\Livewire\OfferingResponse::class, ['token' => 'valid-token'])
+        Livewire::test(\App\Livewire\Ats\OfferingResponse::class, ['token' => 'valid-token'])
             ->assertSet('statusResponse', null)
             ->call('handleResponse', 'tolak')
             ->assertSet('statusResponse', 'success_reject')
@@ -203,8 +203,8 @@ class OfferingWorkflowTest extends TestCase
         $this->assertEquals(\App\Enums\CandidateStatus::DECLINED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
-        $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(1, $this->lowongan->quota); // remains 1
+        $this->vacancy = $this->vacancy->fresh();
+        $this->assertEquals(1, $this->vacancy->quota); // remains 1
     }
 
     public function test_offering_response_can_accept_offering_post_route()
@@ -223,16 +223,16 @@ class OfferingWorkflowTest extends TestCase
         $this->assertEquals(\App\Enums\CandidateStatus::HIRED, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
-        $this->lowongan = $this->lowongan->fresh();
-        $this->assertEquals(0, $this->lowongan->quota);
-        $this->assertEquals(\App\Enums\LowonganStatus::COMPLETED_CLOSED, $this->lowongan->status);
+        $this->vacancy = $this->vacancy->fresh();
+        $this->assertEquals(0, $this->vacancy->quota);
+        $this->assertEquals(\App\Enums\VacancyStatus::COMPLETED_CLOSED, $this->vacancy->status);
     }
 
     public function test_offering_expire_cron_job()
     {
         // 1. Expired candidate
         $expiredCandidate = Candidate::create([
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'name' => 'Expired Candidate',
             'email' => 'expired@example.com',
             'phone' => '081234567895',
@@ -244,7 +244,7 @@ class OfferingWorkflowTest extends TestCase
 
         // 2. Active candidate
         $activeCandidate = Candidate::create([
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'name' => 'Active Candidate',
             'email' => 'active@example.com',
             'phone' => '081234567896',

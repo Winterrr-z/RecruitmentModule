@@ -3,15 +3,15 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\RecruitmentRequest;
+use App\Models\Vacancy;
 use App\Models\Mpp;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RecruitmentRequest>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Vacancy>
  */
-class RecruitmentRequestFactory extends Factory
+class VacancyFactory extends Factory
 {
-    protected $model = RecruitmentRequest::class;
+    protected $model = Vacancy::class;
 
     /**
      * Define the model's default state.
@@ -21,20 +21,19 @@ class RecruitmentRequestFactory extends Factory
     public function definition(): array
     {
         return [
-            'mpp_id' => Mpp::factory(),
-            'quota' => $this->faker->numberBetween(1, 5),
+            'rr_id' => \App\Models\Rr::factory(),
             'job_title' => $this->faker->jobTitle(),
             'department' => $this->faker->randomElement(['IT', 'HR', 'Finance', 'Marketing', 'Operations']),
             'estimated_salary_min' => $this->faker->numberBetween(4000000, 6000000),
             'estimated_salary_max' => $this->faker->numberBetween(7000000, 15000000),
-            'expected_join_date' => $this->faker->dateTimeBetween('+1 month', '+3 months')->format('Y-m-d'),
             'job_description' => $this->faker->paragraphs(3, true),
             'job_requirements' => $this->faker->paragraphs(2, true),
             'employment_type' => $this->faker->randomElement(['full-time', 'contract']),
             'location' => $this->faker->randomElement(['remote', 'on-site']),
             'application_deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
             'show_salary' => $this->faker->boolean(),
-            'status' => $this->faker->randomElement([\App\Enums\RrStatus::DRAFT, \App\Enums\RrStatus::READY_TO_PUBLISH, \App\Enums\RrStatus::PUBLISHED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]),
+            'status' => \App\Enums\VacancyStatus::PUBLISHED,
+            'quota' => $this->faker->numberBetween(1, 5),
         ];
     }
 }

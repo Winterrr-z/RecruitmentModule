@@ -69,6 +69,6 @@ class ChangePasswordHr extends Component
     public function render()
     {
         return view('livewire.hr.change-password-hr')
-            ->layout('layouts.app');
+            ->layout('layouts.hr');
     }
 }

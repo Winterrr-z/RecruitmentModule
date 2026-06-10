@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use App\Models\RecruitmentRequest;
+use App\Models\Rr;
 use App\Models\Mpp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class RecruitmentRequestTest extends TestCase
+class RrModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_recruitment_request_can_calculate_remaining_quota()
+    public function test_rr_can_calculate_remaining_quota()
     {
         $mpp = Mpp::factory()->create();
         
-        $rr = RecruitmentRequest::factory()->create([
+        $rr = Rr::factory()->create([
             'mpp_id' => $mpp->id,
             'quota' => 10,
         ]);

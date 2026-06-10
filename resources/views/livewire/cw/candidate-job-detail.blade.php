@@ -4,42 +4,42 @@
         <a href="{{ auth()->check() ? route('candidate.jobs') : route('careers') }}" 
            class="inline-flex items-center gap-1.5 text-sm font-semibold text-on-surface-variant/80 hover:text-primary transition-colors no-underline">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-            Kembali ke Daftar Lowongan
+            Kembali ke Daftar Vacancy
         </a>
     </div>
 
     {{-- Layout Split --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {{-- Sisi Kiri: Detail Lowongan --}}
+        {{-- Sisi Kiri: Detail Vacancy --}}
         <div class="lg:col-span-2 space-y-6">
             {{-- Header Detail --}}
             <div class="bg-white rounded-2xl p-6 border border-surface-container-high shadow-[0_4px_20px_rgba(107,56,212,0.02)]">
                 <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary mb-4 capitalize">
                     <span class="material-symbols-outlined text-[14px]">work</span>
-                    {{ $lowongan->employment_type }}
+                    {{ $vacancy->employment_type }}
                 </span>
                 
                 <h1 class="text-3xl font-extrabold text-on-surface tracking-tight leading-tight mb-2">
-                    {{ $lowongan->job_title }}
+                    {{ $vacancy->job_title }}
                 </h1>
                 
                 <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm text-on-surface-variant font-medium mt-4">
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">corporate_fare</span>
-                        {{ $lowongan->department }}
+                        {{ $vacancy->department }}
                     </span>
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
-                        <span class="capitalize">{{ $lowongan->location }}</span>
+                        <span class="capitalize">{{ $vacancy->location }}</span>
                     </span>
                     <span class="flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-primary text-[18px]">calendar_today</span>
-                        Batas Akhir: {{ $lowongan->application_deadline->format('d M Y') }}
+                        Batas Akhir: {{ $vacancy->application_deadline->format('d M Y') }}
                     </span>
                 </div>
 
-                @if ($lowongan->show_salary && ($lowongan->estimated_salary_min || $lowongan->estimated_salary_max))
+                @if ($vacancy->show_salary && ($vacancy->estimated_salary_min || $vacancy->estimated_salary_max))
                     <div class="mt-6 pt-6 border-t border-surface-container-high flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
                             <span class="material-symbols-outlined text-[20px]">payments</span>
@@ -47,12 +47,12 @@
                         <div>
                             <p class="text-xs text-on-surface-variant/70 font-semibold uppercase tracking-wider">Estimasi Gaji</p>
                             <p class="text-lg font-bold text-on-surface">
-                                @if ($lowongan->estimated_salary_min && $lowongan->estimated_salary_max)
-                                    Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
-                                @elseif ($lowongan->estimated_salary_min)
-                                    Mulai dari Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }}
+                                @if ($vacancy->estimated_salary_min && $vacancy->estimated_salary_max)
+                                    Rp {{ number_format($vacancy->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($vacancy->estimated_salary_max, 0, ',', '.') }}
+                                @elseif ($vacancy->estimated_salary_min)
+                                    Mulai dari Rp {{ number_format($vacancy->estimated_salary_min, 0, ',', '.') }}
                                 @else
-                                    Hingga Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
+                                    Hingga Rp {{ number_format($vacancy->estimated_salary_max, 0, ',', '.') }}
                                 @endif
                             </p>
                         </div>
@@ -67,7 +67,7 @@
                     Deskripsi Pekerjaan
                 </h2>
                 <div class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed whitespace-pre-line">
-                    {{ $lowongan->job_description }}
+                    {{ $vacancy->job_description }}
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                     Kualifikasi & Persyaratan
                 </h2>
                 <div class="prose prose-sm max-w-none text-on-surface-variant leading-relaxed whitespace-pre-line">
-                    {{ $lowongan->job_requirements }}
+                    {{ $vacancy->job_requirements }}
                 </div>
             </div>
         </div>

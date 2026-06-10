@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
@@ -20,13 +20,13 @@ class CandidateApplicationTest extends TestCase
         $user = User::factory()->create(['role' => 'applicant']);
         
         // Mock a published job
-        $lowongan = Lowongan::factory()->create(['status' => 'Published']);
+        $vacancy = Vacancy::factory()->create(['status' => 'Published']);
 
         // Create a fake invalid file pretending to be PDF
         $invalidFile = UploadedFile::fake()->create('malicious.pdf', 100, 'text/plain');
 
         Livewire::actingAs($user)
-            ->test(CandidateJobDetail::class, ['id' => $lowongan->id])
+            ->test(CandidateJobDetail::class, ['id' => $vacancy->id])
             ->set('phone', '08123456789')
             ->set('cv', $invalidFile)
             ->call('apply')
@@ -36,13 +36,13 @@ class CandidateApplicationTest extends TestCase
     public function test_candidate_can_upload_valid_pdf_for_cv()
     {
         $user = User::factory()->create(['role' => 'applicant']);
-        $lowongan = Lowongan::factory()->create(['status' => 'Published']);
+        $vacancy = Vacancy::factory()->create(['status' => 'Published']);
 
         // Create a valid fake PDF
         $validPdf = UploadedFile::fake()->create('resume.pdf', 100, 'application/pdf');
 
         Livewire::actingAs($user)
-            ->test(CandidateJobDetail::class, ['id' => $lowongan->id])
+            ->test(CandidateJobDetail::class, ['id' => $vacancy->id])
             ->set('phone', '08123456789')
             ->set('cv', $validPdf)
             ->call('apply')

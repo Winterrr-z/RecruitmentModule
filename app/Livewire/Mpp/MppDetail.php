@@ -10,11 +10,11 @@ use Livewire\Attributes\Layout;
  * Class MppDetail
  * 
  * Komponen Livewire untuk menampilkan detail spesifik dari sebuah Manpower Planning (MPP).
- * Menangani logika persetujuan (approval) dan pengecekan relasi dengan lowongan.
+ * Menangani logika persetujuan (approval) dan pengecekan relasi dengan vacancy.
  *
  * @package App\Livewire
  */
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class MppDetail extends Component
 {
     /**
@@ -28,9 +28,9 @@ class MppDetail extends Component
     public $mpp;
 
     /**
-     * @var bool Status apakah MPP ini sudah memiliki data lowongan yang berelasi.
+     * @var bool Status apakah MPP ini sudah memiliki data vacancy yang berelasi.
      */
-    public $hasLowongan = false;
+    public $hasVacancy = false;
 
     /**
      * @var int Sisa kuota MPP yang belum terpenuhi.
@@ -38,14 +38,14 @@ class MppDetail extends Component
     public $remainingQuota = 0;
 
     /**
-     * @var bool Apakah MPP memiliki Lowongan/Recruitment Request yang aktif (belum completed/closed).
+     * @var bool Apakah MPP memiliki Vacancy/Recruitment Request yang aktif (belum completed/closed).
      */
     public $hasActiveRr = false;
 
     /**
-     * @var \Illuminate\Database\Eloquent\Collection Daftar Lowongan terkait.
+     * @var \Illuminate\Database\Eloquent\Collection Daftar Vacancy terkait.
      */
-    public $mppLowongans;
+    public $mppVacancies;
 
     /**
      * Initialize the component.
@@ -62,21 +62,21 @@ class MppDetail extends Component
 
     /**
      * Load the MPP and check relationship status.
-     * Mengambil data Mpp berdasarkan ID dan mengecek status lowongan, sisa kuota, serta relasi lowongan.
+     * Mengambil data Mpp berdasarkan ID dan mengecek status vacancy, sisa kuota, serta relasi vacancy.
      * 
      * @return void
      */
     protected function loadMpp()
     {
-        $this->mpp = Mpp::with('recruitmentRequests')->findOrFail($this->mppId);
-        $this->mppLowongans = $this->mpp->recruitmentRequests;
-        $this->hasLowongan = $this->mppLowongans->isNotEmpty();
+        $this->mpp = Mpp::with('rrs')->findOrFail($this->mppId);
+        $this->mppVacancies = $this->mpp->rrs;
+        $this->hasVacancy = $this->mppVacancies->isNotEmpty();
 
         // Cari sisa kuota
         $this->remainingQuota = $this->mpp->sisaKuota();
 
         // Cari apakah ada RR di bawah MPP ini yang tidak berstatus Completed/Closed
-        $this->hasActiveRr = $this->mppLowongans->contains(function ($rr) {
+        $this->hasActiveRr = $this->mppVacancies->contains(function ($rr) {
             return $rr->status !== 'Completed/Closed';
         });
     }

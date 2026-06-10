@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Mpp;
-use App\Models\RecruitmentRequest;
-use App\Models\Lowongan;
+use App\Models\Rr;
+use App\Models\Vacancy;
 use App\Models\Stage;
 use App\Models\Candidate;
 use App\Models\CandidateMovement;
@@ -29,8 +29,8 @@ class DatabaseSeeder extends Seeder
         // Clear existing data
         User::truncate();
         Mpp::truncate();
-        RecruitmentRequest::truncate();
-        Lowongan::truncate();
+        Rr::truncate();
+        Vacancy::truncate();
         Stage::truncate();
         Candidate::truncate();
         CandidateMovement::truncate();
@@ -45,18 +45,26 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'HR',
             'email' => 'hr@company.com',
-            'password' => Hash::make('Hr12345'),
+            'password' => Hash::make('HrPassword'),
             'role' => 'hr',
         ]);
 
         // Applicant Users
-        $applicants = User::factory()->count(10)->create(['role' => 'applicant']);
+        $applicants = collect();
+        for ($i = 1; $i <= 10; $i++) {
+            $applicants->push(User::create([
+                'name' => "Kandidat {$i}",
+                'email' => "kandidat{$i}@example.org",
+                'password' => Hash::make('AppPassword'),
+                'role' => 'applicant',
+            ]));
+        }
 
         // 2. Seed Stages (Ensure exact IDs needed by the application)
         $stageApplied = Stage::create([
             'id' => 1,
             'name' => 'Applied',
-            'description' => 'Kandidat baru saja melamar lowongan',
+            'description' => 'Kandidat baru saja melamar vacancy',
             'needs_scorecard' => false,
             'needs_schedule' => false,
             'sequence' => 1,
@@ -102,7 +110,7 @@ class DatabaseSeeder extends Seeder
 
         $activeUserIds = [];
 
-        // 3. Seed MPPs, RRs, Lowongans, and Candidates
+        // 3. Seed MPPs, RRs, Vacancies, and Candidates
         Mpp::factory()->count(15)->create()->each(function ($mpp) use ($applicants, $stagesArray, &$activeUserIds) {
             
             // Buat 1 atau 2 Recruitment Request untuk setiap MPP, dengan membagi kuota
@@ -115,31 +123,31 @@ class DatabaseSeeder extends Seeder
                 $kuotaRR = rand(1, min(5, $sisaKuota));
                 $sisaKuota -= $kuotaRR;
 
-                $rr = RecruitmentRequest::factory()->create([
+                $rr = Rr::factory()->create([
                     'mpp_id' => $mpp->id,
                     'quota' => $kuotaRR,
                 ]);
 
-                // Jika RR dipublikasi atau closed, otomatis buat Lowongan
+                // Jika RR dipublikasi atau closed, otomatis buat Vacancy
                 if (in_array($rr->status->value, ['Published', 'Completed', 'Closed'])) {
-                    $lowonganStatus = match ($rr->status) {
-                        \App\Enums\RrStatus::PUBLISHED => \App\Enums\LowonganStatus::PUBLISHED,
-                        \App\Enums\RrStatus::COMPLETED => \App\Enums\LowonganStatus::COMPLETED_CLOSED,
-                        \App\Enums\RrStatus::CLOSED => \App\Enums\LowonganStatus::CLOSED,
-                        default => \App\Enums\LowonganStatus::DRAFT,
+                    $vacancyStatus = match ($rr->status) {
+                        \App\Enums\RrStatus::PUBLISHED => \App\Enums\VacancyStatus::PUBLISHED,
+                        \App\Enums\RrStatus::COMPLETED => \App\Enums\VacancyStatus::COMPLETED_CLOSED,
+                        \App\Enums\RrStatus::CLOSED => \App\Enums\VacancyStatus::CLOSED,
+                        default => \App\Enums\VacancyStatus::DRAFT,
                     };
 
-                    $lowongan = Lowongan::factory()->create([
-                        'recruitment_request_id' => $rr->id,
+                    $vacancy = Vacancy::factory()->create([
+                        'rr_id' => $rr->id,
                         'job_title' => $mpp->job_title,
                         'department' => $mpp->department,
                         'quota' => $rr->quota,
-                        'status' => $lowonganStatus,
+                        'status' => $vacancyStatus,
                     ]);
 
-                    // Generate candidates for this lowongan
+                    // Generate candidates for this vacancy
                     Candidate::factory()->count(rand(2, 8))->create([
-                        'lowongan_id' => $lowongan->id,
+                        'vacancy_id' => $vacancy->id,
                     ])->each(function ($candidate) use ($applicants, $stagesArray, &$activeUserIds) {
                         // Secara acak majukan kandidat ke beberapa tahap
                         $maxStageIndex = rand(0, count($stagesArray) - 1);

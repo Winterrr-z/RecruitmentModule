@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\RecruitmentRequest;
+use App\Models\Rr;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class RrRepository
@@ -12,7 +12,7 @@ class RrRepository
      */
     public function getPaginatedList(array $filters, int $perPage = 12): LengthAwarePaginator
     {
-        $query = RecruitmentRequest::with('lowongan', 'mpp')->withCount('candidates');
+        $query = Rr::with('vacancy', 'mpp')->withCount('candidates');
 
         if (!empty($filters['status'])) {
             if (in_array($filters['status'], ['Completed/Closed', 'Completed', 'Closed'])) {
@@ -46,9 +46,9 @@ class RrRepository
     public function getStats(): array
     {
         return [
-            'total_active' => RecruitmentRequest::where('status', 'Published')->count(),
-            'ready_to_publish' => RecruitmentRequest::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
-            'completed' => RecruitmentRequest::whereIn('status', ['Completed/Closed', 'Completed', 'Closed'])->count(),
+            'total_active' => Rr::where('status', 'Published')->count(),
+            'ready_to_publish' => Rr::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
+            'completed' => Rr::whereIn('status', ['Completed/Closed', 'Completed', 'Closed'])->count(),
         ];
     }
 }

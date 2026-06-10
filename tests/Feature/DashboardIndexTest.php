@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Mpp;
 use App\Models\Candidate;
 use App\Models\InterviewSchedule;
@@ -18,7 +18,7 @@ class DashboardIndexTest extends TestCase
 
     private $user;
     private $mpp;
-    private $lowongan;
+    private $vacancy;
     private $candidate;
 
     protected function setUp(): void
@@ -41,7 +41,7 @@ class DashboardIndexTest extends TestCase
             'status' => 'Approved',
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -52,8 +52,8 @@ class DashboardIndexTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $this->lowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $this->vacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Admin Officer',
             'department' => 'General',
             'status' => 'Published',
@@ -67,7 +67,7 @@ class DashboardIndexTest extends TestCase
         ]);
 
         $this->candidate = Candidate::create([
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'name' => 'New Guy',
             'email' => 'newguy@example.com',
             'phone' => '081234567890',
@@ -87,7 +87,7 @@ class DashboardIndexTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('dashboard'))
             ->assertSuccessful()
-            ->assertSeeLivewire(\App\Livewire\DashboardIndex::class);
+            ->assertSeeLivewire(\App\Livewire\Hr\DashboardIndex::class);
     }
 
     public function test_dashboard_displays_correct_metrics()
@@ -101,8 +101,8 @@ class DashboardIndexTest extends TestCase
         ]);
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\DashboardIndex::class)
-            ->assertSet('activeLowonganCount', 1)
+            ->test(\App\Livewire\Hr\DashboardIndex::class)
+            ->assertSet('activeVacancyCount', 1)
             ->assertSet('newCandidateCount', 1)
             ->assertSet('todayInterviewCount', 1)
             ->assertSee('Admin Officer')
@@ -111,8 +111,8 @@ class DashboardIndexTest extends TestCase
 
     public function test_dashboard_carousel_navigation()
     {
-        // Add a second active lowongan
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        // Add a second active vacancy
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -123,8 +123,8 @@ class DashboardIndexTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $lowongan2 = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $vacancy2 = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Security Guard',
             'department' => 'General',
             'status' => 'Published',
@@ -138,14 +138,14 @@ class DashboardIndexTest extends TestCase
         ]);
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\DashboardIndex::class)
-            ->assertSet('currentLowonganIndex', 0)
-            ->call('nextLowongan')
-            ->assertSet('currentLowonganIndex', 1)
-            ->call('nextLowongan')
-            ->assertSet('currentLowonganIndex', 0)
-            ->call('previousLowongan')
-            ->assertSet('currentLowonganIndex', 1);
+            ->test(\App\Livewire\Hr\DashboardIndex::class)
+            ->assertSet('currentVacancyIndex', 0)
+            ->call('nextVacancy')
+            ->assertSet('currentVacancyIndex', 1)
+            ->call('nextVacancy')
+            ->assertSet('currentVacancyIndex', 0)
+            ->call('previousVacancy')
+            ->assertSet('currentVacancyIndex', 1);
     }
 
     public function test_dashboard_calendar_navigation()
@@ -154,7 +154,7 @@ class DashboardIndexTest extends TestCase
         $currentYear = (int) now()->format('Y');
 
         $component = Livewire::actingAs($this->user)
-            ->test(\App\Livewire\DashboardIndex::class)
+            ->test(\App\Livewire\Hr\DashboardIndex::class)
             ->assertSet('currentMonth', $currentMonth)
             ->assertSet('currentYear', $currentYear);
 

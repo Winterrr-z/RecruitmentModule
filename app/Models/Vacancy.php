@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Lowongan extends Model
+class Vacancy extends Model
 {
     use HasFactory;
 
-    protected $table = 'lowongans';
+    protected $table = 'vacancies';
 
     protected $fillable = [
-        'recruitment_request_id',
+        'rr_id',
         'quota',
         'job_title',
         'department',
@@ -35,16 +35,16 @@ class Lowongan extends Model
         'estimated_salary_min' => 'integer',
         'estimated_salary_max' => 'integer',
         'quota' => 'integer',
-        'status' => \App\Enums\LowonganStatus::class,
+        'status' => \App\Enums\VacancyStatus::class,
     ];
 
-    public function recruitmentRequest(): BelongsTo
+    public function rr(): BelongsTo
     {
-        return $this->belongsTo(RecruitmentRequest::class, 'recruitment_request_id');
+        return $this->belongsTo(Rr::class, 'rr_id');
     }
 
     public function candidates(): HasMany
     {
-        return $this->hasMany(Candidate::class, 'lowongan_id');
+        return $this->hasMany(Candidate::class, 'vacancy_id');
     }
 }

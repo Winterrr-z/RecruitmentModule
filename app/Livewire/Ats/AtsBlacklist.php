@@ -91,12 +91,38 @@ class AtsBlacklist extends Component
                 'reason' => $this->reason,
             ]);
 
-            // Automatically blacklist active candidates with this email to \App\Enums\CandidateStatus::BLACKLISTED and move to Final stage
-            Candidate::where('email', $this->email)
-                ->update([
-                    'status' => \App\Enums\CandidateStatus::BLACKLISTED,
-                    'current_stage_id' => 2
+            // Automatically update candidates with this email/phone
+            $candidates = Candidate::where('email', $this->email)
+                ->orWhere('phone', $this->phone)
+                ->get();
+
+            foreach ($candidates as $c) {
+                $isActive = !in_array($c->status, [
+                    \App\Enums\CandidateStatus::REJECTED,
+                    \App\Enums\CandidateStatus::HIRED,
+                    \App\Enums\CandidateStatus::DECLINED,
+                    \App\Enums\CandidateStatus::EXPIRED,
+                    \App\Enums\CandidateStatus::BLACKLISTED
                 ]);
+
+                if ($isActive) {
+                    if ($c->current_stage_id != 2) {
+                        \App\Models\CandidateMovement::create([
+                            'candidate_id' => $c->id,
+                            'from_stage_id' => $c->current_stage_id,
+                            'to_stage_id' => 2,
+                            'moved_at' => now(),
+                        ]);
+                    }
+                    $c->status = \App\Enums\CandidateStatus::REJECTED;
+                    $c->current_stage_id = 2;
+                    $c->save();
+                } else {
+                    $c->status = \App\Enums\CandidateStatus::BLACKLISTED;
+                    $c->current_stage_id = 2;
+                    $c->save();
+                }
+            }
         });
 
         $this->showModal = false;
@@ -108,7 +134,19 @@ class AtsBlacklist extends Component
     public function deleteBlacklist($id)
     {
         $blacklist = Blacklist::findOrFail($id);
-        $blacklist->delete();
+        
+        \DB::transaction(function () use ($blacklist) {
+            $candidates = Candidate::where(fn($q) => $q->where('email', $blacklist->email)->orWhere('phone', $blacklist->phone))
+                ->where('status', \App\Enums\CandidateStatus::BLACKLISTED)
+                ->get();
+
+            foreach ($candidates as $c) {
+                $c->status = \App\Enums\CandidateStatus::REJECTED;
+                $c->save();
+            }
+
+            $blacklist->delete();
+        });
 
         session()->flash('message', "Data blacklist '{$blacklist->name}' berhasil dihapus.");
     }
@@ -151,6 +189,6 @@ class AtsBlacklist extends Component
         return view('livewire.ats.blacklist', [
             'blacklistList' => $blacklistList,
             'pickerCandidates' => $pickerCandidates,
-        ])->layout('layouts.app');
+        ])->layout('layouts.hr');
     }
 }

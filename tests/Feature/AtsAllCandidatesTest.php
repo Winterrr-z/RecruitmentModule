@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -44,7 +44,7 @@ class AtsAllCandidatesTest extends TestCase
             'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $rr1 = \App\Models\RecruitmentRequest::create([
+        $rr1 = \App\Models\Rr::create([
             'mpp_id' => $mpp1->id,
             'job_title' => 'Software Engineer',
             'department' => 'IT',
@@ -58,8 +58,8 @@ class AtsAllCandidatesTest extends TestCase
             'quota' => 5,
         ]);
 
-        $this->job1 = Lowongan::create([
-            'recruitment_request_id' => $rr1->id,
+        $this->job1 = Vacancy::create([
+            'rr_id' => $rr1->id,
             'mpp_id' => $mpp1->id,
             'job_title' => 'Software Engineer',
             'department' => 'IT',
@@ -73,7 +73,7 @@ class AtsAllCandidatesTest extends TestCase
             'quota' => 5,
         ]);
 
-        $rr2 = \App\Models\RecruitmentRequest::create([
+        $rr2 = \App\Models\Rr::create([
             'mpp_id' => $mpp2->id,
             'job_title' => 'HR Manager',
             'department' => 'HR',
@@ -87,8 +87,8 @@ class AtsAllCandidatesTest extends TestCase
             'quota' => 1,
         ]);
 
-        $this->job2 = Lowongan::create([
-            'recruitment_request_id' => $rr2->id,
+        $this->job2 = Vacancy::create([
+            'rr_id' => $rr2->id,
             'mpp_id' => $mpp2->id,
             'job_title' => 'HR Manager',
             'department' => 'HR',
@@ -104,7 +104,7 @@ class AtsAllCandidatesTest extends TestCase
 
         // Stage 1: Applied, Stage 2: Final
         $this->candidate1 = Candidate::create([
-            'lowongan_id' => $this->job1->id,
+            'vacancy_id' => $this->job1->id,
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'phone' => '081234567890',
@@ -113,7 +113,7 @@ class AtsAllCandidatesTest extends TestCase
         ]);
 
         $this->candidate2 = Candidate::create([
-            'lowongan_id' => $this->job2->id,
+            'vacancy_id' => $this->job2->id,
             'name' => 'Jane Smith',
             'email' => 'jane@example.com',
             'phone' => '081234567891',
@@ -150,16 +150,16 @@ class AtsAllCandidatesTest extends TestCase
             ->assertDontSee('John Doe');
     }
 
-    public function test_can_filter_candidates_by_lowongan()
+    public function test_can_filter_candidates_by_vacancy()
     {
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsAllCandidates::class)
             ->assertSee('John Doe')
             ->assertSee('Jane Smith')
-            ->set('filterLowongan', $this->job1->id)
+            ->set('filterVacancy', $this->job1->id)
             ->assertSee('John Doe')
             ->assertDontSee('Jane Smith')
-            ->set('filterLowongan', $this->job2->id)
+            ->set('filterVacancy', $this->job2->id)
             ->assertSee('Jane Smith')
             ->assertDontSee('John Doe');
     }

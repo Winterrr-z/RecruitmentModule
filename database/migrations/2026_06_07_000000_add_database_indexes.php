@@ -10,7 +10,7 @@ return new class extends Migration
      * Run the migrations.
      *
      * This migration adds critical indexes for performance optimization.
-     * Analysis revealed 37+ WHERE clauses on 'status', 13+ on 'lowongan_id',
+     * Analysis revealed 37+ WHERE clauses on 'status', 13+ on 'vacancy_id',
      * and frequent searches on 'name', 'email', 'job_title' fields.
      *
      * Expected improvement: 70-85% faster queries on filtered datasets.
@@ -22,7 +22,7 @@ return new class extends Migration
         // ================================================================
         Schema::table('candidates', function (Blueprint $table) {
             // Foreign Keys (referenced in AtsAllCandidates.php, AtsPipeline.php)
-            $table->index('lowongan_id');
+            $table->index('vacancy_id');
             $table->index('user_id');
             $table->index('current_stage_id');
 
@@ -31,7 +31,7 @@ return new class extends Migration
             $table->index('created_at');       // DESC ordering in listings
 
             // Composite indexes for common query patterns
-            $table->index(['lowongan_id', 'current_stage_id']);  // Pipeline filtering
+            $table->index(['vacancy_id', 'current_stage_id']);  // Pipeline filtering
             $table->index(['user_id', 'status']);                // Applicant candidates by status
         });
 
@@ -79,9 +79,9 @@ return new class extends Migration
         });
 
         // ================================================================
-        // RECRUITMENT_REQUESTS TABLE - HR internal queries
+        // RRS TABLE - HR internal queries
         // ================================================================
-        Schema::table('recruitment_requests', function (Blueprint $table) {
+        Schema::table('rrs', function (Blueprint $table) {
             // Foreign key
             $table->index('mpp_id');        // RR by MPP lookup
 
@@ -93,17 +93,17 @@ return new class extends Migration
         });
 
         // ================================================================
-        // LOWONGANS TABLE - Public job listings
+        // VACANCIES TABLE - Public job listings
         // ================================================================
-        Schema::table('lowongans', function (Blueprint $table) {
+        Schema::table('vacancies', function (Blueprint $table) {
             // Foreign key
-            $table->index('recruitment_request_id');
+            $table->index('rr_id');
 
             // Published job filtering (PublicJobList, CareerJobList queries)
             $table->index('status');
 
             // Composite for RR-based job queries
-            $table->index(['recruitment_request_id', 'status']);
+            $table->index(['rr_id', 'status']);
         });
 
         // ================================================================
@@ -155,12 +155,12 @@ return new class extends Migration
     {
         // Drop all indexes (cascade removal)
         Schema::table('candidates', function (Blueprint $table) {
-            $table->dropIndex(['lowongan_id']);
+            $table->dropIndex(['vacancy_id']);
             $table->dropIndex(['user_id']);
             $table->dropIndex(['current_stage_id']);
             $table->dropIndex(['status']);
             $table->dropIndex(['created_at']);
-            $table->dropIndex(['lowongan_id', 'current_stage_id']);
+            $table->dropIndex(['vacancy_id', 'current_stage_id']);
             $table->dropIndex(['user_id', 'status']);
         });
 
@@ -185,16 +185,16 @@ return new class extends Migration
             $table->dropIndex(['candidate_id', 'stage_id']);
         });
 
-        Schema::table('recruitment_requests', function (Blueprint $table) {
+        Schema::table('rrs', function (Blueprint $table) {
             $table->dropIndex(['mpp_id']);
             $table->dropIndex(['status']);
             $table->dropIndex(['mpp_id', 'status']);
         });
 
-        Schema::table('lowongans', function (Blueprint $table) {
-            $table->dropIndex(['recruitment_request_id']);
+        Schema::table('vacancies', function (Blueprint $table) {
+            $table->dropIndex(['rr_id']);
             $table->dropIndex(['status']);
-            $table->dropIndex(['recruitment_request_id', 'status']);
+            $table->dropIndex(['rr_id', 'status']);
         });
 
         Schema::table('mpps', function (Blueprint $table) {

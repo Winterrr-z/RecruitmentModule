@@ -13,17 +13,17 @@ class OfferingLetterMail extends Mailable
     use Queueable, SerializesModels;
 
     public $candidate;
-    public $lowongan;
+    public $vacancy;
     public $token;
     public $expiresAt;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($candidate, $lowongan, $token, $expiresAt)
+    public function __construct($candidate, $vacancy, $token, $expiresAt)
     {
         $this->candidate = $candidate;
-        $this->lowongan = $lowongan;
+        $this->vacancy = $vacancy;
         $this->token = $token;
         $this->expiresAt = $expiresAt;
     }
@@ -34,7 +34,7 @@ class OfferingLetterMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Surat Penawaran - ' . ($this->lowongan ? $this->lowongan->jabatan : 'Kandidat Mandiri'),
+            subject: 'Surat Penawaran - ' . ($this->vacancy ? $this->vacancy->job_title : 'Kandidat Mandiri'),
         );
     }
 

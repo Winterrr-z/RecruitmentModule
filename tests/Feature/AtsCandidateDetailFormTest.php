@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use App\Models\Scorecard;
 use App\Models\InterviewSchedule;
@@ -36,7 +36,7 @@ class AtsCandidateDetailFormTest extends TestCase
             'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $rr = \App\Models\RecruitmentRequest::create([
+        $rr = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'IT Engineer',
             'department' => 'IT',
@@ -50,8 +50,8 @@ class AtsCandidateDetailFormTest extends TestCase
             'quota' => 1,
         ]);
 
-        $this->job = Lowongan::create([
-            'recruitment_request_id' => $rr->id,
+        $this->job = Vacancy::create([
+            'rr_id' => $rr->id,
             'job_title' => 'IT Engineer',
             'department' => 'IT',
             'status' => 'Published',
@@ -64,7 +64,7 @@ class AtsCandidateDetailFormTest extends TestCase
         ]);
 
         $this->candidate = Candidate::create([
-            'lowongan_id' => $this->job->id,
+            'vacancy_id' => $this->job->id,
             'name' => 'Bob Smith',
             'email' => 'bob@example.com',
             'phone' => '081234567899',

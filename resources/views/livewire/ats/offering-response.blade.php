@@ -28,7 +28,7 @@
             <div>
                 <h2 class="font-headline-lg text-2xl text-on-surface mb-2">Tawaran Telah Ditolak</h2>
                 <p class="text-body-md text-on-surface-variant/70 leading-relaxed">
-                    Anda telah menolak tawaran pekerjaan ini. Kami menghargai waktu dan keputusan Anda. Profil Anda akan disimpan secara aman di bank bakat kami untuk peluang karier lainnya di masa mendatang.
+                    Anda telah menolak tawaran pekerjaan ini. Kami menghargai waktu dan keputusan Anda.
                 </p>
             </div>
             <div class="pt-4">
@@ -97,26 +97,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Jabatan Tumpuan</span>
-                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->job_title }}</span>
+                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->vacancy->job_title }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Departemen</span>
-                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->lowongan->department }}</span>
+                        <span class="text-body-md text-on-surface font-semibold">{{ $candidate->vacancy->department }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Tipe Kontrak</span>
-                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->employment_type }}</span>
+                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->vacancy->employment_type }}</span>
                     </div>
                     <div>
                         <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Penempatan</span>
-                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->lowongan->location }}</span>
+                        <span class="text-body-md text-on-surface font-semibold capitalize">{{ $candidate->vacancy->location }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Letter Text Preview -->
             <div class="text-sm text-on-surface-variant/90 leading-relaxed space-y-3 max-h-60 overflow-y-auto p-4 border rounded-md bg-surface/30">
-                @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $candidate->lowongan->job_title])
+                @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $candidate->vacancy->job_title])
             </div>
 
             <!-- Expiration Alert Notice -->

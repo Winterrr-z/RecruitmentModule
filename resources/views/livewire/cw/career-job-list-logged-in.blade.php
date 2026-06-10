@@ -62,13 +62,13 @@
         <div class="flex justify-between items-center mb-6">
             <p class="font-body-lg text-body-md text-on-surface-variant">
                 Menampilkan
-                <span class="font-semibold text-on-surface">{{ $lowongans->count() }}</span>
+                <span class="font-semibold text-on-surface">{{ $vacancies->count() }}</span>
                 posisi terbuka
             </p>
         </div>
 
         {{-- Empty State --}}
-        @if($lowongans->isEmpty())
+        @if($vacancies->isEmpty())
             <div class="flex flex-col items-center justify-center p-12 text-center bg-surface-container-lowest rounded-2xl soft-shadow">
                 <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-3">
                     <span class="material-symbols-outlined text-[28px] text-on-surface-variant/40">work_off</span>
@@ -77,7 +77,7 @@
                     @if(!empty($search) || !empty($selectedDepartments) || !empty($selectedTypes))
                         Tidak ada posisi yang cocok dengan filter Anda.
                     @else
-                        Belum ada lowongan saat ini.
+                        Belum ada vacancy saat ini.
                     @endif
                 </h3>
                 <p class="text-body-md text-on-surface-variant/70 max-w-md mb-4 text-sm">
@@ -94,7 +94,7 @@
 
         {{-- Job Cards --}}
         @else
-            @foreach($lowongans as $lowongan)
+            @foreach($vacancies as $vacancy)
                 <article class="bg-surface-container-lowest rounded-2xl p-5 md:p-6 soft-shadow hover-lift flex flex-col md:flex-row md:items-center justify-between gap-5 group cursor-pointer relative overflow-hidden">
 
                     {{-- Job Info --}}
@@ -102,9 +102,9 @@
                         {{-- Badges Row --}}
                         <div class="flex flex-wrap gap-2">
                             <span class="px-2.5 py-0.5 bg-surface-container text-on-surface-variant font-label-sm text-[11px] rounded-full">
-                                {{ $lowongan->department }}
+                                {{ $vacancy->department }}
                             </span>
-                            @if($lowongan->employment_type === 'full-time')
+                            @if($vacancy->employment_type === 'full-time')
                                 <span class="px-2.5 py-0.5 bg-primary/10 text-primary font-label-sm text-[11px] rounded-full">
                                     Full-time
                                 </span>
@@ -114,13 +114,13 @@
                                 </span>
                             @endif
                             <span class="px-2.5 py-0.5 bg-surface-container text-on-surface-variant font-label-sm text-[11px] rounded-full capitalize">
-                                {{ $lowongan->location }}
+                                {{ $vacancy->location }}
                             </span>
                         </div>
 
                         {{-- Job Title --}}
                         <h3 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">
-                            {{ $lowongan->job_title }}
+                            {{ $vacancy->job_title }}
                         </h3>
 
                         {{-- Meta Row --}}
@@ -128,15 +128,15 @@
                             {{-- Deadline --}}
                             <span class="flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[18px] text-primary/70">calendar_month</span>
-                                Batas: <strong class="text-on-surface ml-0.5">{{ $lowongan->application_deadline->translatedFormat('d F Y') }}</strong>
+                                Batas: <strong class="text-on-surface ml-0.5">{{ $vacancy->application_deadline->translatedFormat('d F Y') }}</strong>
                             </span>
 
-                            @if($lowongan->show_salary && $lowongan->estimated_salary_min)
+                            @if($vacancy->show_salary && $vacancy->estimated_salary_min)
                                 <span class="hidden sm:inline text-outline-variant/60">•</span>
                                 <span class="flex items-center gap-1 text-primary">
                                     <span class="material-symbols-outlined text-[18px]">payments</span>
-                                    Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }}
-                                    – Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}
+                                    Rp {{ number_format($vacancy->estimated_salary_min, 0, ',', '.') }}
+                                    – Rp {{ number_format($vacancy->estimated_salary_max, 0, ',', '.') }}
                                 </span>
                             @else
                                 <span class="hidden sm:inline text-outline-variant/60">•</span>
@@ -152,7 +152,7 @@
 
                     {{-- Action Buttons --}}
                     <div class="shrink-0">
-                        <a href="{{ route('candidate.jobs.show', $lowongan->id) }}"
+                        <a href="{{ route('candidate.jobs.show', $vacancy->id) }}"
                            class="w-full md:w-auto inline-block text-center font-bold text-xs text-on-primary bg-primary px-6 py-3 rounded-full hover:bg-primary/90 transition-colors no-underline">
                             Lihat Detail
                         </a>

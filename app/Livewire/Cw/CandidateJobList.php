@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Cw;
 
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -34,11 +34,11 @@ class CandidateJobList extends Component
     }
 
     /**
-     * Render daftar lowongan khusus pelamar login.
+     * Render daftar vacancy khusus pelamar login.
      */
     public function render()
     {
-        $query = Lowongan::query()
+        $query = Vacancy::query()
             ->where('status', 'Published')
             ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
@@ -59,11 +59,11 @@ class CandidateJobList extends Component
         }
 
         $direction = $this->sortBy === 'oldest' ? 'asc' : 'desc';
-        $lowongans = $query->orderBy('created_at', $direction)->paginate(10);
+        $vacancies = $query->orderBy('created_at', $direction)->paginate(10);
 
         // Rekap jumlah per departemen untuk sidebar
-        $departments = \Illuminate\Support\Facades\Cache::remember('lowongan_department_counts', 3600, function () {
-            return Lowongan::query()
+        $departments = \Illuminate\Support\Facades\Cache::remember('vacancy_department_counts', 3600, function () {
+            return Vacancy::query()
                 ->where('status', 'Published')
                 ->where('quota', '>', 0)
                 ->where('application_deadline', '>=', Carbon::today())
@@ -74,7 +74,7 @@ class CandidateJobList extends Component
                 ->toArray();
         });
 
-        return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))
+        return view('livewire.cw.career-job-list-logged-in', compact('vacancies', 'departments'))
             ->layout('layouts.applicant');
     }
 }

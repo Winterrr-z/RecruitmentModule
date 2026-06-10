@@ -19,10 +19,10 @@ Route::middleware(['web', 'auth', 'role:hr'])->group(function () {
     Route::get('/mpp/{id}/edit', App\Livewire\Mpp\MppForm::class)->name('mpp.edit');
     Route::get('/mpp/{id}', App\Livewire\Mpp\MppDetail::class)->name('mpp.show');
 
-    Route::get('/recruitment-requests', App\Livewire\Rr\RRIndex::class)->name('rr.index');
-    Route::get('/recruitment-requests/create/{mppId?}', App\Livewire\Rr\RRForm::class)->name('rr.create');
-    Route::get('/recruitment-requests/{id}/edit', App\Livewire\Rr\RRForm::class)->name('rr.edit');
-    Route::get('/recruitment-requests/{id}', App\Livewire\Rr\RRDetail::class)->name('rr.show');
+    Route::get('/rrs', App\Livewire\Rr\RRIndex::class)->name('rr.index');
+    Route::get('/rrs/create/{mppId?}', App\Livewire\Rr\RRForm::class)->name('rr.create');
+    Route::get('/rrs/{id}/edit', App\Livewire\Rr\RRForm::class)->name('rr.edit');
+    Route::get('/rrs/{id}', App\Livewire\Rr\RRDetail::class)->name('rr.show');
 });
 
 // ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ Route::middleware(['auth', 'role:applicant'])->group(function () {
 // HR Internal area (Selain MPP, RR, dan ATS)
 // ---------------------------------------------------------------------------
 Route::middleware(['auth', 'role:hr'])->group(function () {
-    Route::get('/dashboard', App\Livewire\DashboardIndex::class)->name('dashboard');
+    Route::get('/dashboard', App\Livewire\Hr\DashboardIndex::class)->name('dashboard');
     Route::get('/profile', App\Livewire\Hr\ProfileHr::class)->name('hr.profile');
     Route::get('/profile/edit', App\Livewire\Hr\EditProfileHr::class)->name('hr.profile.edit');
     Route::get('/profile/change-password', App\Livewire\Hr\ChangePasswordHr::class)->name('hr.profile.password');
@@ -79,18 +79,18 @@ Route::middleware(['auth', 'role:hr'])->prefix('ats')->group(function () {
     Route::get('/candidates', App\Livewire\Ats\AtsAllCandidates::class)->name('ats.candidates');
     Route::get('/stages', App\Livewire\Ats\AtsStageConfig::class)->name('ats.stages');
     Route::get('/blacklist', App\Livewire\Ats\AtsBlacklist::class)->name('ats.blacklist');
-    Route::get('/manual/{lowonganId?}', App\Livewire\Ats\AtsManualCandidate::class)->name('ats.candidate.manual');
+    Route::get('/manual/{vacancyId?}', App\Livewire\Ats\AtsManualCandidate::class)->name('ats.candidate.manual');
     Route::get('/candidate/{candidateId}', App\Livewire\Ats\AtsCandidateDetail::class)->name('ats.candidate.detail');
     Route::get('/candidate/{candidateId}/schedule/{stageId}', App\Livewire\Ats\AtsScheduleForm::class)->name('ats.candidate.schedule');
     Route::get('/candidate/{candidateId}/scorecard/{stageId}', App\Livewire\Ats\AtsScorecardForm::class)->name('ats.candidate.scorecard');
 });
 
 // Offering (HR)
-Route::get('/ats/offering/{candidateId}', App\Livewire\OfferingSend::class)->name('ats.offering.send')->middleware(['auth', 'role:hr']);
+Route::get('/ats/offering/{candidateId}', App\Livewire\Ats\OfferingSend::class)->name('ats.offering.send')->middleware(['auth', 'role:hr']);
 
 // Offering Response (Publik)
-Route::get('/offering/{token}', App\Livewire\OfferingResponse::class)->name('offering.response');
-Route::post('/offering/{token}/respond', [App\Livewire\OfferingResponse::class, 'respond'])->name('offering.respond');
+Route::get('/offering/{token}', App\Livewire\Ats\OfferingResponse::class)->name('offering.response');
+Route::post('/offering/{token}/respond', [App\Livewire\Ats\OfferingResponse::class, 'respond'])->name('offering.respond');
 
 
 // ---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ if (app()->environment(['local', 'testing'])) {
     Route::get('/dev/simulate/hired', function () {
         if (!Auth::check() || Auth::user()->role !== 'applicant') return "Login sebagai pelamar dulu!";
         $candidate = \App\Models\Candidate::where('user_id', Auth::id())->first();
-        if (!$candidate) return "Pelamar ini belum melamar lowongan apa pun.";
+        if (!$candidate) return "Pelamar ini belum melamar vacancy apa pun.";
         
         $candidate->update([
             'status' => 'Hired',

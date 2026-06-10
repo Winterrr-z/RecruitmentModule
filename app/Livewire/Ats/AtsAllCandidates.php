@@ -4,7 +4,7 @@ namespace App\Livewire\Ats;
 
 use App\Models\Candidate;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,7 +12,7 @@ class AtsAllCandidates extends Component
 {
     use WithPagination;
 
-    public $filterLowongan = '';
+    public $filterVacancy = '';
     public $filterStatus = '';
     public $filterStage = '';
     public $search = '';
@@ -24,7 +24,7 @@ class AtsAllCandidates extends Component
         $this->resetPage();
     }
 
-    public function updatingFilterLowongan()
+    public function updatingFilterVacancy()
     {
         $this->resetPage();
     }
@@ -41,11 +41,11 @@ class AtsAllCandidates extends Component
 
     public function render()
     {
-        $lowongans = Lowongan::all();
+        $vacancies = Vacancy::all();
         $stages = Stage::getAllCached();
 
         $candidates = app(\App\Repositories\CandidateRepository::class)->getAllCandidates(
-            $this->filterLowongan,
+            $this->filterVacancy,
             $this->filterStatus,
             $this->filterStage,
             $this->search,
@@ -53,9 +53,9 @@ class AtsAllCandidates extends Component
         );
 
         return view('livewire.ats.ats-all-candidates', [
-            'lowongans' => $lowongans,
+            'vacancies' => $vacancies,
             'stages' => $stages,
             'candidates' => $candidates,
-        ])->layout('layouts.app');
+        ])->layout('layouts.hr');
     }
 }

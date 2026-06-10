@@ -2,14 +2,14 @@
 
 namespace App\Livewire\Cw;
 
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Carbon\Carbon;
 use Livewire\Component;
 
 /**
  * Class CareerJobList
  *
- * Komponen Livewire untuk menampilkan daftar lowongan pekerjaan publik maupun
+ * Komponen Livewire untuk menampilkan daftar vacancy pekerjaan publik maupun
  * untuk pelamar yang sudah login.
  *
  * - Guest     → layouts.guest + view career-job-list (top-bar filter)
@@ -74,7 +74,7 @@ class CareerJobList extends Component
         $isLoggedIn = auth()->check();
 
         // --- Base query ---
-        $query = Lowongan::query()
+        $query = Vacancy::query()
             ->where('status', 'Published')
             ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
@@ -107,13 +107,13 @@ class CareerJobList extends Component
 
         // --- Sorting ---
         $direction = $this->sortBy === 'oldest' ? 'asc' : 'desc';
-        $lowongans = $query->orderBy('created_at', $direction)->paginate(10);
+        $vacancies = $query->orderBy('created_at', $direction)->paginate(10);
 
         // --- Department list with counts (for sidebar) ---
         $departments = [];
         if ($isLoggedIn) {
-            $departments = \Illuminate\Support\Facades\Cache::remember('lowongan_department_counts', 3600, function () {
-                return Lowongan::query()
+            $departments = \Illuminate\Support\Facades\Cache::remember('vacancy_department_counts', 3600, function () {
+                return Vacancy::query()
                     ->where('status', 'Published')
                     ->where('quota', '>', 0)
                     ->where('application_deadline', '>=', Carbon::today())
@@ -126,11 +126,11 @@ class CareerJobList extends Component
         }
 
         if ($isLoggedIn) {
-            return view('livewire.cw.career-job-list-logged-in', compact('lowongans', 'departments'))
+            return view('livewire.cw.career-job-list-logged-in', compact('vacancies', 'departments'))
                 ->layout('layouts.applicant');
         }
 
-        return view('livewire.cw.career-job-list', compact('lowongans'))
+        return view('livewire.cw.career-job-list', compact('vacancies'))
             ->layout('layouts.guest');
     }
 }

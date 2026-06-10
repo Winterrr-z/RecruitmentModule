@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Blade::component('layouts.app', 'app-layout');
+        \Illuminate\Support\Facades\Blade::component('layouts.hr', 'app-layout');
         \Illuminate\Support\Facades\Blade::component('layouts.applicant', 'applicant-layout');
         \Illuminate\Support\Facades\Blade::component('layouts.auth', 'auth-layout');
         \Illuminate\Support\Facades\Blade::component('layouts.guest', 'guest-layout');

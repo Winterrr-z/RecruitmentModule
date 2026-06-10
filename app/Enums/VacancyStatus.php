@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum LowonganStatus: string
+enum VacancyStatus: string
 {
     case DRAFT = 'Draft';
     case READY_TO_PUBLISH = 'Ready to Publish';

@@ -110,21 +110,21 @@
             <h1>Surat Penawaran Pekerjaan</h1>
         </div>
         <div class="content">
-            @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $lowongan->job_title])
+            @include('emails.templates.offering-text', ['name' => $candidate->name, 'jobTitle' => $vacancy->job_title])
             
             <div class="highlight-box">
                 <table>
                     <tr>
                         <td class="label">Posisi Jabatan</td>
-                        <td class="value">{{ $lowongan->job_title }}</td>
+                        <td class="value">{{ $vacancy->job_title }}</td>
                     </tr>
                     <tr>
                         <td class="label">Departemen</td>
-                        <td class="value">{{ $lowongan->department }}</td>
+                        <td class="value">{{ $vacancy->department }}</td>
                     </tr>
                     <tr>
                         <td class="label">Tipe Pekerjaan</td>
-                        <td class="value" style="text-transform: capitalize;">{{ $lowongan->employment_type }}</td>
+                        <td class="value" style="text-transform: capitalize;">{{ $vacancy->employment_type }}</td>
                     </tr>
                 </table>
             </div>

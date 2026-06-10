@@ -66,16 +66,16 @@
     </div>
 
     <!-- Career Cards List -->
-    @if($lowongans->isEmpty())
+    @if($vacancies->isEmpty())
         <div class="flex flex-col items-center justify-center p-16 text-center bg-white rounded-lg border border-dashed border-outline-variant/60 shadow-[0_20px_40px_rgba(107,56,212,0.02)]">
             <div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-4">
                 <span class="material-symbols-outlined text-[36px] text-on-surface-variant/40">work_off</span>
             </div>
             <h3 class="text-title-md font-bold text-on-surface mb-2">
                 @if(!empty($search) || !empty($selectedTipeKerja) || !empty($selectedLokasi))
-                    Tidak menemukan lowongan yang sesuai dengan pencarian Anda.
+                    Tidak menemukan vacancy yang sesuai dengan pencarian Anda.
                 @else
-                    Belum ada lowongan saat ini.
+                    Belum ada vacancy saat ini.
                 @endif
             </h3>
             <p class="text-body-md text-on-surface-variant/70 max-w-md mb-6">
@@ -92,63 +92,63 @@
         <!-- Jobs Count Grid Header -->
         <div class="flex justify-between items-center mb-6">
             <p class="text-sm text-on-surface-variant">
-                Menampilkan <strong class="text-on-surface font-bold">{{ $lowongans->count() }}</strong> lowongan pekerjaan
+                Menampilkan <strong class="text-on-surface font-bold">{{ $vacancies->count() }}</strong> vacancy pekerjaan
             </p>
         </div>
 
         <!-- Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @foreach($lowongans as $lowongan)
+            @foreach($vacancies as $vacancy)
                 <div class="bg-white rounded-lg border border-surface-container-high p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                     <div>
                         <!-- Header Card -->
                         <div class="flex justify-between items-start gap-4 mb-4">
                             <span class="inline-flex px-2.5 py-0.5 rounded bg-primary/5 text-primary text-xs font-bold uppercase tracking-wide">
-                                {{ $lowongan->department }}
+                                {{ $vacancy->department }}
                             </span>
                             <span class="text-xs text-on-surface-variant/50">
-                                {{ $lowongan->created_at->diffForHumans() }}
+                                {{ $vacancy->created_at->diffForHumans() }}
                             </span>
                         </div>
 
                         <!-- Job Title -->
                         <h3 class="text-title-md font-bold text-on-surface mb-3 line-clamp-2 hover:text-primary transition-colors">
-                            {{ $lowongan->job_title }}
+                            {{ $vacancy->job_title }}
                         </h3>
 
                         <!-- Badges -->
                         <div class="flex flex-wrap gap-2 mb-6">
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded bg-primary-fixed text-on-primary-fixed-variant text-xs font-semibold capitalize">
                                 <span class="material-symbols-outlined text-[14px]">work</span>
-                                {{ $lowongan->employment_type }}
+                                {{ $vacancy->employment_type }}
                             </span>
                             <span class="inline-flex items-center gap-1 px-3 py-1 rounded bg-secondary-fixed text-on-secondary-fixed-variant text-xs font-semibold capitalize">
                                 <span class="material-symbols-outlined text-[14px]">location_on</span>
-                                {{ $lowongan->location }}
+                                {{ $vacancy->location }}
                             </span>
                         </div>
 
                         <!-- Details Section -->
                         <div class="space-y-3 pt-4 border-t border-surface-container-low text-sm text-on-surface-variant/80">
                             <!-- Salary Range -->
-                            @if($lowongan->show_salary)
+                            @if($vacancy->show_salary)
                                 <div class="flex items-center gap-2.5 text-on-surface font-semibold">
                                     <span class="material-symbols-outlined text-primary text-[18px]">payments</span>
-                                    <span>Rp {{ number_format($lowongan->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($lowongan->estimated_salary_max, 0, ',', '.') }}</span>
+                                    <span>Rp {{ number_format($vacancy->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($vacancy->estimated_salary_max, 0, ',', '.') }}</span>
                                 </div>
                             @endif
 
                             <!-- Application Deadline -->
                             <div class="flex items-center gap-2.5">
                                 <span class="material-symbols-outlined text-primary text-[18px]">calendar_month</span>
-                                <span>Batas akhir: <strong class="text-on-surface font-semibold">{{ $lowongan->application_deadline ? $lowongan->application_deadline->translatedFormat('d F Y') : '-' }}</strong></span>
+                                <span>Batas akhir: <strong class="text-on-surface font-semibold">{{ $vacancy->application_deadline ? $vacancy->application_deadline->translatedFormat('d F Y') : '-' }}</strong></span>
                             </div>
                         </div>
                     </div>
 
                     <!-- CTA -->
                     <div class="mt-6 pt-4 border-t border-surface-container-low">
-                        <a href="{{ route('candidate.jobs.show', $lowongan->id) }}" 
+                        <a href="{{ route('candidate.jobs.show', $vacancy->id) }}" 
                            class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-bold rounded-sm hover:bg-primary-container shadow-[0_4px_12px_rgba(107,56,212,0.15)] hover:shadow-[0_4px_20px_rgba(107,56,212,0.25)] transition-all duration-200 active:scale-[0.98] no-underline text-sm">
                             <span>Lihat Detail</span>
                             <span class="material-symbols-outlined text-[16px]">arrow_forward</span>

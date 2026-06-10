@@ -33,7 +33,7 @@ class AtsCandidateDetail extends Component
         }
 
         $this->candidateId = $candidateId;
-        $this->candidate = Candidate::with('lowongan', 'currentStage')->findOrFail($candidateId);
+        $this->candidate = Candidate::with('vacancy', 'currentStage')->findOrFail($candidateId);
         $this->movements = $this->candidate->candidateMovements()
             ->with('fromStage', 'toStage')
             ->orderBy('moved_at', 'desc')
@@ -100,6 +100,6 @@ class AtsCandidateDetail extends Component
 
     public function render()
     {
-        return view('livewire.ats.candidate-detail')->layout('layouts.app');
+        return view('livewire.ats.candidate-detail')->layout('layouts.hr');
     }
 }

@@ -3,7 +3,7 @@
     <!-- Content Header -->
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">All Candidates</h2>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Candidate List</h2>
             <p class="font-body-md text-body-md text-on-surface-variant/70">
                 Menampilkan {{ $candidates->total() }} kandidat
             </p>
@@ -19,12 +19,12 @@
 
     <x-advanced-filter searchPlaceholder="Cari nama atau email..." searchModel="search">
         <x-slot:filters>
-            <!-- Filter Lowongan -->
+            <!-- Filter Vacancy -->
             <div>
-                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lowongan</label>
-                <select wire:model.live="filterLowongan" class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
-                    <option value="">Semua Lowongan</option>
-                    @foreach($lowongans as $job)
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Vacancy</label>
+                <select wire:model.live="filterVacancy" class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="">Semua Vacancy</option>
+                    @foreach($vacancies as $job)
                         <option value="{{ $job->id }}">{{ $job->job_title }} ({{ $job->department }})</option>
                     @endforeach
                 </select>
@@ -75,7 +75,7 @@
                         <tr class="border-b border-surface-container-high bg-surface-container-low/40">
                             <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Nama</th>
                             <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Email</th>
-                            <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Lowongan</th>
+                            <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Vacancy</th>
                             <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Stage</th>
                             <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Status</th>
                             <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Tanggal Melamar</th>
@@ -83,7 +83,7 @@
                     </thead>
                     <tbody class="divide-y divide-surface-container/30">
                         @forelse($candidates as $candidate)
-                            <tr x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id, 'from' => 'candidates']) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
+                            <tr wire:key="candidate-{{ $candidate->id }}" x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id, 'from' => 'candidates']) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
                                 <!-- Nama -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
@@ -101,9 +101,9 @@
                                     {{ $candidate->email }}
                                 </td>
 
-                                <!-- Lowongan -->
+                                <!-- Vacancy -->
                                 <td class="px-6 py-4 whitespace-nowrap font-medium">
-                                    {{ $candidate->lowongan->job_title ?? '-' }}
+                                    {{ $candidate->vacancy->job_title ?? '-' }}
                                 </td>
 
                                 <!-- Stage -->

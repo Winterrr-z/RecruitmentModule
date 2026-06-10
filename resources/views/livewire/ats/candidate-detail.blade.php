@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->name) === 'final') && in_array($candidate->status->value, ['Applied', 'In Progress', 'Offered']) && $candidate->lowongan && $candidate->lowongan->quota > 0)
+        @if (($candidate->currentStage->id === 2 || strtolower($candidate->currentStage->name) === 'final') && in_array($candidate->status->value, ['Applied', 'In Progress', 'Offered']) && $candidate->vacancy && $candidate->vacancy->quota > 0)
             <a href="{{ route('ats.offering.send', ['candidateId' => $candidate->id]) }}?from={{ $backLabel === 'All Candidates' ? 'candidates' : 'dashboard' }}" 
                class="inline-flex items-center justify-center gap-2 px-5 h-11 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)] text-sm">
                 <span class="material-symbols-outlined text-[20px]">mail</span>
@@ -95,9 +95,9 @@
                     <span class="text-body-md text-on-surface font-semibold">{{ $candidate->phone }}</span>
                 </div>
                 <div>
-                    <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Lowongan Pekerjaan</span>
-                    <span class="text-body-md text-primary font-bold">{{ $candidate->lowongan?->job_title ?: 'Kandidat Mandiri' }}</span>
-                    <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->department ?: 'Tanpa Lowongan' }}</div>
+                    <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Vacancy Pekerjaan</span>
+                    <span class="text-body-md text-primary font-bold">{{ $candidate->vacancy?->job_title ?: 'Kandidat Mandiri' }}</span>
+                    <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->vacancy?->department ?: 'Tanpa Vacancy' }}</div>
                 </div>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Sumber Pendaftaran</span>

@@ -45,7 +45,7 @@ class GenerateNotifications extends Command
                         'user_id' => $user->id,
                         'type' => 'application_single',
                         'title' => 'Aplikasi Kandidat Baru',
-                        'message' => $candidate->name . ' apply untuk posisi ' . ($candidate->lowongan?->job_title ?? 'N/A'),
+                        'message' => $candidate->name . ' apply untuk posisi ' . ($candidate->vacancy?->job_title ?? 'N/A'),
                         'icon' => 'person_add',
                         'candidate_id' => $candidate->id,
                     ]);

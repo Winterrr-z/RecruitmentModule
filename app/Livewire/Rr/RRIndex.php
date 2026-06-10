@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Rr;
 
-use App\Models\RecruitmentRequest;
+use App\Models\Rr;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -16,7 +16,7 @@ use Livewire\Attributes\Layout;
  *
  * @package App\Livewire
  */
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class RRIndex extends Component
 {
     use WithPagination;
@@ -55,20 +55,20 @@ class RRIndex extends Component
 
     /**
      * Publish RR (ubah status dari 'Draft' ke 'Published').
-     * Akan otomatis membuat entri Lowongan untuk publik.
+     * Akan otomatis membuat entri Vacancy untuk publik.
      *
      * @param int $id
      * @return void
      */
     public function publish($id)
     {
-        $rr = RecruitmentRequest::findOrFail($id);
+        $rr = Rr::findOrFail($id);
         if ($rr->status->value === 'Draft' || $rr->status->value === 'Ready to Publish') {
             $rr->update(['status' => 'Published']);
 
-            // Buat Lowongan otomatis
-            $rr->lowongan()->updateOrCreate(
-                ['recruitment_request_id' => $rr->id],
+            // Buat Vacancy otomatis
+            $rr->vacancy()->updateOrCreate(
+                ['rr_id' => $rr->id],
                 [
                     'quota' => $rr->quota,
                     'job_title' => $rr->job_title,
@@ -85,26 +85,26 @@ class RRIndex extends Component
                 ]
             );
 
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan dan Lowongan telah dibuat.');
+            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan dan Vacancy telah dibuat.');
         }
     }
 
     /**
      * Tutup RR (ubah status ke 'Completed/Closed').
-     * Akan otomatis menutup Lowongan publik.
+     * Akan otomatis menutup Vacancy publik.
      *
      * @param int $id
      * @return void
      */
     public function close($id)
     {
-        $rr = RecruitmentRequest::findOrFail($id);
+        $rr = Rr::findOrFail($id);
         if ($rr->status->value !== 'Completed/Closed' && $rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
             $rr->update(['status' => 'Completed/Closed']);
 
-            // Tutup juga lowongan jika ada
-            if ($rr->lowongan) {
-                $rr->lowongan->update(['status' => 'Closed']);
+            // Tutup juga vacancy jika ada
+            if ($rr->vacancy) {
+                $rr->vacancy->update(['status' => 'Closed']);
             }
 
             session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
@@ -119,13 +119,13 @@ class RRIndex extends Component
      */
     public function unpublish($id)
     {
-        $rr = RecruitmentRequest::findOrFail($id);
+        $rr = Rr::findOrFail($id);
         if ($rr->status->value === 'Published') {
             $rr->update(['status' => 'Ready to Publish']);
 
-            // Nonaktifkan lowongan terkait
-            if ($rr->lowongan) {
-                $rr->lowongan->update(['status' => 'Closed']);
+            // Nonaktifkan vacancy terkait
+            if ($rr->vacancy) {
+                $rr->vacancy->update(['status' => 'Closed']);
             }
 
             session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dinonaktifkan.');
@@ -140,7 +140,7 @@ class RRIndex extends Component
      */
     public function delete($id)
     {
-        $rr = RecruitmentRequest::with('lowongan.candidates')->findOrFail($id);
+        $rr = Rr::with('vacancy.candidates')->findOrFail($id);
 
         if ($rr->hiredCount() > 0 || $rr->status->value !== 'Ready to Publish') {
             session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Ready to Publish tidak dapat dihapus.');

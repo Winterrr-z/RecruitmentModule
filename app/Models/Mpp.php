@@ -38,18 +38,18 @@ class Mpp extends Model
         'status' => \App\Enums\MppStatus::class,
     ];
 
-    public function recruitmentRequests(): HasMany
+    public function rrs(): HasMany
     {
-        return $this->hasMany(RecruitmentRequest::class, 'mpp_id');
+        return $this->hasMany(Rr::class, 'mpp_id');
     }
 
-    public function lowongans(): HasManyThrough
+    public function vacancies(): HasManyThrough
     {
         return $this->hasManyThrough(
-            Lowongan::class,
-            RecruitmentRequest::class,
+            Vacancy::class,
+            Rr::class,
             'mpp_id',
-            'recruitment_request_id',
+            'rr_id',
             'id',
             'id'
         );
@@ -57,7 +57,7 @@ class Mpp extends Model
 
     public function totalHired(): int
     {
-        return Candidate::whereHas('lowongan.recruitmentRequest', function ($q) {
+        return Candidate::whereHas('vacancy.rr', function ($q) {
             $q->where('mpp_id', $this->id);
         })->where('status', \App\Enums\CandidateStatus::HIRED)->count();
     }
@@ -74,18 +74,18 @@ class Mpp extends Model
 
     public function hasActiveCandidates(): bool
     {
-        $lowonganIds = Lowongan::whereHas('recruitmentRequest', function ($q) {
+        $vacancyIds = Vacancy::whereHas('rr', function ($q) {
             $q->where('mpp_id', $this->id);
         })->pluck('id');
 
-        return Candidate::whereIn('lowongan_id', $lowonganIds)
+        return Candidate::whereIn('vacancy_id', $vacancyIds)
             ->whereNotIn('status', [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::WITHDRAWN])
             ->exists();
     }
 
     public function hasPublishedRr(): bool
     {
-        return $this->recruitmentRequests()->where('status', 'Published')->exists();
+        return $this->rrs()->where('status', 'Published')->exists();
     }
 
     public function getLastActivityDate(): Carbon
@@ -93,22 +93,22 @@ class Mpp extends Model
         $dates = collect();
         $dates->push($this->last_activity_at ?? $this->updated_at);
 
-        $latestRr = $this->recruitmentRequests()->max('created_at');
+        $latestRr = $this->rrs()->max('created_at');
         if ($latestRr) {
             $dates->push(Carbon::parse($latestRr));
         }
 
-        $lowonganIds = Lowongan::whereHas('recruitmentRequest', function ($q) {
+        $vacancyIds = Vacancy::whereHas('rr', function ($q) {
             $q->where('mpp_id', $this->id);
         })->pluck('id');
 
-        if ($lowonganIds->isNotEmpty()) {
-            $latestCandidate = Candidate::whereIn('lowongan_id', $lowonganIds)->max('created_at');
+        if ($vacancyIds->isNotEmpty()) {
+            $latestCandidate = Candidate::whereIn('vacancy_id', $vacancyIds)->max('created_at');
             if ($latestCandidate) {
                 $dates->push(Carbon::parse($latestCandidate));
             }
 
-            $candidateIds = Candidate::whereIn('lowongan_id', $lowonganIds)->pluck('id');
+            $candidateIds = Candidate::whereIn('vacancy_id', $vacancyIds)->pluck('id');
             if ($candidateIds->isNotEmpty()) {
                 $latestMovement = CandidateMovement::whereIn('candidate_id', $candidateIds)->max('moved_at');
                 if ($latestMovement) {

@@ -21,6 +21,6 @@ class ProfileHr extends Component
     {
         return view('livewire.hr.profile-hr', [
             'user' => Auth::user(),
-        ])->layout('layouts.app');
+        ])->layout('layouts.hr');
     }
 }

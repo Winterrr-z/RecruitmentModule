@@ -14,8 +14,8 @@
         <!-- Widget 1: Active Vacancies -->
         <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-surface-container/30 flex items-center justify-between">
             <div class="space-y-1">
-                <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Lowongan Aktif</span>
-                <span class="text-3xl font-bold text-on-surface block">{{ $activeLowonganCount }}</span>
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Vacancy Aktif</span>
+                <span class="text-3xl font-bold text-on-surface block">{{ $activeVacancyCount }}</span>
             </div>
             <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center">
                 <span class="material-symbols-outlined text-[24px]">work</span>
@@ -49,36 +49,36 @@
     <!-- Secondary Grid: Charts & Calendars -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Widget 4: Donut Chart per Lowongan (Carousel) -->
+        <!-- Widget 4: Donut Chart per Vacancy (Carousel) -->
         <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm border border-surface-container/30 flex flex-col justify-between h-[420px]">
             <div class="flex items-center justify-between pb-4 border-b border-surface-container-high/40 mb-4">
                 <div>
-                    <h3 class="text-title-md font-headline-lg text-on-surface">Status Lowongan</h3>
-                    <p class="text-body-md text-xs text-on-surface-variant/70">Distribusi tahapan kandidat per lowongan</p>
+                    <h3 class="text-title-md font-headline-lg text-on-surface">Status Vacancy</h3>
+                    <p class="text-body-md text-xs text-on-surface-variant/70">Distribusi tahapan kandidat per vacancy</p>
                 </div>
                 
-                @if (count($activeLowongans) > 1)
+                @if (count($activeVacancies) > 1)
                     <!-- Carousel Controls -->
                     <div class="flex items-center gap-2">
-                        <button wire:click="previousLowongan" class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors cursor-pointer" title="Sebelumnya">
+                        <button wire:click="previousVacancy" class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors cursor-pointer" title="Sebelumnya">
                             <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                         </button>
-                        <span class="text-xs font-semibold text-on-surface-variant">{{ $currentLowonganIndex + 1 }} / {{ count($activeLowongans) }}</span>
-                        <button wire:click="nextLowongan" class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors cursor-pointer" title="Selanjutnya">
+                        <span class="text-xs font-semibold text-on-surface-variant">{{ $currentVacancyIndex + 1 }} / {{ count($activeVacancies) }}</span>
+                        <button wire:click="nextVacancy" class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface transition-colors cursor-pointer" title="Selanjutnya">
                             <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                         </button>
                     </div>
                 @endif
             </div>
 
-            @if (count($activeLowongans) === 0)
+            @if (count($activeVacancies) === 0)
                 <div class="flex-grow flex flex-col items-center justify-center py-12 text-center text-on-surface-variant/50">
                     <span class="material-symbols-outlined text-[48px] mb-2">donut_large</span>
-                    <p class="text-sm font-semibold">Tidak ada lowongan aktif saat ini</p>
+                    <p class="text-sm font-semibold">Tidak ada vacancy aktif saat ini</p>
                 </div>
             @else
                 @php
-                    $currentJob = $activeLowongans[$currentLowonganIndex];
+                    $currentJob = $activeVacancies[$currentVacancyIndex];
                 @endphp
                 <div class="flex-grow flex flex-col gap-4">
                     <div class="text-center">
@@ -87,44 +87,7 @@
                     </div>
 
                     <!-- Donut Chart Container -->
-                    <div class="relative h-56 flex items-center justify-center"
-                         wire:ignore
-                         x-data="{
-                            chart: null,
-                            initChart() {
-                                const ctx = document.getElementById('donutChart').getContext('2d');
-                                this.chart = new Chart(ctx, {
-                                    type: 'doughnut',
-                                    data: {
-                                        labels: @js($this->getCurrentLowonganChartData()['labels']),
-                                        datasets: [{
-                                            data: @js($this->getCurrentLowonganChartData()['values']),
-                                            backgroundColor: ['#6b38d4', '#fd933d', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#14b8a6']
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                position: 'bottom',
-                                                labels: { boxWidth: 10, font: { size: 10 } }
-                                            }
-                                        },
-                                        cutout: '60%'
-                                    }
-                                });
-                            },
-                            updateChart(data) {
-                                if (this.chart) {
-                                    this.chart.data.labels = data.labels;
-                                    this.chart.data.datasets[0].data = data.values;
-                                    this.chart.update();
-                                }
-                            }
-                         }"
-                         x-init="initChart()"
-                         @refresh-donut-chart.window="updateChart($event.detail.data)">
+                    <div class="relative h-56 flex items-center justify-center" wire:ignore>
                         <canvas id="donutChart"></canvas>
                     </div>
                 </div>
@@ -176,15 +139,12 @@
                                 <span class="text-[10px] text-left">{{ $dateInfo['day'] }}</span>
                                 
                                 @if ($dateInfo['schedules']->isNotEmpty())
-                                    <div x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" class="relative pb-0.5">
+                                    <div class="group relative pb-0.5">
                                         <!-- Dot indicator -->
                                         <span class="w-2 h-2 bg-primary rounded-full block mx-auto cursor-pointer animate-pulse"></span>
                                         
                                         <!-- Popover list -->
-                                        <div x-show="open" 
-                                             x-transition
-                                             style="display: none;"
-                                             class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-surface-container-lowest p-3 rounded-md shadow-lg border border-surface-container z-50 text-left pointer-events-none">
+                                        <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-surface-container-lowest p-3 rounded-md shadow-lg border border-surface-container z-50 text-left pointer-events-none transition-all">
                                             <p class="text-[9px] font-bold uppercase tracking-wider text-primary mb-1.5 flex items-center gap-1">
                                                 <span class="material-symbols-outlined text-[12px]">calendar_today</span>
                                                 <span>Jadwal Wawancara:</span>
@@ -219,53 +179,114 @@
                 <h3 class="text-title-md font-headline-lg text-on-surface">Stage Kandidat</h3>
                 <p class="text-body-md text-xs text-on-surface-variant/70">Jumlah kandidat di setiap tahapan rekrutmen</p>
             </div>
-
+            
             <!-- Bar Chart Container -->
-            <div class="relative h-[290px]"
-                 wire:ignore
-                 x-data="{
-                    initChart() {
-                        const ctx = document.getElementById('barChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: @js($barChartLabels),
-                                datasets: [{
-                                    label: 'Kandidat',
-                                    data: @js($barChartValues),
-                                    backgroundColor: ['#6b38d4', '#fd933d', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#14b8a6'],
-                                    borderRadius: 4,
-                                    barThickness: 90
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: { display: false }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: { 
-                                            stepSize: 5,
-                                            font: { size: 10 }
-                                        },
-                                        grid: { color: '#f3f4f6' }
-                                    },
-                                    x: {
-                                        ticks: { font: { size: 12, weight: 'bold' } },
-                                        grid: { display: false }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                 }"
-                 x-init="initChart()">
+            <div class="relative h-[290px]" wire:ignore>
                 <canvas id="barChart"></canvas>
             </div>
         </div>
 
     </div>
+
+    <!-- Vanilla Javascript Chart & UI Initialization -->
+    <script>
+        (function() {
+            const colors = [
+                '#6b38d4', // Purple
+                '#fd933d', // Orange
+                '#10b981', // Emerald
+                '#3b82f6', // Blue
+                '#ec4899', // Pink
+                '#f59e0b', // Amber
+                '#8b5cf6', // Violet
+                '#14b8a6', // Teal
+                '#f43f5e', // Rose
+                '#06b6d4', // Cyan
+                '#6366f1', // Indigo
+                '#84cc16', // Lime
+                '#d946ef', // Fuchsia
+                '#0284c7', // Sky Blue
+                '#f97316', // Dark Orange
+                '#22c55e', // Green
+                '#eab308', // Yellow
+                '#a855f7', // Purple-violet
+                '#fb7185', // Coral Rose
+                '#475569'  // Slate
+            ];
+
+            function initAll() {
+                // 1. Donut Chart
+                const donutCanvas = document.getElementById('donutChart');
+                if (donutCanvas && !donutCanvas.chartInstance) {
+                    const data = @js($this->getCurrentVacancyChartData());
+                    
+                    const donutChart = new Chart(donutCanvas.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.values,
+                                backgroundColor: data.labels.map((_, i) => colors[i % colors.length])
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { boxWidth: 10, font: { size: 10 } }
+                                }
+                            },
+                            cutout: '60%'
+                        }
+                    });
+                    donutCanvas.chartInstance = donutChart;
+
+                    window.addEventListener('refresh-donut-chart', (event) => {
+                        const chartData = event.detail.data;
+                        donutChart.data.labels = chartData.labels;
+                        donutChart.data.datasets[0].data = chartData.values;
+                        donutChart.data.datasets[0].backgroundColor = chartData.labels.map((_, i) => colors[i % colors.length]);
+                        donutChart.update();
+                    });
+                }
+
+                // 2. Bar Chart
+                const barCanvas = document.getElementById('barChart');
+                if (barCanvas && !barCanvas.chartInstance) {
+                    const barChart = new Chart(barCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: @js($barChartLabels),
+                            datasets: [{
+                                label: 'Kandidat',
+                                data: @js($barChartValues),
+                                backgroundColor: @js($barChartLabels).map((_, i) => colors[i % colors.length]),
+                                borderRadius: 4,
+                                barThickness: 90
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, ticks: { stepSize: 5, font: { size: 10 } }, grid: { color: '#f3f4f6' } },
+                                x: { ticks: { font: { size: 12, weight: 'bold' } }, grid: { display: false } }
+                            }
+                        }
+                    });
+                    barCanvas.chartInstance = barChart;
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAll);
+            } else {
+                initAll();
+            }
+            document.addEventListener('livewire:navigated', initAll);
+        })();
+    </script>
 </div>

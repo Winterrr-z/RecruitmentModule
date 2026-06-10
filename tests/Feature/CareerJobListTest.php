@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Mpp;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -19,7 +19,7 @@ class CareerJobListTest extends TestCase
     {
         parent::setUp();
 
-        // Buat dummy MPP untuk relasi Lowongan
+        // Buat dummy MPP untuk relasi Vacancy
         $this->mpp = Mpp::create([
             'plan_name' => 'Plan Karir',
             'department' => 'Teknologi',
@@ -39,8 +39,8 @@ class CareerJobListTest extends TestCase
 
     public function test_displays_only_published_active_jobs_with_quota_and_valid_deadline()
     {
-        // 1. Valid Lowongan (Published, quota > 0, deadline in future)
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        // 1. Valid Vacancy (Published, quota > 0, deadline in future)
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -51,8 +51,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $validLowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $validVacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Laravel Developer',
             'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -65,8 +65,8 @@ class CareerJobListTest extends TestCase
             'quota' => 2,
         ]);
 
-        // 2. Draft Lowongan (not published)
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        // 2. Draft Vacancy (not published)
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -77,8 +77,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $draftLowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $draftVacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'React Developer',
             'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -91,8 +91,8 @@ class CareerJobListTest extends TestCase
             'quota' => 1,
         ]);
 
-        // 3. Lowongan with 0 quota
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        // 3. Vacancy with 0 quota
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -103,8 +103,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $noQuotaLowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $noQuotaVacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'DevOps Engineer',
             'department' => 'IT',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -117,8 +117,8 @@ class CareerJobListTest extends TestCase
             'quota' => 0,
         ]);
 
-        // 4. Lowongan with expired deadline
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        // 4. Vacancy with expired deadline
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -129,8 +129,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $expiredLowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $expiredVacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'UI Designer',
             'department' => 'Design',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -144,15 +144,15 @@ class CareerJobListTest extends TestCase
         ]);
 
         Livewire::test(\App\Livewire\Cw\PublicJobList::class)
-            ->assertSee($validLowongan->job_title)
-            ->assertDontSee($draftLowongan->job_title)
-            ->assertDontSee($noQuotaLowongan->job_title)
-            ->assertDontSee($expiredLowongan->job_title);
+            ->assertSee($validVacancy->job_title)
+            ->assertDontSee($draftVacancy->job_title)
+            ->assertDontSee($noQuotaVacancy->job_title)
+            ->assertDontSee($expiredVacancy->job_title);
     }
 
     public function test_filters_by_search_keyword()
     {
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -163,8 +163,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $job1 = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $job1 = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'iOS Developer',
             'department' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -177,7 +177,7 @@ class CareerJobListTest extends TestCase
             'quota' => 1,
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -188,8 +188,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $job2 = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $job2 = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Android Specialist',
             'department' => 'Mobile',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -210,7 +210,7 @@ class CareerJobListTest extends TestCase
 
     public function test_filters_by_tipe_kerja_and_lokasi()
     {
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -221,8 +221,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $fullTimeRemote = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $fullTimeRemote = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Backend Engineer',
             'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -235,7 +235,7 @@ class CareerJobListTest extends TestCase
             'quota' => 1,
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -246,8 +246,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $contractOnSite = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $contractOnSite = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Frontend Consultant',
             'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -285,7 +285,7 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -296,7 +296,7 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $rr2 = \App\Models\RecruitmentRequest::create([
+        $rr2 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Cloud Architect',
             'department' => 'IT',
@@ -307,8 +307,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $itJob = Lowongan::create([
-            'recruitment_request_id' => $rr2->id,
+        $itJob = Vacancy::create([
+            'rr_id' => $rr2->id,
             'job_title'             => 'Cloud Architect',
             'department'          => 'IT',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -321,7 +321,7 @@ class CareerJobListTest extends TestCase
             'quota'               => 1,
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -332,7 +332,7 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $rr3 = \App\Models\RecruitmentRequest::create([
+        $rr3 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Financial Analyst',
             'department' => 'Finance',
@@ -343,8 +343,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $financeJob = Lowongan::create([
-            'recruitment_request_id' => $rr3->id,
+        $financeJob = Vacancy::create([
+            'rr_id' => $rr3->id,
             'job_title'             => 'Financial Analyst',
             'department'          => 'Finance',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -367,7 +367,7 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -378,7 +378,7 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $rr4 = \App\Models\RecruitmentRequest::create([
+        $rr4 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Data Engineer',
             'department' => 'Data',
@@ -389,8 +389,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $fullTime = Lowongan::create([
-            'recruitment_request_id' => $rr4->id,
+        $fullTime = Vacancy::create([
+            'rr_id' => $rr4->id,
             'job_title'             => 'Data Engineer',
             'department'          => 'Data',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -403,7 +403,7 @@ class CareerJobListTest extends TestCase
             'quota'               => 1,
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -414,7 +414,7 @@ class CareerJobListTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $rr5 = \App\Models\RecruitmentRequest::create([
+        $rr5 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'QA Contractor',
             'department' => 'QA',
@@ -425,8 +425,8 @@ class CareerJobListTest extends TestCase
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $contract = Lowongan::create([
-            'recruitment_request_id' => $rr5->id,
+        $contract = Vacancy::create([
+            'rr_id' => $rr5->id,
             'job_title'             => 'QA Contractor',
             'department'          => 'QA',
             'expected_join_date'  => now()->addMonths(2)->format('Y-m-d'),
@@ -449,7 +449,7 @@ class CareerJobListTest extends TestCase
     {
         $user = \App\Models\User::factory()->create(['role' => 'applicant']);
 
-        $rr6 = \App\Models\RecruitmentRequest::create([
+        $rr6 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Senior Researcher',
             'department' => 'RnD',
@@ -461,7 +461,7 @@ class CareerJobListTest extends TestCase
             'quota' => 1,
         ]);
         $olderData = [
-            'recruitment_request_id' => $rr6->id,
+            'rr_id' => $rr6->id,
             'job_title'              => 'Senior Researcher',
             'department'           => 'RnD',
             'expected_join_date'   => now()->addMonths(2)->format('Y-m-d'),
@@ -478,8 +478,8 @@ class CareerJobListTest extends TestCase
             'job_requirements' => 'Bachelor',
         ]);
 
-        $older = Lowongan::create($olderData);
-        $rr7 = \App\Models\RecruitmentRequest::create([
+        $older = Vacancy::create($olderData);
+        $rr7 = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Junior Researcher',
             'department' => 'RnD',
@@ -490,14 +490,14 @@ class CareerJobListTest extends TestCase
             'application_deadline' => Carbon::tomorrow()->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $newerData['recruitment_request_id'] = $rr7->id;
-        $newer = Lowongan::create($newerData);
+        $newerData['rr_id'] = $rr7->id;
+        $newer = Vacancy::create($newerData);
 
         // Force created_at via raw DB to bypass Eloquent timestamp guard
-        \Illuminate\Support\Facades\DB::table('lowongans')
+        \Illuminate\Support\Facades\DB::table('vacancies')
             ->where('id', $older->id)
             ->update(['created_at' => now()->subDays(10)]);
-        \Illuminate\Support\Facades\DB::table('lowongans')
+        \Illuminate\Support\Facades\DB::table('vacancies')
             ->where('id', $newer->id)
             ->update(['created_at' => now()]);
 

@@ -17,7 +17,7 @@ use Livewire\Attributes\Layout;
  *
  * @package App\Livewire
  */
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class MppIndex extends Component
 {
     use WithPagination;
@@ -100,6 +100,6 @@ class MppIndex extends Component
 
         $mpps = $repository->getPaginatedList($filters, 12);
 
-        return view('livewire.mpp.index', compact('departments', 'mpps'));
+        return view('livewire.mpp.mpp-index', compact('departments', 'mpps'));
     }
 }

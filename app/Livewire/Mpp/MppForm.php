@@ -11,7 +11,7 @@ use Livewire\Attributes\Layout;
  * 
  * Component for creating and editing Manpower Planning (MPP).
  */
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class MppForm extends Component
 {
     /** @var int|null ID MPP yang sedang diedit (null jika mode Create). */

@@ -24,8 +24,8 @@
                 $isCompleted = in_array($mpp->status, [\App\Enums\MppStatus::COMPLETED_CLOSED, \App\Enums\MppStatus::CLOSED]) || $computedStatus === 'Filled';
                 
                 $isDraftActive = !$isCompleted;
-                $isApprovedActive = ($mpp->status === \App\Enums\MppStatus::APPROVED || $hasLowongan) && !$isCompleted;
-                $isLowonganActive = $hasLowongan && !$isCompleted;
+                $isApprovedActive = ($mpp->status === \App\Enums\MppStatus::APPROVED || $hasVacancy) && !$isCompleted;
+                $isVacancyActive = $hasVacancy && !$isCompleted;
                 
                 $slaDisplay = $mpp->sla_days >= 30 ? (int) floor($mpp->sla_days / 30) . ' Bulan' : (int) $mpp->sla_days . ' Hari';
             @endphp
@@ -51,7 +51,7 @@
                 <!-- Step 2: Approved -->
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 {{ $isApprovedActive ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface-container-high text-on-surface-variant' }}">
-                        @if($isLowonganActive)
+                        @if($isVacancyActive)
                             <span class="material-symbols-outlined text-[18px]">check</span>
                         @else
                             2
@@ -64,15 +64,15 @@
                 </div>
 
                 <!-- Line 2 -->
-                <div class="hidden md:block flex-1 h-0.5 transition-all duration-300 {{ $isLowonganActive ? 'bg-primary' : 'bg-surface-container-high' }}"></div>
+                <div class="hidden md:block flex-1 h-0.5 transition-all duration-300 {{ $isVacancyActive ? 'bg-primary' : 'bg-surface-container-high' }}"></div>
 
-                <!-- Step 3: Lowongan Dibuat -->
+                <!-- Step 3: Vacancy Dibuat -->
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 {{ $isLowonganActive ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface-container-high text-on-surface-variant' }}">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 {{ $isVacancyActive ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface-container-high text-on-surface-variant' }}">
                         3
                     </div>
                     <div>
-                        <p class="text-label-sm font-label-sm font-bold {{ $isLowonganActive ? 'text-primary' : 'text-on-surface-variant/70' }}">Lowongan Dibuat</p>
+                        <p class="text-label-sm font-label-sm font-bold {{ $isVacancyActive ? 'text-primary' : 'text-on-surface-variant/70' }}">Vacancy Dibuat</p>
                         <p class="text-xs text-on-surface-variant/70">Proses recruitment aktif</p>
                     </div>
                 </div>
@@ -226,12 +226,12 @@
                 </div>
             </div>
 
-            <!-- Recruitment Requests (Lowongan) Terkait -->
-            @if($hasLowongan)
+            <!-- Recruitment Requests (Vacancy) Terkait -->
+            @if($hasVacancy)
                 <div class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 space-y-6">
                     <h4 class="font-title-md text-title-md flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-primary">assignment_ind</span>
-                        Recruitment Request (Lowongan) Terkait
+                        Recruitment Request (Vacancy) Terkait
                     </h4>
                     
                     <div class="overflow-x-auto border border-surface-container rounded-md">
@@ -240,14 +240,14 @@
                                 <tr class="bg-surface-container-low border-b border-surface-container text-label-sm font-label-sm text-on-surface-variant">
                                     <th class="p-4 pl-6">Posisi / Jabatan</th>
                                     <th class="p-4">Tipe & Lokasi</th>
-                                    <th class="p-4 text-center">Kuota Lowongan</th>
+                                    <th class="p-4 text-center">Kuota Vacancy</th>
                                     <th class="p-4 text-center">Hired / Pelamar</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4 pr-6 text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-surface-container">
-                                @foreach($mppLowongans as $l)
+                                @foreach($mppVacancies as $l)
                                     @php
                                         $hired = $l->candidates()->where('candidates.status', 'Hired')->count();
                                         $total = $l->candidates()->count();
@@ -297,9 +297,9 @@
         <section class="sticky bottom-8 left-0 right-0 z-40">
             <div class="bg-surface-container-lowest/80 backdrop-blur-xl border border-surface-container/50 p-6 rounded-md shadow-[0px_32px_64px_-16px_rgba(0,0,0,0.12)] flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                    <a class="flex items-center gap-2 text-primary font-bold hover:underline transition-all" href="{{ route('mpp.index') }}">
-                        <span class="material-symbols-outlined">arrow_back</span>
-                        <span class="font-label-sm text-label-sm">Kembali ke Manpower Planning</span>
+                    <a class="group flex items-center gap-2 text-primary font-bold no-underline transition-all" href="{{ route('mpp.index') }}">
+                        <span class="material-symbols-outlined no-underline">arrow_back</span>
+                        <span class="font-label-sm text-label-sm group-hover:underline">Kembali ke Manpower Planning</span>
                     </a>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
@@ -331,11 +331,11 @@
                         </button>
                     @endif
 
-                    <!-- Buat Lowongan Button -->
+                    <!-- Buat Vacancy Button -->
                     @if($mpp->status === \App\Enums\MppStatus::APPROVED && $remainingQuota > 0 && !$hasActiveRr)
                         <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_box</span>
-                            <span>Buat Lowongan</span>
+                            <span>Buat Vacancy</span>
                         </a>
                     @endif
                 </div>

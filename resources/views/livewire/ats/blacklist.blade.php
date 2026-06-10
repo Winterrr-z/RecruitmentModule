@@ -6,7 +6,7 @@
     <div class="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-6">
         <div>
             <h2 class="font-headline-lg text-headline-lg text-on-surface">Blacklist Pelamar</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant/70">Daftar pelamar yang ditangguhkan dan diblokir dari lowongan pekerjaan</p>
+            <p class="font-body-md text-body-md text-on-surface-variant/70">Daftar pelamar yang ditangguhkan dan diblokir dari vacancy pekerjaan</p>
         </div>
         <button wire:click="openAddModal" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-error text-white font-bold rounded-md hover:bg-red-700 transition-all active:scale-95 shadow-[0_4px_12px_rgba(218,26,26,0.18)]">
             <span class="material-symbols-outlined text-[20px]">block</span>

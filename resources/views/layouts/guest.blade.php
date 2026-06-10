@@ -20,7 +20,7 @@
             
             <nav class="flex items-center gap-4 sm:gap-8">
                 <a href="{{ route('careers') }}" class="text-body-md font-bold text-on-surface-variant hover:text-primary transition-colors no-underline relative py-2 {{ request()->routeIs('careers') ? 'text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary' : '' }}">
-                    Lowongan
+                    Vacancy
                 </a>
                 @auth
                     @if(auth()->user()->role === 'applicant')

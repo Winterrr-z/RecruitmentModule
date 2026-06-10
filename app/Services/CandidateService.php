@@ -99,7 +99,7 @@ class CandidateService
         });
 
         try {
-            $candidate->notify(new \App\Notifications\CandidateRejectedNotification($candidate->lowongan));
+            $candidate->notify(new \App\Notifications\CandidateRejectedNotification($candidate->vacancy));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Gagal mengirim email penolakan untuk kandidat {$candidate->id}: " . $e->getMessage());
         }
@@ -123,18 +123,38 @@ class CandidateService
                 'reason' => $reason,
             ]);
 
-            if ($candidate->current_stage_id != $finalStage->id) {
-                CandidateMovement::create([
-                    'candidate_id' => $candidate->id,
-                    'from_stage_id' => $candidate->current_stage_id,
-                    'to_stage_id' => $finalStage->id,
-                    'moved_at' => now(),
-                ]);
-                $candidate->current_stage_id = $finalStage->id;
-            }
+            // Update all candidate records matching this candidate's email or phone
+            $candidates = Candidate::where('email', $candidate->email)
+                ->orWhere('phone', $candidate->phone)
+                ->get();
 
-            $candidate->status = \App\Enums\CandidateStatus::BLACKLISTED;
-            $candidate->save();
+            foreach ($candidates as $c) {
+                $isActive = !in_array($c->status, [
+                    \App\Enums\CandidateStatus::REJECTED,
+                    \App\Enums\CandidateStatus::HIRED,
+                    \App\Enums\CandidateStatus::DECLINED,
+                    \App\Enums\CandidateStatus::EXPIRED,
+                    \App\Enums\CandidateStatus::BLACKLISTED
+                ]);
+
+                if ($isActive) {
+                    if ($c->current_stage_id != $finalStage->id) {
+                        CandidateMovement::create([
+                            'candidate_id' => $c->id,
+                            'from_stage_id' => $c->current_stage_id,
+                            'to_stage_id' => $finalStage->id,
+                            'moved_at' => now(),
+                        ]);
+                    }
+                    $c->status = \App\Enums\CandidateStatus::REJECTED;
+                    $c->current_stage_id = $finalStage->id;
+                    $c->save();
+                } else {
+                    $c->status = \App\Enums\CandidateStatus::BLACKLISTED;
+                    $c->current_stage_id = $finalStage->id;
+                    $c->save();
+                }
+            }
         });
     }
 

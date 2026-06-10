@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Candidate;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Stage;
 
 /**
@@ -22,7 +22,7 @@ class CandidateFactory extends Factory
     public function definition(): array
     {
         return [
-            'lowongan_id' => Lowongan::factory(),
+            'vacancy_id' => Vacancy::factory(),
             'user_id' => null,
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),

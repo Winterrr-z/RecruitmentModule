@@ -35,7 +35,13 @@ class CandidateDashboard extends Component
      *
      * @var array<string>
      */
-    private const INACTIVE_STATUSES = [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED];
+    private const INACTIVE_STATUSES = [
+        \App\Enums\CandidateStatus::REJECTED,
+        \App\Enums\CandidateStatus::HIRED,
+        \App\Enums\CandidateStatus::DECLINED,
+        \App\Enums\CandidateStatus::EXPIRED,
+        \App\Enums\CandidateStatus::BLACKLISTED
+    ];
 
     /**
      * Mendapatkan ikon Material Symbols berdasarkan nama stage.
@@ -84,16 +90,16 @@ class CandidateDashboard extends Component
             $candidate->offering_token_expires_at = null;
             $candidate->save();
 
-            // Jika diterima, kurangi kuota lowongan
+            // Jika diterima, kurangi kuota vacancy
             if ($choice === 'terima') {
-                $lowongan = $candidate->lowongan;
-                if ($lowongan) {
-                    $lowongan->quota = max(0, $lowongan->quota - 1);
+                $vacancy = $candidate->vacancy;
+                if ($vacancy) {
+                    $vacancy->quota = max(0, $vacancy->quota - 1);
 
-                    if ($lowongan->quota == 0) {
-                        $lowongan->status = 'Closed';
+                    if ($vacancy->quota == 0) {
+                        $vacancy->status = 'Closed';
                         
-                        $rr = $lowongan->recruitmentRequest;
+                        $rr = $vacancy->rr;
                         if ($rr) {
                             $rr->status = 'Completed';
                             $rr->save();
@@ -108,7 +114,7 @@ class CandidateDashboard extends Component
                         }
 
                         // Auto-Reject Kandidat Lain (In Progress / Applied)
-                        $rejectedCandidates = \App\Models\Candidate::where('lowongan_id', $lowongan->id)
+                        $rejectedCandidates = \App\Models\Candidate::where('vacancy_id', $vacancy->id)
                             ->whereIn('status', [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED])
                             ->where('id', '!=', $candidate->id)
                             ->get();
@@ -117,14 +123,14 @@ class CandidateDashboard extends Component
                             $rejected->status = \App\Enums\CandidateStatus::REJECTED;
                             $rejected->save();
                             try {
-                                $rejected->notify(new \App\Notifications\CandidateRejectedNotification($lowongan));
+                                $rejected->notify(new \App\Notifications\CandidateRejectedNotification($vacancy));
                             } catch (\Exception $e) {
                                 \Illuminate\Support\Facades\Log::error("Gagal mengirim email penolakan otomatis untuk kandidat {$rejected->id}: " . $e->getMessage());
                             }
                         }
                     }
                     
-                    $lowongan->save();
+                    $vacancy->save();
                 }
             }
         });
@@ -152,14 +158,14 @@ class CandidateDashboard extends Component
         // Lamaran aktif: belum ditolak, belum hired, belum expired
         $activeApplications = Candidate::where('user_id', $userId)
             ->whereNotIn('status', self::INACTIVE_STATUSES)
-            ->with(['lowongan', 'currentStage', 'interviewSchedules'])
+            ->with(['vacancy', 'currentStage', 'interviewSchedules'])
             ->latest()
             ->get();
 
         // Semua lamaran tidak aktif: arsip / selesai
         $allInactive = Candidate::where('user_id', $userId)
             ->whereIn('status', self::INACTIVE_STATUSES)
-            ->with(['lowongan', 'currentStage'])
+            ->with(['vacancy', 'currentStage'])
             ->latest()
             ->get();
 

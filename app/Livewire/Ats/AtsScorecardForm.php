@@ -130,6 +130,6 @@ class AtsScorecardForm extends Component
 
     public function render()
     {
-        return view('livewire.ats.scorecard-form')->layout('layouts.app');
+        return view('livewire.ats.scorecard-form')->layout('layouts.hr');
     }
 }

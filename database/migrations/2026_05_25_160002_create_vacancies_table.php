@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lowongans', function (Blueprint $table) {
+        Schema::create('vacancies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('recruitment_request_id')->constrained('recruitment_requests')->onDelete('cascade');
+            $table->foreignId('rr_id')->constrained('rrs')->onDelete('cascade');
             $table->integer('quota');
             $table->string('job_title', 100);
             $table->string('department', 100);
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lowongans');
+        Schema::dropIfExists('vacancies');
     }
 };

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Ats;
 
 use App\Models\Candidate;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ class OfferingResponse extends Component
     public function mount($token)
     {
         $this->token = $token;
-        $this->candidate = Candidate::with('lowongan')->where('offering_token', $token)->first();
+        $this->candidate = Candidate::with('vacancy')->where('offering_token', $token)->first();
 
         if (!$this->candidate) {
             $this->statusResponse = 'invalid';
@@ -112,18 +112,18 @@ class OfferingResponse extends Component
             $candidate->offering_token_expires_at = null;
             $candidate->save();
 
-            // ONLY process lowongan/mpp completion if accepted
+            // ONLY process vacancy/mpp completion if accepted
             if ($choice === 'terima') {
                 // Gunakan Pessimistic Locking untuk mencegah race condition pada saat pengurangan kuota
-                $lowongan = $candidate->lowongan()->lockForUpdate()->first();
-                if ($lowongan) {
-                    $lowongan->quota = max(0, $lowongan->quota - 1);
+                $vacancy = $candidate->vacancy()->lockForUpdate()->first();
+                if ($vacancy) {
+                    $vacancy->quota = max(0, $vacancy->quota - 1);
 
-                    if ($lowongan->quota == 0) {
-                        $lowongan->status = 'Completed/Closed';
-                        $lowongan->save();
+                    if ($vacancy->quota == 0) {
+                        $vacancy->status = 'Completed/Closed';
+                        $vacancy->save();
                         
-                        $rr = $lowongan->recruitmentRequest;
+                        $rr = $vacancy->rr;
                         if ($rr) {
                             $rr->status = 'Completed/Closed';
                             $rr->save();
@@ -135,7 +135,7 @@ class OfferingResponse extends Component
                             }
                         }
                     } else {
-                        $lowongan->save();
+                        $vacancy->save();
                     }
                 }
             }
@@ -151,6 +151,6 @@ class OfferingResponse extends Component
             $this->statusResponse = 'success_reject';
         }
 
-        return view('livewire.offering-response')->layout('layouts.guest');
+        return view('livewire.ats.offering-response')->layout('layouts.guest');
     }
 }

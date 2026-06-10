@@ -13,14 +13,14 @@ class MppRepository
      */
     public function getPaginatedList(array $filters, int $perPage = 12): LengthAwarePaginator
     {
-        $query = Mpp::with('lowongans.candidates')
+        $query = Mpp::with('vacancies.candidates')
             ->select('mpps.*')
             ->selectSub(function ($q) {
                 $q->selectRaw('count(*)')
                   ->from('candidates')
-                  ->join('lowongans', 'lowongans.id', '=', 'candidates.lowongan_id')
-                  ->join('recruitment_requests', 'recruitment_requests.id', '=', 'lowongans.recruitment_request_id')
-                  ->whereColumn('recruitment_requests.mpp_id', 'mpps.id')
+                  ->join('vacancies', 'vacancies.id', '=', 'candidates.vacancy_id')
+                  ->join('rrs', 'rrs.id', '=', 'vacancies.rr_id')
+                  ->whereColumn('rrs.mpp_id', 'mpps.id')
                   ->where('candidates.status', CandidateStatus::HIRED);
             }, 'hired_count');
 

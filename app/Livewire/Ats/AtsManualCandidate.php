@@ -3,7 +3,7 @@
 namespace App\Livewire\Ats;
 
 use App\Models\Candidate;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -11,8 +11,8 @@ class AtsManualCandidate extends Component
 {
     use WithFileUploads;
 
-    public $lowonganId;
-    public $lowongan;
+    public $vacancyId;
+    public $vacancy;
 
     // Form fields
     public $name = '';
@@ -47,10 +47,10 @@ class AtsManualCandidate extends Component
         'portofolio.max' => 'Ukuran portofolio maksimal 5MB.',
     ];
 
-    public function mount($lowonganId = null)
+    public function mount($vacancyId = null)
     {
-        $this->lowonganId = $lowonganId;
-        $this->lowongan = $lowonganId ? Lowongan::find($lowonganId) : null;
+        $this->vacancyId = $vacancyId;
+        $this->vacancy = $vacancyId ? Vacancy::find($vacancyId) : null;
     }
 
     public function save()
@@ -63,7 +63,7 @@ class AtsManualCandidate extends Component
 
         // Save candidate
         Candidate::create([
-            'lowongan_id' => $this->lowonganId ?: null,
+            'vacancy_id' => $this->vacancyId ?: null,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
@@ -76,11 +76,11 @@ class AtsManualCandidate extends Component
 
         session()->flash('message', "Kandidat manual '{$this->name}' berhasil ditambahkan.");
 
-        return redirect()->route('ats.dashboard', ['selectedLowonganId' => $this->lowonganId ?: null]);
+        return redirect()->route('ats.dashboard', ['selectedVacancyId' => $this->vacancyId ?: null]);
     }
 
     public function render()
     {
-        return view('livewire.ats.manual-candidate')->layout('layouts.app');
+        return view('livewire.ats.manual-candidate')->layout('layouts.hr');
     }
 }

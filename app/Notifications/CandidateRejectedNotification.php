@@ -11,14 +11,14 @@ class CandidateRejectedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $lowongan;
+    protected $vacancy;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($lowongan)
+    public function __construct($vacancy)
     {
-        $this->lowongan = $lowongan;
+        $this->vacancy = $vacancy;
     }
 
     /**
@@ -36,7 +36,7 @@ class CandidateRejectedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $job_title = $this->lowongan ? $this->lowongan->job_title : 'Posisi Pekerjaan';
+        $job_title = $this->vacancy ? $this->vacancy->job_title : 'Posisi Pekerjaan';
         
         return (new MailMessage)
                     ->subject('Update Status Lamaran - ' . $job_title)

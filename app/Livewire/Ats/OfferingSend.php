@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Ats;
 
 use App\Models\Candidate;
 use App\Mail\OfferingLetterMail;
@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-#[Layout('layouts.app')]
+#[Layout('layouts.hr')]
 class OfferingSend extends Component
 {
     public $candidateId;
     public $candidate;
-    public $lowongan;
+    public $vacancy;
 
     public $backUrl;
     public $backLabel;
@@ -37,8 +37,8 @@ class OfferingSend extends Component
         }
 
         $this->candidateId = $candidateId;
-        $this->candidate = Candidate::with(['lowongan', 'currentStage'])->findOrFail($candidateId);
-        $this->lowongan = $this->candidate->lowongan;
+        $this->candidate = Candidate::with(['vacancy', 'currentStage'])->findOrFail($candidateId);
+        $this->vacancy = $this->candidate->vacancy;
 
         $this->validateCandidate();
     }
@@ -63,17 +63,17 @@ class OfferingSend extends Component
             return;
         }
 
-        // 3. Lowongan check
-        if (!$this->lowongan) {
+        // 3. Vacancy check
+        if (!$this->vacancy) {
             $this->isValid = false;
-            $this->errorMessage = 'Data lowongan untuk kandidat ini tidak ditemukan.';
+            $this->errorMessage = 'Data vacancy untuk kandidat ini tidak ditemukan.';
             return;
         }
 
         // 4. Quota check
-        if ($this->lowongan->quota <= 0) {
+        if ($this->vacancy->quota <= 0) {
             $this->isValid = false;
-            $this->errorMessage = 'Kuota lowongan untuk jabatan "' . $this->lowongan->job_title . '" sudah habis.';
+            $this->errorMessage = 'Kuota vacancy untuk jabatan "' . $this->vacancy->job_title . '" sudah habis.';
             return;
         }
 
@@ -105,7 +105,7 @@ class OfferingSend extends Component
 
         // Send email
         try {
-            Mail::to($this->candidate->email)->send(new OfferingLetterMail($this->candidate, $this->lowongan, $token, $expiresAt));
+            Mail::to($this->candidate->email)->send(new OfferingLetterMail($this->candidate, $this->vacancy, $token, $expiresAt));
             session()->flash('message', 'Offering letter telah dikirim ke email kandidat.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Gagal mengirim email offering letter untuk kandidat {$this->candidate->id}: " . $e->getMessage());
@@ -117,6 +117,6 @@ class OfferingSend extends Component
 
     public function render()
     {
-        return view('livewire.offering-send');
+        return view('livewire.ats.offering-send');
     }
 }

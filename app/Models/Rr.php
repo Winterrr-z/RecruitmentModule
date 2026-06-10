@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-class RecruitmentRequest extends Model
+class Rr extends Model
 {
     use HasFactory;
 
-    protected $table = 'recruitment_requests';
+    protected $table = 'rrs';
 
     protected $fillable = [
         'mpp_id',
@@ -46,18 +46,18 @@ class RecruitmentRequest extends Model
         return $this->belongsTo(Mpp::class, 'mpp_id');
     }
 
-    public function lowongan(): HasOne
+    public function vacancy(): HasOne
     {
-        return $this->hasOne(Lowongan::class, 'recruitment_request_id');
+        return $this->hasOne(Vacancy::class, 'rr_id');
     }
 
     public function candidates(): HasManyThrough
     {
         return $this->hasManyThrough(
             Candidate::class,
-            Lowongan::class,
-            'recruitment_request_id',
-            'lowongan_id',
+            Vacancy::class,
+            'rr_id',
+            'vacancy_id',
             'id',
             'id'
         );
@@ -70,6 +70,6 @@ class RecruitmentRequest extends Model
 
     public function hiredCount(): int
     {
-        return $this->lowongan?->candidates()->where('status', \App\Enums\CandidateStatus::HIRED)->count() ?? 0;
+        return $this->vacancy?->candidates()->where('status', \App\Enums\CandidateStatus::HIRED)->count() ?? 0;
     }
 }

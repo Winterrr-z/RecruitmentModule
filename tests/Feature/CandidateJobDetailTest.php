@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Mpp;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\User;
 use App\Models\Candidate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,7 +18,7 @@ class CandidateJobDetailTest extends TestCase
     use RefreshDatabase;
 
     private $mpp;
-    private $lowongan;
+    private $vacancy;
 
     protected function setUp(): void
     {
@@ -34,7 +34,7 @@ class CandidateJobDetailTest extends TestCase
             'absolute_target_date' => now()->addDays(90)->format('Y-m-d'),
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $this->mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -45,8 +45,8 @@ class CandidateJobDetailTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $this->lowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $this->vacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Laravel Specialist',
             'department' => 'Engineering',
             'expected_join_date' => now()->addMonths(2)->format('Y-m-d'),
@@ -62,7 +62,7 @@ class CandidateJobDetailTest extends TestCase
 
     public function test_guest_is_redirected_to_login()
     {
-        $this->get(route('candidate.jobs.show', $this->lowongan->id))
+        $this->get(route('candidate.jobs.show', $this->vacancy->id))
             ->assertRedirect(route('login'));
     }
 
@@ -75,7 +75,7 @@ class CandidateJobDetailTest extends TestCase
         ]);
 
         $this->actingAs($user)
-            ->get(route('candidate.jobs.show', $this->lowongan->id))
+            ->get(route('candidate.jobs.show', $this->vacancy->id))
             ->assertSuccessful()
             ->assertSee('Adit Permana')
             ->assertSee('adit@example.com')
@@ -87,7 +87,7 @@ class CandidateJobDetailTest extends TestCase
         $user = User::factory()->create(['role' => 'applicant']);
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->vacancy->id])
             ->call('apply')
             ->assertHasErrors(['phone' => 'required', 'cv' => 'required']);
     }
@@ -106,7 +106,7 @@ class CandidateJobDetailTest extends TestCase
         $portfolioFile = UploadedFile::fake()->create('portfolio.pdf', 2000, 'application/pdf');
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->vacancy->id])
             ->set('phone', '0812345678')
             ->set('cv', $cvFile)
             ->set('portofolio', $portfolioFile)
@@ -114,7 +114,7 @@ class CandidateJobDetailTest extends TestCase
             ->assertRedirect(route('candidate.dashboard'));
 
         $this->assertDatabaseHas('candidates', [
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'user_id' => $user->id,
             'name' => 'Budi Santoso',
             'email' => 'budi@example.com',
@@ -150,7 +150,7 @@ class CandidateJobDetailTest extends TestCase
         $cvFile = UploadedFile::fake()->create('cv.pdf', 1000, 'application/pdf');
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->lowongan->id])
+            ->test(\App\Livewire\Cw\CandidateJobDetail::class, ['id' => $this->vacancy->id])
             ->set('phone', '0812345678') // blacklist by email
             ->set('cv', $cvFile)
             ->call('apply')
@@ -164,6 +164,6 @@ class CandidateJobDetailTest extends TestCase
         $this->get(route('blacklist.info'))
             ->assertSuccessful()
             ->assertSee('Pendaftaran Dibatasi')
-            ->assertSee('Anda tidak dapat melamar lowongan ini karena data Anda terdaftar dalam daftar hitam perusahaan.');
+            ->assertSee('Anda tidak dapat melamar vacancy ini karena data Anda terdaftar dalam daftar hitam perusahaan.');
     }
 }

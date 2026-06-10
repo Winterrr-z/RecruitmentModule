@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Mpp;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -65,7 +65,7 @@ class RRTest extends TestCase
             ->assertHasNoErrors()
             ->assertRedirect(route('rr.index'));
 
-        $this->assertDatabaseHas('recruitment_requests', [
+        $this->assertDatabaseHas('rrs', [
             'mpp_id' => $mpp->id,
             'job_title' => 'Accountant',
             'status' => 'Ready to Publish',
@@ -86,7 +86,7 @@ class RRTest extends TestCase
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -97,8 +97,8 @@ class RRTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $lowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $vacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'HR Manager',
             'department' => 'HR',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),

@@ -133,7 +133,7 @@ class MppTest extends TestCase
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
-        $rr = \App\Models\RecruitmentRequest::create([
+        $rr = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'Developer',
             'department' => 'IT',
@@ -145,8 +145,8 @@ class MppTest extends TestCase
             'quota' => 1,
         ]);
 
-        $lowongan = \App\Models\Lowongan::create([
-            'recruitment_request_id' => $rr->id,
+        $vacancy = \App\Models\Vacancy::create([
+            'rr_id' => $rr->id,
             'job_title' => 'Developer',
             'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
@@ -160,7 +160,7 @@ class MppTest extends TestCase
         ]);
 
         \App\Models\Candidate::create([
-            'lowongan_id' => $lowongan->id,
+            'vacancy_id' => $vacancy->id,
             'name' => 'John Doe',
             'email' => 'john@doe.com',
             'phone' => '1234567890',
@@ -186,7 +186,7 @@ class MppTest extends TestCase
             'status' => \App\Enums\MppStatus::APPROVED,
         ]);
 
-        $rr = \App\Models\RecruitmentRequest::create([
+        $rr = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'Developer',
             'department' => 'IT',
@@ -198,8 +198,8 @@ class MppTest extends TestCase
             'quota' => 1,
         ]);
 
-        $lowongan = \App\Models\Lowongan::create([
-            'recruitment_request_id' => $rr->id,
+        $vacancy = \App\Models\Vacancy::create([
+            'rr_id' => $rr->id,
             'job_title' => 'Developer',
             'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
@@ -213,7 +213,7 @@ class MppTest extends TestCase
         ]);
 
         \App\Models\Candidate::create([
-            'lowongan_id' => $lowongan->id,
+            'vacancy_id' => $vacancy->id,
             'name' => 'John Doe',
             'email' => 'john@doe.com',
             'phone' => '1234567890',

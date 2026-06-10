@@ -60,6 +60,6 @@ class NotificationsHr extends Component
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
             'totalCount' => $totalCount,
-        ])->layout('layouts.app');
+        ])->layout('layouts.hr');
     }
 }

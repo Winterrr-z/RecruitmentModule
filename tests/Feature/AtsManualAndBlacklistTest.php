@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use App\Models\Blacklist;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,7 +35,7 @@ class AtsManualAndBlacklistTest extends TestCase
             'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -46,8 +46,8 @@ class AtsManualAndBlacklistTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $this->job = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $this->job = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Sales Staff',
             'department' => 'Sales',
             'status' => 'Published',
@@ -67,14 +67,14 @@ class AtsManualAndBlacklistTest extends TestCase
         $dummyCv = UploadedFile::fake()->create('my_cv.pdf', 100, 'application/pdf');
 
         Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Ats\AtsManualCandidate::class, ['lowonganId' => $this->job->id])
+            ->test(\App\Livewire\Ats\AtsManualCandidate::class, ['vacancyId' => $this->job->id])
             ->set('name', 'Alice Johnson')
             ->set('email', 'alice@example.com')
             ->set('phone', '0899999999')
             ->set('cv', $dummyCv)
             ->call('save')
             ->assertHasNoErrors()
-            ->assertRedirect(route('ats.dashboard', ['selectedLowonganId' => $this->job->id]));
+            ->assertRedirect(route('ats.dashboard', ['selectedVacancyId' => $this->job->id]));
 
         $this->assertDatabaseHas('candidates', [
             'name' => 'Alice Johnson',
@@ -89,12 +89,22 @@ class AtsManualAndBlacklistTest extends TestCase
     {
         // 1. Create a candidate to test the picker
         $cand = Candidate::create([
-            'lowongan_id' => $this->job->id,
+            'vacancy_id' => $this->job->id,
             'name' => 'Bad Guy',
             'email' => 'bad@example.com',
             'phone' => '0866666666',
             'current_stage_id' => 1,
             'status' => 'Applied',
+        ]);
+
+        // Create an inactive candidate to test blacklisting inactive records
+        $inactiveCand = Candidate::create([
+            'vacancy_id' => $this->job->id,
+            'name' => 'Bad Guy Inactive',
+            'email' => 'bad@example.com',
+            'phone' => '0866666666',
+            'current_stage_id' => 2,
+            'status' => 'Declined',
         ]);
 
         // 2. Test Livewire component Blacklist
@@ -118,8 +128,11 @@ class AtsManualAndBlacklistTest extends TestCase
             'reason' => 'Fraud detected',
         ]);
 
-        // Check active candidate auto-rejected
-        $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $cand->fresh()->status);
+        // Check active candidate directly becomes REJECTED
+        $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $cand->fresh()->status);
+
+        // Check inactive candidate becomes BLACKLISTED
+        $this->assertEquals(\App\Enums\CandidateStatus::BLACKLISTED, $inactiveCand->fresh()->status);
 
         // 3. Test blacklist delete
         $blacklistRow = Blacklist::where('email', 'bad@example.com')->first();
@@ -131,9 +144,15 @@ class AtsManualAndBlacklistTest extends TestCase
         $this->assertDatabaseMissing('blacklist', [
             'email' => 'bad@example.com',
         ]);
+
+        // Active candidate remains REJECTED (inactive only)
+        $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $cand->fresh()->status);
+
+        // Inactive candidate that was BLACKLISTED changes to REJECTED (inactive only)
+        $this->assertEquals(\App\Enums\CandidateStatus::REJECTED, $inactiveCand->fresh()->status);
     }
 
-    public function test_can_create_manual_candidate_without_lowongan()
+    public function test_can_create_manual_candidate_without_vacancy()
     {
         Storage::fake('local');
         $dummyCv = UploadedFile::fake()->create('my_cv.pdf', 100, 'application/pdf');
@@ -151,7 +170,7 @@ class AtsManualAndBlacklistTest extends TestCase
         $this->assertDatabaseHas('candidates', [
             'name' => 'Independent Candidate',
             'email' => 'independent@example.com',
-            'lowongan_id' => null,
+            'vacancy_id' => null,
             'source' => 'manual',
             'current_stage_id' => 1,
             'status' => 'Applied',

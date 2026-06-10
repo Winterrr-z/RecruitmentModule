@@ -5,10 +5,10 @@
     <!-- Content Header & Top Controls -->
     <div class="mb-8 flex flex-col md:flex-row justify-between md:items-center gap-6">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Pipeline Pelamar (ATS)</h2>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Stage Pipeline</h2>
             <p class="font-body-md text-body-md text-on-surface-variant/70">Kelola pelamar pekerjaan dan pantau pergerakan rekrutmen</p>
         </div>
-        <a href="{{ route('ats.candidate.manual', $selectedLowonganId) }}" 
+        <a href="{{ route('ats.candidate.manual', $selectedVacancyId) }}" 
            class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
             <span class="material-symbols-outlined text-[20px]">person_add</span>
             <span>Input Kandidat</span>
@@ -40,15 +40,23 @@
                         $pl = 'pl-9';
                         $pr = 'pr-9';
                     }
+
+                    $colors = [
+                        '#6b38d4', '#fd933d', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#14b8a6',
+                        '#f43f5e', '#06b6d4', '#6366f1', '#84cc16', '#d946ef', '#0284c7', '#f97316', '#22c55e',
+                        '#eab308', '#a855f7', '#fb7185', '#475569'
+                    ];
+                    $stageColor = $colors[$index % count($colors)];
                 @endphp
                 <button wire:click="selectStage({{ $stage->id }})" 
                         class="relative h-12 flex items-center justify-center gap-2 {{ $pl }} {{ $pr }} text-sm font-bold transition-all duration-450
                         {{ $isActive 
-                            ? 'bg-primary text-white scale-[1.15] shadow-md z-10' 
+                            ? 'text-white scale-[1.15] shadow-md z-10' 
                             : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface hover:scale-[1.05] hover:z-20 hover:shadow-md z-0' }}"
-                        style="clip-path: {{ $polygon }};">
+                        style="clip-path: {{ $polygon }}; @if($isActive) background-color: {{ $stageColor }}; @endif">
                     <span class="whitespace-nowrap">{{ $stage->name }}</span>
-                    <span class="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] {{ $isActive ? 'bg-white/20 text-white' : 'bg-surface-container-highest text-on-surface-variant/80' }}">
+                    <span class="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px]"
+                          style="@if($isActive) background-color: rgba(255, 255, 255, 0.2); color: white; @else background-color: {{ $stageColor }}1a; color: {{ $stageColor }}; @endif">
                         {{ $count }}
                     </span>
                 </button>
@@ -58,10 +66,10 @@
     <x-advanced-filter searchPlaceholder="Cari kandidat di pipeline..." searchModel="search">
         <x-slot:filters>
             <div>
-                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lowongan</label>
-                <select wire:model.live="selectedLowonganId" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
-                    <option value="">Semua Lowongan</option>
-                    @foreach($lowongans as $job)
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Vacancy</label>
+                <select wire:model.live="selectedVacancyId" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="">Semua Vacancy</option>
+                    @foreach($vacancies as $job)
                         <option value="{{ $job->id }}">{{ $job->job_title }}</option>
                     @endforeach
                 </select>
@@ -89,7 +97,7 @@
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant sticky left-0 z-10 bg-gray-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Kandidat</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Email</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Status</th>
-                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Lowongan</th>
+                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Vacancy</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Tanggal Melamar</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Pindah Tahap</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant text-center">Aksi</th>
@@ -97,7 +105,7 @@
                 </thead>
                 <tbody class="divide-y divide-surface-container/30">
                     @forelse($candidates as $candidate)
-                        <tr x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
+                        <tr wire:key="candidate-{{ $candidate->id }}" x-data @click="window.location.href='{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}'" class="even:bg-white odd:bg-gray-50 hover:bg-surface-container-low/80 transition-colors group cursor-pointer">
                             <!-- Nama Kandidat -->
                             <td class="px-6 py-4 whitespace-nowrap sticky left-0 z-10 bg-inherit shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                 <a href="{{ route('ats.candidate.detail', ['candidateId' => $candidate->id]) }}" class="flex items-center gap-3 group/item">
@@ -170,10 +178,10 @@
                                 @endswitch
                             </td>
                             
-                            <!-- Lowongan -->
+                            <!-- Vacancy -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="font-body-md text-sm text-on-surface font-semibold">{{ $candidate->lowongan?->job_title ?: 'Kandidat Mandiri' }}</span>
-                                <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->lowongan?->department ?: 'Tanpa Lowongan' }}</div>
+                                <span class="font-body-md text-sm text-on-surface font-semibold">{{ $candidate->vacancy?->job_title ?: 'Kandidat Mandiri' }}</span>
+                                <div class="text-[11px] text-on-surface-variant/60">{{ $candidate->vacancy?->department ?: 'Tanpa Vacancy' }}</div>
                             </td>
                             
                             <!-- Tanggal Melamar -->

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Cw;
 
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Candidate;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -12,11 +12,11 @@ class CandidateJobDetail extends Component
 {
     use WithFileUploads;
 
-    /** @var int ID lowongan */
-    public $lowonganId;
+    /** @var int ID vacancy */
+    public $vacancyId;
 
-    /** @var Lowongan Model lowongan */
-    public $lowongan;
+    /** @var Vacancy Model vacancy */
+    public $vacancy;
 
     // Form properties
     public string $name = '';
@@ -32,8 +32,8 @@ class CandidateJobDetail extends Component
      */
     public function mount($id): void
     {
-        $this->lowonganId = $id;
-        $this->lowongan = Lowongan::where('status', 'Published')
+        $this->vacancyId = $id;
+        $this->vacancy = Vacancy::where('status', 'Published')
             ->findOrFail($id);
 
         if (auth()->check()) {
@@ -95,7 +95,7 @@ class CandidateJobDetail extends Component
 
         // Simpan kandidat
         Candidate::create([
-            'lowongan_id' => $this->lowongan->id,
+            'vacancy_id' => $this->vacancy->id,
             'user_id' => auth()->id(),
             'name' => $this->name,
             'email' => $this->email,

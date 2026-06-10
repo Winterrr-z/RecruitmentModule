@@ -23,7 +23,7 @@
                 <div class="text-white flex-1 text-center md:text-left">
                     <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Selamat! Anda Diterima 🎉</h2>
                     <p class="text-white/80 font-medium">
-                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->lowongan?->job_title ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
+                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->vacancy?->job_title ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
                     </p>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                         {{-- Info Lamaran --}}
                         <div>
                             <h3 class="font-title-md text-title-md text-on-surface font-bold">
-                                {{ $candidate->lowongan?->job_title ?? 'Posisi tidak tersedia' }}
+                                {{ $candidate->vacancy?->job_title ?? 'Posisi tidak tersedia' }}
                             </h3>
                             <p class="font-body-md text-xs text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}
@@ -202,9 +202,9 @@
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
                             \App\Enums\CandidateStatus::BLACKLISTED      => [
-                                'badge'      => 'Daftar Hitam',
-                                'badgeCls'   => 'bg-red-950/20 text-red-950 border border-red-950/30',
-                                'icon'       => 'block',
+                                'badge'      => 'Tidak Lolos',
+                                'badgeCls'   => 'bg-red-900/10 text-red-800 border border-red-900/20',
+                                'icon'       => 'close',
                                 'circleCls'  => 'bg-surface-container-high text-on-surface-variant',
                                 'label'      => 'Arsip',
                                 'labelCls'   => 'text-on-surface-variant',
@@ -224,7 +224,7 @@
                         {{-- Info Lamaran --}}
                         <div class="mb-6">
                             <h3 class="font-title-md text-title-md text-on-surface">
-                                {{ $candidate->lowongan?->job_title ?? 'Posisi tidak tersedia' }}
+                                {{ $candidate->vacancy?->job_title ?? 'Posisi tidak tersedia' }}
                             </h3>
                             <p class="font-body-md text-body-md text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}

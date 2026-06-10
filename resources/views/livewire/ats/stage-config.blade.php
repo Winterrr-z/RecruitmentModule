@@ -231,9 +231,9 @@
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
                         <div class="flex items-center justify-between border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Kriteria Scorecard</span>
-                            <button type="button" wire:click="addKriteria" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline">
+                            <button type="button" wire:click="addKriteria" class="group inline-flex items-center gap-1 text-[11px] font-bold text-primary no-underline">
                                 <span class="material-symbols-outlined text-[14px]">add</span>
-                                <span>Tambah Kriteria</span>
+                                <span class="group-hover:underline">Tambah Kriteria</span>
                             </button>
                         </div>
 

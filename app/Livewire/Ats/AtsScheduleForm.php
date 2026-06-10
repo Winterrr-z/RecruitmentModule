@@ -84,6 +84,6 @@ class AtsScheduleForm extends Component
 
     public function render()
     {
-        return view('livewire.ats.schedule-form')->layout('layouts.app');
+        return view('livewire.ats.schedule-form')->layout('layouts.hr');
     }
 }

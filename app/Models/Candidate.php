@@ -15,7 +15,7 @@ class Candidate extends Model
     protected $table = 'candidates';
 
     protected $fillable = [
-        'lowongan_id',
+        'vacancy_id',
         'user_id',
         'name',
         'email',
@@ -32,14 +32,14 @@ class Candidate extends Model
     protected $casts = [
         'offering_token_expires_at' => 'datetime',
         'status' => \App\Enums\CandidateStatus::class,
-        'lowongan_id' => 'integer',
+        'vacancy_id' => 'integer',
         'user_id' => 'integer',
         'current_stage_id' => 'integer',
     ];
 
-    public function lowongan(): BelongsTo
+    public function vacancy(): BelongsTo
     {
-        return $this->belongsTo(Lowongan::class, 'lowongan_id');
+        return $this->belongsTo(Vacancy::class, 'vacancy_id');
     }
 
     public function user(): BelongsTo

@@ -11,13 +11,13 @@
                 </h1>
                 
                 <p class="font-body-md text-on-surface-variant leading-relaxed mb-8">
-                    Anda tidak dapat melamar lowongan ini karena data Anda terdaftar dalam daftar hitam perusahaan.
+                    Anda tidak dapat melamar vacancy ini karena data Anda terdaftar dalam daftar hitam perusahaan.
                 </p>
                 
                 <div class="flex flex-col gap-3">
                     <a href="{{ route('careers') }}" 
                        class="inline-flex items-center justify-center h-12 px-6 rounded-full bg-primary text-white font-bold text-sm tracking-wide hover:bg-primary-container shadow-[0_4px_16px_rgba(107,56,212,0.25)] hover:shadow-[0_4px_24px_rgba(107,56,212,0.35)] transition-all active:scale-[0.98] no-underline">
-                        Kembali ke Halaman Lowongan
+                        Kembali ke Halaman Vacancy
                     </a>
                 </div>
             </div>

@@ -87,12 +87,12 @@
                 <a href="{{ route('ats.dashboard') }}" 
                    class="{{ (request()->routeIs('ats.dashboard') || request()->routeIs('ats.candidate.manual') || $activeTab === 'dashboard') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
                     <span class="material-symbols-outlined text-[18px]">account_tree</span>
-                    <span class="font-body-md text-sm">Pipeline</span>
+                    <span class="font-body-md text-sm">Pipeline Stages</span>
                 </a>
                 <a href="{{ route('ats.candidates') }}" 
                    class="{{ (request()->routeIs('ats.candidates') || request()->routeIs('ats.blacklist') || $activeTab === 'candidates') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
                     <span class="material-symbols-outlined text-[18px]">group</span>
-                    <span class="font-body-md text-sm">All Candidates</span>
+                    <span class="font-body-md text-sm">Candidates List</span>
                 </a>
                 <a href="{{ route('ats.stages') }}" 
                    class="{{ request()->routeIs('ats.stages') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">

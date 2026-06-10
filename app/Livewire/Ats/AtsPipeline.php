@@ -4,7 +4,7 @@ namespace App\Livewire\Ats;
 
 use App\Models\Candidate;
 use App\Models\Stage;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\CandidateMovement;
 use App\Models\Blacklist;
 use App\Models\Scorecard;
@@ -19,7 +19,7 @@ class AtsPipeline extends Component
 
     // Filters & States
     #[Url]
-    public $selectedLowonganId = null;
+    public $selectedVacancyId = null;
     
     #[Url]
     public $selectedStageId = null;
@@ -46,9 +46,9 @@ class AtsPipeline extends Component
         'blacklistAlasan.min' => 'Alasan blacklist minimal 5 karakter.',
     ];
 
-    public function mount($selectedLowonganId = null)
+    public function mount($selectedVacancyId = null)
     {
-        $this->selectedLowonganId = $selectedLowonganId;
+        $this->selectedVacancyId = $selectedVacancyId;
         
         // Cek session untuk stage terakhir
         if (session()->has('pipeline_selected_stage')) {
@@ -67,7 +67,7 @@ class AtsPipeline extends Component
         $this->resetPage();
     }
 
-    public function updatedSelectedLowonganId()
+    public function updatedSelectedVacancyId()
     {
         $this->resetPage();
     }
@@ -202,23 +202,23 @@ class AtsPipeline extends Component
 
     public function render()
     {
-        // 1. Get published or ready lowongans
-        $lowongans = Lowongan::whereIn('status', ['Published', 'Ready to Publish'])->get();
+        // 1. Get published or ready vacancies
+        $vacancies = Vacancy::whereIn('status', ['Published', 'Ready to Publish'])->get();
 
         // 2. Get all stages
         $stages = Stage::getAllCached();
 
         // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
-        $stageCounts = app(\App\Repositories\CandidateRepository::class)->getStageCounts($this->selectedLowonganId, $this->search);
+        $stageCounts = app(\App\Repositories\CandidateRepository::class)->getStageCounts($this->selectedVacancyId, $this->search);
 
         // 4. Query candidates
-        $candidates = app(\App\Repositories\CandidateRepository::class)->getPipelineCandidates($this->selectedLowonganId, $this->selectedStageId, $this->search, 10);
+        $candidates = app(\App\Repositories\CandidateRepository::class)->getPipelineCandidates($this->selectedVacancyId, $this->selectedStageId, $this->search, 10);
 
         return view('livewire.ats.ats-pipeline', [
-            'lowongans' => $lowongans,
+            'vacancies' => $vacancies,
             'stages' => $stages,
             'stageCounts' => $stageCounts,
             'candidates' => $candidates,
-        ])->layout('layouts.app');
+        ])->layout('layouts.hr');
     }
 }

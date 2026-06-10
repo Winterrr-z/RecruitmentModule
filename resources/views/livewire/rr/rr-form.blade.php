@@ -3,7 +3,7 @@
     <!-- Content Header -->
     <div class="mb-8">
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi lowongan pekerjaan yang ada.' : 'Buat lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi vacancy pekerjaan yang ada.' : 'Buat vacancy pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
     </div>
 
     <form wire:submit.prevent="save">
@@ -62,9 +62,9 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="quota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Lowongan <span class="text-error">*</span></label>
+                                <label for="quota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Vacancy <span class="text-error">*</span></label>
                                 <div class="relative">
-                                    <input type="number" id="quota" wire:model="quota" min="1" placeholder="Masukkan kuota lowongan" 
+                                    <input type="number" id="quota" wire:model="quota" min="1" placeholder="Masukkan kuota vacancy" 
                                            class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/20 transition-all @error('quota') ring-2 ring-error/20 @enderror">
                                 </div>
                                 @if($selectedMppId)
@@ -106,11 +106,11 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Detail Lowongan -->
+                <!-- Card 2: Detail Vacancy -->
                 <div class="bg-surface-container-lowest p-8 rounded-md border border-surface-container-high shadow-[0_20px_40px_rgba(107,56,212,0.01)]">
                     <div class="flex items-center gap-2 mb-6 pb-2 border-b border-surface-container-low">
                         <span class="material-symbols-outlined text-primary text-[24px]">description</span>
-                        <h3 class="text-title-md font-title-md font-bold text-on-surface">Detail Lowongan</h3>
+                        <h3 class="text-title-md font-title-md font-bold text-on-surface">Detail Vacancy</h3>
                     </div>
                     
                     <div class="space-y-6">

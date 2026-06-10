@@ -121,6 +121,6 @@ class EditProfileHr extends Component
     public function render()
     {
         return view('livewire.hr.edit-profile-hr')
-            ->layout('layouts.app');
+            ->layout('layouts.hr');
     }
 }

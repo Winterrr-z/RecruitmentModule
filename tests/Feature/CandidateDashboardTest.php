@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use App\Models\Mpp;
 use App\Models\Candidate;
 use App\Models\Stage;
@@ -44,7 +44,7 @@ class CandidateDashboardTest extends TestCase
             'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
         ]);
 
-        $rr_temp = \App\Models\RecruitmentRequest::create([
+        $rr_temp = \App\Models\Rr::create([
             'mpp_id' => $mpp->id,
             'job_title' => 'Test Jabatan',
             'department' => 'IT',
@@ -55,8 +55,8 @@ class CandidateDashboardTest extends TestCase
             'application_deadline' => now()->addDays(15)->format('Y-m-d'),
             'quota' => 1,
         ]);
-        $lowongan = Lowongan::create([
-            'recruitment_request_id' => \App\Models\RecruitmentRequest::latest('id')->first()->id,
+        $vacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
             'job_title' => 'Developer',
             'department' => 'IT',
             'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
@@ -79,7 +79,7 @@ class CandidateDashboardTest extends TestCase
 
         // Active application
         Candidate::create([
-            'lowongan_id' => $lowongan->id,
+            'vacancy_id' => $vacancy->id,
             'user_id' => $user->id,
             'name' => 'User',
             'email' => $user->email,
@@ -90,7 +90,7 @@ class CandidateDashboardTest extends TestCase
 
         // History application
         Candidate::create([
-            'lowongan_id' => $lowongan->id,
+            'vacancy_id' => $vacancy->id,
             'user_id' => $user->id,
             'name' => 'User',
             'email' => $user->email,

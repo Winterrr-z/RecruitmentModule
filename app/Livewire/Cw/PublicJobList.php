@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Cw;
 
-use App\Models\Lowongan;
+use App\Models\Vacancy;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -30,11 +30,11 @@ class PublicJobList extends Component
     }
 
     /**
-     * Render daftar lowongan publik.
+     * Render daftar vacancy publik.
      */
     public function render()
     {
-        $query = Lowongan::query()
+        $query = Vacancy::query()
             ->where('status', 'Published')
             ->where('quota', '>', 0)
             ->where('application_deadline', '>=', Carbon::today());
@@ -54,9 +54,9 @@ class PublicJobList extends Component
             $query->where('location', $this->selectedLokasi);
         }
 
-        $lowongans = $query->orderBy('created_at', 'desc')->paginate(10);
+        $vacancies = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('livewire.cw.career-job-list', compact('lowongans'))
+        return view('livewire.cw.career-job-list', compact('vacancies'))
             ->layout('layouts.guest');
     }
 }
