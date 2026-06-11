@@ -73,9 +73,9 @@
             </div>
             <h3 class="text-title-md font-bold text-on-surface mb-2">
                 @if(!empty($search) || !empty($selectedTipeKerja) || !empty($selectedLokasi))
-                    Tidak menemukan vacancy yang sesuai dengan pencarian Anda.
+                    Tidak menemukan lowongan yang sesuai dengan pencarian Anda.
                 @else
-                    Belum ada vacancy saat ini.
+                    Belum ada Lowongan saat ini.
                 @endif
             </h3>
             <p class="text-body-md text-on-surface-variant/70 max-w-md mb-6">
@@ -92,7 +92,7 @@
         <!-- Jobs Count Grid Header -->
         <div class="flex justify-between items-center mb-6">
             <p class="text-sm text-on-surface-variant">
-                Menampilkan <strong class="text-on-surface font-bold">{{ $vacancies->count() }}</strong> vacancy pekerjaan
+                Menampilkan <strong class="text-on-surface font-bold">{{ $vacancies->count() }}</strong> Lowongan pekerjaan
             </p>
         </div>
 

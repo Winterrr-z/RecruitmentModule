@@ -29,15 +29,6 @@ class NotificationsHr extends Component
         }
     }
 
-    public function delete($notificationId)
-    {
-        $notification = Notification::find($notificationId);
-        if ($notification && $notification->user_id === Auth::id()) {
-            $notification->delete();
-            session()->flash('message', 'Notifikasi dihapus');
-        }
-    }
-
     public function render()
     {
         $query = Notification::where('user_id', Auth::id());

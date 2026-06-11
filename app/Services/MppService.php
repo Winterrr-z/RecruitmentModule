@@ -26,7 +26,7 @@ class MppService
      */
     public function close(Mpp $mpp): bool
     {
-        if ($mpp->status === MppStatus::APPROVED && !$mpp->hasActiveCandidates()) {
+        if (in_array($mpp->status, [MppStatus::APPROVED, MppStatus::DRAFT]) && !$mpp->hasActiveCandidates()) {
             return $mpp->update([
                 'status' => MppStatus::CLOSED,
                 'last_activity_at' => now(),

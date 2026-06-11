@@ -4,7 +4,7 @@
         <a href="{{ auth()->check() ? route('candidate.jobs') : route('careers') }}" 
            class="inline-flex items-center gap-1.5 text-sm font-semibold text-on-surface-variant/80 hover:text-primary transition-colors no-underline">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-            Kembali ke Daftar Vacancy
+            Kembali ke Daftar Lowongan
         </a>
     </div>
 

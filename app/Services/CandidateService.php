@@ -61,7 +61,7 @@ class CandidateService
             ]);
 
             $newStatus = \App\Enums\CandidateStatus::IN_PROGRESS;
-            if ($toStage->id == 1 || strtolower($toStage->name) === 'applied') {
+            if ($toStage->is_first_stage) {
                 $newStatus = \App\Enums\CandidateStatus::APPLIED;
             }
 
@@ -78,7 +78,7 @@ class CandidateService
     public function rejectCandidate(Candidate $candidate): void
     {
         $currentStage = $candidate->currentStage;
-        $finalStage = Stage::where('name', 'Final')->orWhere('id', 2)->first();
+        $finalStage = Stage::where('is_final_stage', true)->first();
 
         if (!$finalStage) {
             throw new \Exception("Tahap 'Final' tidak ditemukan.");
@@ -106,26 +106,34 @@ class CandidateService
     }
 
     /**
-     * Blacklist kandidat.
+     * Blacklist kandidat berdasarkan model Candidate.
      */
     public function blacklistCandidate(Candidate $candidate, string $reason): void
     {
-        $finalStage = Stage::where('name', 'Final')->orWhere('id', 2)->first();
+        $this->blacklistDetails($candidate->name, $candidate->email, $candidate->phone, $reason);
+    }
+
+    /**
+     * Blacklist kandidat berdasarkan nama/email/telepon secara langsung.
+     */
+    public function blacklistDetails(string $name, string $email, string $phone, string $reason): void
+    {
+        $finalStage = Stage::where('is_final_stage', true)->first();
         if (!$finalStage) {
             throw new \Exception("Tahap 'Final' tidak ditemukan.");
         }
 
-        DB::transaction(function () use ($candidate, $finalStage, $reason) {
+        DB::transaction(function () use ($name, $email, $phone, $reason, $finalStage) {
             Blacklist::create([
-                'name' => $candidate->name,
-                'email' => $candidate->email,
-                'phone' => $candidate->phone,
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
                 'reason' => $reason,
             ]);
 
-            // Update all candidate records matching this candidate's email or phone
-            $candidates = Candidate::where('email', $candidate->email)
-                ->orWhere('phone', $candidate->phone)
+            // Update all candidate records matching this email or phone
+            $candidates = Candidate::where('email', $email)
+                ->orWhere('phone', $phone)
                 ->get();
 
             foreach ($candidates as $c) {
@@ -164,7 +172,7 @@ class CandidateService
     public function approveCandidate(Candidate $candidate): void
     {
         $currentStage = $candidate->currentStage;
-        $finalStage = Stage::where('name', 'Final')->orWhere('id', 2)->first();
+        $finalStage = Stage::where('is_final_stage', true)->first();
 
         if (!$finalStage) {
             throw new \Exception("Tahap 'Final' tidak ditemukan.");
@@ -184,5 +192,44 @@ class CandidateService
             $candidate->status = \App\Enums\CandidateStatus::OFFERED;
             $candidate->save();
         });
+    }
+
+    /**
+     * Proses pengajuan lamaran pekerjaan.
+     * Mengembalikan rute redirect atau null jika berhasil.
+     */
+    public function applyForJob(\App\Models\Vacancy $vacancy, int $userId, array $data, $cvFile, $portofolioFile = null): ?string
+    {
+        // Cek blacklist
+        $isBlacklisted = DB::table('blacklist')
+            ->where('email', $data['email'])
+            ->orWhere('phone', $data['phone'])
+            ->exists();
+
+        if ($isBlacklisted) {
+            return route('blacklist.info');
+        }
+
+        // Upload file ke storage/app/private/candidates
+        $cvPath = $cvFile->store('candidates', 'local');
+        $portofolioPath = $portofolioFile 
+            ? $portofolioFile->store('candidates', 'local')
+            : null;
+
+        // Simpan kandidat
+        Candidate::create([
+            'vacancy_id' => $vacancy->id,
+            'user_id' => $userId,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'cv_path' => $cvPath,
+            'portofolio_path' => $portofolioPath,
+            'current_stage_id' => 1, // Applied
+            'status' => \App\Enums\CandidateStatus::APPLIED,
+            'source' => 'public',
+        ]);
+
+        return null;
     }
 }

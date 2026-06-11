@@ -98,13 +98,14 @@ class AtsScorecardForm extends Component
             return;
         }
 
-        // 2. Validate scores (nilai must be between 1 and 100)
-        foreach ($this->kriteriaList as $index => $item) {
-            if (!isset($item['score']) || $item['score'] === '' || (int)$item['score'] < 1 || (int)$item['score'] > 100) {
-                $this->addError("kriteriaList.{$index}.score", 'Nilai harus berkisar antara 1-100.');
-                return;
-            }
-        }
+        // 2. Validate scores using Laravel array validation
+        $this->validate([
+            'kriteriaList.*.score' => 'required|integer|between:1,100',
+        ], [
+            'kriteriaList.*.score.required' => 'Nilai wajib diisi.',
+            'kriteriaList.*.score.integer' => 'Nilai harus berupa angka.',
+            'kriteriaList.*.score.between' => 'Nilai harus berkisar antara 1-100.',
+        ]);
 
         // Save atomically within a transaction block
         \DB::transaction(function () {

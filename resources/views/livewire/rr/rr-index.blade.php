@@ -6,7 +6,7 @@
     <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
             <h2 class="font-headline-lg text-headline-lg text-on-surface">List Recruitment Request</h2>
-            <p class="font-body-md text-body-md text-on-surface-variant/70">Kelola dan publikasikan vacancy pekerjaan berdasarkan rencana tenaga kerja yang telah disetujui.</p>
+            <p class="font-body-md text-body-md text-on-surface-variant/70">Kelola dan publikasikan lowongan pekerjaan berdasarkan rencana tenaga kerja yang telah disetujui.</p>
         </div>
         <a href="{{ route('rr.create') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 shadow-[0_4px_12px_rgba(107,56,212,0.2)]">
             <span class="material-symbols-outlined text-[20px]">add</span>
@@ -175,7 +175,7 @@
 
                                 <!-- Tombol Nonaktifkan -->
                                 @if($normalizedStatus === 'published')
-                                    <button wire:click="unpublish({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan vacancy pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95">
+                                    <button wire:click="unpublish({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">visibility_off</span>
                                         <span>Nonaktifkan</span>
                                     </button>
@@ -183,7 +183,7 @@
 
                                 <!-- Tombol Tutup -->
                                 @if($normalizedStatus === 'ready to publish')
-                                    <button wire:click="close({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menutup vacancy pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/15 text-error font-label-sm text-xs font-semibold hover:bg-error/25 transition-all active:scale-95">
+                                    <button wire:click="close({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menutup lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/15 text-error font-label-sm text-xs font-semibold hover:bg-error/25 transition-all active:scale-95">
                                         <span class="material-symbols-outlined text-[16px]">cancel</span>
                                         <span>Tutup</span>
                                     </button>

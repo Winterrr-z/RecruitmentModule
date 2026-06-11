@@ -80,62 +80,12 @@ class CandidateDashboard extends Component
             return;
         }
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($candidate, $choice) {
-            if ($choice === 'terima') {
-                $candidate->status = \App\Enums\CandidateStatus::HIRED;
-            } else {
-                $candidate->status = \App\Enums\CandidateStatus::DECLINED;
-            }
-
-            // Hapus token setelah direpson
-            $candidate->offering_token = null;
-            $candidate->offering_token_expires_at = null;
-            $candidate->save();
-
-            // Jika diterima, kurangi kuota vacancy
-            if ($choice === 'terima') {
-                $vacancy = $candidate->vacancy;
-                if ($vacancy) {
-                    $vacancy->quota = max(0, $vacancy->quota - 1);
-
-                    if ($vacancy->quota == 0) {
-                        $vacancy->status = 'Closed';
-                        
-                        $rr = $vacancy->rr;
-                        if ($rr) {
-                            $rr->status = 'Completed';
-                            $rr->save();
-                            
-                            $mpp = $rr->mpp;
-                            if ($mpp && $mpp->sisaKuota() <= 0) {
-                                // Status mpp diupdate ke Completed tapi getComputedStatus bisa mengaturnya, jadi tidak masalah, 
-                                // kita set saja secara eksplisit untuk berjaga-jaga.
-                                $mpp->status = 'Completed';
-                                $mpp->save();
-                            }
-                        }
-
-                        // Auto-Reject Kandidat Lain (In Progress / Applied)
-                        $rejectedCandidates = \App\Models\Candidate::where('vacancy_id', $vacancy->id)
-                            ->whereIn('status', [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED])
-                            ->where('id', '!=', $candidate->id)
-                            ->get();
-                            
-                        foreach ($rejectedCandidates as $rejected) {
-                            $rejected->status = \App\Enums\CandidateStatus::REJECTED;
-                            $rejected->save();
-                            try {
-                                $rejected->notify(new \App\Notifications\CandidateRejectedNotification($vacancy));
-                            } catch (\Exception $e) {
-                                \Illuminate\Support\Facades\Log::error("Gagal mengirim email penolakan otomatis untuk kandidat {$rejected->id}: " . $e->getMessage());
-                            }
-                        }
-                    }
-                    
-                    $vacancy->save();
-                }
-            }
-        });
+        $service = app(\App\Services\OfferingService::class);
+        if ($choice === 'terima') {
+            $service->acceptOffering($candidate);
+        } else {
+            $service->declineOffering($candidate);
+        }
 
         session()->flash('success', $choice === 'terima' ? 'Selamat! Anda telah menerima penawaran pekerjaan ini.' : 'Anda telah menolak penawaran pekerjaan ini.');
     }

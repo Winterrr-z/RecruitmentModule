@@ -26,6 +26,9 @@ return new class extends Migration
             $table->string('default_location', 200)->nullable();
             $table->string('default_virtual_link', 200)->nullable();
 
+            $table->boolean('is_first_stage')->default(false);
+            $table->boolean('is_final_stage')->default(false);
+
             $table->timestamps();
         });
 
@@ -37,6 +40,8 @@ return new class extends Migration
                 'needs_scorecard' => false,
                 'needs_schedule' => false,
                 'sequence' => 1,
+                'is_first_stage' => true,
+                'is_final_stage' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -47,6 +52,8 @@ return new class extends Migration
                 'needs_scorecard' => false,
                 'needs_schedule' => false,
                 'sequence' => 2,
+                'is_first_stage' => false,
+                'is_final_stage' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

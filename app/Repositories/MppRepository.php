@@ -13,11 +13,13 @@ class MppRepository
      */
     public function getUniqueDepartments(): Collection
     {
-        return Mpp::select('department')
-            ->whereNotNull('department')
-            ->distinct()
-            ->orderBy('department')
-            ->pluck('department');
+        return \Illuminate\Support\Facades\Cache::remember('mpp_unique_departments', 86400, function () {
+            return Mpp::select('department')
+                ->whereNotNull('department')
+                ->distinct()
+                ->orderBy('department')
+                ->pluck('department');
+        });
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Livewire\Rr;
 
 use App\Models\Mpp;
 use App\Models\Rr;
+use App\Livewire\Rr\RrDataForm;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -18,6 +19,11 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.hr')]
 class RRForm extends Component
 {
+    /**
+     * @var RrDataForm Form object untuk menampung input data RR
+     */
+    public RrDataForm $form;
+
     /**
      * @var int|null ID MPP terpilih.
      */
@@ -44,15 +50,6 @@ class RRForm extends Component
     public $estimated_salary_min;
     public $estimated_salary_max;
     public $expected_join_date;
-    public $quota; // Read-only
-
-    // Field diisi HR
-    public $job_description;
-    public $job_requirements;
-    public $employment_type = 'full-time'; // Default
-    public $location = 'remote'; // Default
-    public $application_deadline;
-    public $show_salary = false;
 
     /**
      * Inisialisasi komponen.
@@ -81,18 +78,18 @@ class RRForm extends Component
             // Populate MPP read-only fields
             $this->job_title = $rr->job_title;
             $this->department = $rr->department;
-            $this->quota = $rr->quota;
             $this->estimated_salary_min = $rr->estimated_salary_min;
             $this->estimated_salary_max = $rr->estimated_salary_max;
             $this->expected_join_date = $rr->expected_join_date ? $rr->expected_join_date->format('Y-m-d') : null;
 
-            // Populate HR editable fields
-            $this->job_description = $rr->job_description;
-            $this->job_requirements = $rr->job_requirements;
-            $this->employment_type = $rr->employment_type;
-            $this->location = $rr->location;
-            $this->application_deadline = $rr->application_deadline ? $rr->application_deadline->format('Y-m-d') : null;
-            $this->show_salary = $rr->show_salary;
+            // Populate HR editable fields to form object
+            $this->form->quota = $rr->quota;
+            $this->form->job_description = $rr->job_description;
+            $this->form->job_requirements = $rr->job_requirements;
+            $this->form->employment_type = $rr->employment_type;
+            $this->form->location = $rr->location;
+            $this->form->application_deadline = $rr->application_deadline ? $rr->application_deadline->format('Y-m-d') : null;
+            $this->form->show_salary = $rr->show_salary;
             return;
         }
 
@@ -146,7 +143,7 @@ class RRForm extends Component
         $this->estimated_salary_min = $mpp->estimated_salary_min;
         $this->estimated_salary_max = $mpp->estimated_salary_max;
         $this->expected_join_date = $mpp->absolute_target_date ? $mpp->absolute_target_date->format('Y-m-d') : null;
-        $this->quota = $mpp->sisaKuota();
+        $this->form->quota = $mpp->sisaKuota();
     }
 
     /**
@@ -161,7 +158,7 @@ class RRForm extends Component
         $this->estimated_salary_min = null;
         $this->estimated_salary_max = null;
         $this->expected_join_date = null;
-        $this->quota = null;
+        $this->form->quota = null;
     }
 
     /**
@@ -210,24 +207,8 @@ class RRForm extends Component
         $mpp = Mpp::findOrFail($this->selectedMppId);
         $maxKuota = $mpp->sisaKuota();
 
-        // Lakukan validasi input
-        $this->validate([
-            'job_description' => 'required|string|max:5000',
-            'job_requirements' => 'nullable|string|max:5000',
-            'employment_type' => 'required|in:full-time,contract',
-            'location' => 'required|in:remote,on-site',
-            'application_deadline' => 'required|date|after_or_equal:today',
-            'quota' => 'required|integer|min:1|max:' . $maxKuota,
-        ], [
-            'job_description.required' => 'Deskripsi Pekerjaan wajib diisi.',
-            'employment_type.required' => 'Tipe Kerja wajib diisi.',
-            'location.required' => 'Lokasi wajib diisi.',
-            'application_deadline.required' => 'Application Deadline wajib diisi.',
-            'application_deadline.after_or_equal' => 'Application Deadline minimal hari ini.',
-            'quota.required' => 'Kuota wajib diisi.',
-            'quota.min' => 'Kuota minimal 1.',
-            'quota.max' => 'Kuota tidak boleh melebihi sisa kebutuhan MPP (' . $maxKuota . ').',
-        ]);
+        // Lakukan validasi input via form object
+        $this->form->validateWithMaxQuota($maxKuota);
 
         if ($this->isEdit) {
             $rr = Rr::findOrFail($this->vacancyId);
@@ -240,18 +221,18 @@ class RRForm extends Component
             }
 
             $rr->update([
-                'job_description' => $this->job_description,
-                'job_requirements' => $this->job_requirements ?: '',
-                'employment_type' => $this->employment_type,
-                'location' => $this->location,
-                'application_deadline' => $this->application_deadline,
-                'show_salary' => $this->show_salary ? true : false,
-                'quota' => $this->quota,
+                'job_description' => $this->form->job_description,
+                'job_requirements' => $this->form->job_requirements ?: '',
+                'employment_type' => $this->form->employment_type,
+                'location' => $this->form->location,
+                'application_deadline' => $this->form->application_deadline,
+                'show_salary' => $this->form->show_salary ? true : false,
+                'quota' => $this->form->quota,
             ]);
 
             // Sync kuota ke vacancy jika sudah publish
             if ($rr->vacancy) {
-                $rr->vacancy->update(['quota' => $this->quota]);
+                $rr->vacancy->update(['quota' => $this->form->quota]);
             }
 
             session()->flash('message', 'Recruitment Request berhasil diperbarui.');
@@ -289,14 +270,14 @@ class RRForm extends Component
                 'estimated_salary_min' => $mpp->estimated_salary_min,
                 'estimated_salary_max' => $mpp->estimated_salary_max,
                 'expected_join_date' => $mpp->absolute_target_date,
-                'job_description' => $this->job_description,
-                'job_requirements' => $this->job_requirements ?: '',
-                'employment_type' => $this->employment_type,
-                'location' => $this->location,
-                'application_deadline' => $this->application_deadline,
-                'show_salary' => $this->show_salary ? true : false,
+                'job_description' => $this->form->job_description,
+                'job_requirements' => $this->form->job_requirements ?: '',
+                'employment_type' => $this->form->employment_type,
+                'location' => $this->form->location,
+                'application_deadline' => $this->form->application_deadline,
+                'show_salary' => $this->form->show_salary ? true : false,
                 'status' => 'Ready to Publish',
-                'quota' => $this->quota,
+                'quota' => $this->form->quota,
             ]);
 
             session()->flash('message', 'Recruitment Request berhasil dibuat dan berstatus Ready to Publish.');

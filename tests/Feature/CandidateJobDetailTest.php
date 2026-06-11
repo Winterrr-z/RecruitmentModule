@@ -164,6 +164,6 @@ class CandidateJobDetailTest extends TestCase
         $this->get(route('blacklist.info'))
             ->assertSuccessful()
             ->assertSee('Pendaftaran Dibatasi')
-            ->assertSee('Anda tidak dapat melamar vacancy ini karena data Anda terdaftar dalam daftar hitam perusahaan.');
+            ->assertSee('Anda tidak dapat melamar Lowongan ini karena data Anda terdaftar dalam daftar hitam perusahaan.');
     }
 }

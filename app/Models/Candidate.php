@@ -42,6 +42,17 @@ class Candidate extends Model
         return $this->belongsTo(Vacancy::class, 'vacancy_id');
     }
 
+    protected static function booted()
+    {
+        static::saved(function ($candidate) {
+            \Illuminate\Support\Facades\Cache::forget('dashboard_stage_counts');
+        });
+
+        static::deleted(function ($candidate) {
+            \Illuminate\Support\Facades\Cache::forget('dashboard_stage_counts');
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

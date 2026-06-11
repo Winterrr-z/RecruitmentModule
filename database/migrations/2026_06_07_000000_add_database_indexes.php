@@ -10,10 +10,13 @@ return new class extends Migration
      * Run the migrations.
      *
      * This migration adds critical indexes for performance optimization.
-     * Analysis revealed 37+ WHERE clauses on 'status', 13+ on 'vacancy_id',
-     * and frequent searches on 'name', 'email', 'job_title' fields.
+     * Optimized for SQLite (FK constraints do NOT auto-create indexes).
      *
-     * Expected improvement: 70-85% faster queries on filtered datasets.
+     * Strategy:
+     * - Single-column FK indexes are ONLY added when no composite index
+     *   covers them as a left-prefix.
+     * - Composite indexes are preferred for common multi-column query patterns.
+     * - Unique index on offering_token for critical token lookup queries.
      */
     public function up(): void
     {
@@ -21,26 +24,28 @@ return new class extends Migration
         // CANDIDATES TABLE - MOST CRITICAL (High query volume)
         // ================================================================
         Schema::table('candidates', function (Blueprint $table) {
-            // Foreign Keys (referenced in AtsAllCandidates.php, AtsPipeline.php)
-            $table->index('vacancy_id');
-            $table->index('user_id');
+            // FK index (no composite covers this column as prefix)
             $table->index('current_stage_id');
 
             // High-frequency filter columns
             $table->index('status');           // 37+ WHERE clauses on status
-            $table->index('created_at');       // DESC ordering in listings
 
             // Composite indexes for common query patterns
+            // Note: vacancy_id and user_id single indexes are omitted because
+            // they are left-prefixes of the composites below.
             $table->index(['vacancy_id', 'current_stage_id']);  // Pipeline filtering
             $table->index(['user_id', 'status']);                // Applicant candidates by status
+            $table->index(['status', 'created_at']);             // Listing sort by date with status filter
+
+            // Unique index for offering token lookup (OfferingResponse.php, ExpireOfferings.php)
+            $table->unique('offering_token');
         });
 
         // ================================================================
         // CANDIDATE_MOVEMENTS TABLE - Audit trail queries
         // ================================================================
         Schema::table('candidate_movements', function (Blueprint $table) {
-            // Foreign key lookups
-            $table->index('candidate_id');      // Movement history queries
+            // FK indexes (no composite covers these as prefix)
             $table->index('from_stage_id');
             $table->index('to_stage_id');
 
@@ -48,6 +53,7 @@ return new class extends Migration
             $table->index('moved_at');
 
             // Composite for efficient history retrieval
+            // Note: candidate_id single index omitted (left-prefix of this composite)
             $table->index(['candidate_id', 'moved_at']);
         });
 
@@ -55,14 +61,14 @@ return new class extends Migration
         // INTERVIEW_SCHEDULES TABLE - Scheduling & calendar operations
         // ================================================================
         Schema::table('interview_schedules', function (Blueprint $table) {
-            // Foreign keys
-            $table->index('candidate_id');  // Get candidate's schedule
+            // FK index (no composite covers this as prefix)
             $table->index('stage_id');      // Stage-specific schedule queries
 
             // Date-based queries (conflict detection, calendar views)
             $table->index('date');
 
             // Composite for efficient schedule lookup
+            // Note: candidate_id single index omitted (left-prefix of this composite)
             $table->index(['candidate_id', 'date']);
         });
 
@@ -70,11 +76,11 @@ return new class extends Migration
         // SCORECARDS TABLE - Performance evaluation tracking
         // ================================================================
         Schema::table('scorecards', function (Blueprint $table) {
-            // Foreign keys
-            $table->index('candidate_id');  // Get candidate's scores
+            // FK index (no composite covers this as prefix)
             $table->index('stage_id');      // Stage scoring queries
 
             // Composite for efficient scorecard retrieval
+            // Note: candidate_id single index omitted (left-prefix of this composite)
             $table->index(['candidate_id', 'stage_id']);
         });
 
@@ -82,13 +88,11 @@ return new class extends Migration
         // RRS TABLE - HR internal queries
         // ================================================================
         Schema::table('rrs', function (Blueprint $table) {
-            // Foreign key
-            $table->index('mpp_id');        // RR by MPP lookup
-
             // Status filtering (Draft, Ready to Publish, Published, Closed)
             $table->index('status');
 
             // Composite for MPP-based RR queries
+            // Note: mpp_id single index omitted (left-prefix of this composite)
             $table->index(['mpp_id', 'status']);
         });
 
@@ -96,13 +100,12 @@ return new class extends Migration
         // VACANCIES TABLE - Public job listings
         // ================================================================
         Schema::table('vacancies', function (Blueprint $table) {
-            // Foreign key
-            $table->index('rr_id');
-
-            // Published job filtering (PublicJobList, CareerJobList queries)
-            $table->index('status');
+            // Composite for public careers page: status + application_deadline
+            // Replaces single index('status') — status is covered as prefix
+            $table->index(['status', 'application_deadline']);
 
             // Composite for RR-based job queries
+            // Note: rr_id single index omitted (left-prefix of this composite)
             $table->index(['rr_id', 'status']);
         });
 
@@ -126,13 +129,10 @@ return new class extends Migration
         // NOTIFICATIONS TABLE - User notifications & activity feed
         // ================================================================
         Schema::table('notifications', function (Blueprint $table) {
-            // User notifications feed (NotificationsHr.php)
-            $table->index('user_id');
-
-            // Unread notification count filtering
-            $table->index('is_read');
-
             // Composite for pagination with status filtering
+            // Note: user_id and is_read single indexes omitted:
+            // - user_id is left-prefix of this composite
+            // - is_read has very low selectivity (only true/false)
             $table->index(['user_id', 'is_read', 'created_at']);
         });
 
@@ -153,19 +153,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop all indexes (cascade removal)
         Schema::table('candidates', function (Blueprint $table) {
-            $table->dropIndex(['vacancy_id']);
-            $table->dropIndex(['user_id']);
             $table->dropIndex(['current_stage_id']);
             $table->dropIndex(['status']);
-            $table->dropIndex(['created_at']);
             $table->dropIndex(['vacancy_id', 'current_stage_id']);
             $table->dropIndex(['user_id', 'status']);
+            $table->dropIndex(['status', 'created_at']);
+            $table->dropUnique(['offering_token']);
         });
 
         Schema::table('candidate_movements', function (Blueprint $table) {
-            $table->dropIndex(['candidate_id']);
             $table->dropIndex(['from_stage_id']);
             $table->dropIndex(['to_stage_id']);
             $table->dropIndex(['moved_at']);
@@ -173,27 +170,23 @@ return new class extends Migration
         });
 
         Schema::table('interview_schedules', function (Blueprint $table) {
-            $table->dropIndex(['candidate_id']);
             $table->dropIndex(['stage_id']);
             $table->dropIndex(['date']);
             $table->dropIndex(['candidate_id', 'date']);
         });
 
         Schema::table('scorecards', function (Blueprint $table) {
-            $table->dropIndex(['candidate_id']);
             $table->dropIndex(['stage_id']);
             $table->dropIndex(['candidate_id', 'stage_id']);
         });
 
         Schema::table('rrs', function (Blueprint $table) {
-            $table->dropIndex(['mpp_id']);
             $table->dropIndex(['status']);
             $table->dropIndex(['mpp_id', 'status']);
         });
 
         Schema::table('vacancies', function (Blueprint $table) {
-            $table->dropIndex(['rr_id']);
-            $table->dropIndex(['status']);
+            $table->dropIndex(['status', 'application_deadline']);
             $table->dropIndex(['rr_id', 'status']);
         });
 
@@ -206,8 +199,6 @@ return new class extends Migration
         });
 
         Schema::table('notifications', function (Blueprint $table) {
-            $table->dropIndex(['user_id']);
-            $table->dropIndex(['is_read']);
             $table->dropIndex(['user_id', 'is_read', 'created_at']);
         });
 

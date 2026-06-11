@@ -3,6 +3,7 @@
 namespace App\Livewire\Rr;
 
 use App\Models\Rr;
+use App\Services\RrService;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -58,97 +59,60 @@ class RRIndex extends Component
      * Akan otomatis membuat entri Vacancy untuk publik.
      *
      * @param int $id
+     * @param RrService $service
      * @return void
      */
-    public function publish($id)
+    public function publish($id, RrService $service)
     {
         $rr = Rr::findOrFail($id);
-        if ($rr->status->value === 'Draft' || $rr->status->value === 'Ready to Publish') {
-            $rr->update(['status' => 'Published']);
-
-            // Buat Vacancy otomatis
-            $rr->vacancy()->updateOrCreate(
-                ['rr_id' => $rr->id],
-                [
-                    'quota' => $rr->quota,
-                    'job_title' => $rr->job_title,
-                    'department' => $rr->department,
-                    'employment_type' => $rr->employment_type,
-                    'location' => $rr->location,
-                    'application_deadline' => $rr->application_deadline,
-                    'show_salary' => $rr->show_salary,
-                    'estimated_salary_min' => $rr->estimated_salary_min,
-                    'estimated_salary_max' => $rr->estimated_salary_max,
-                    'job_description' => $rr->job_description,
-                    'job_requirements' => $rr->job_requirements,
-                    'status' => 'Published'
-                ]
-            );
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan dan Vacancy telah dibuat.');
-        }
+        $service->publish($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan dan Vacancy telah dibuat.');
     }
 
     /**
      * Tutup RR (ubah status ke 'Closed').
      *
      * @param int $id
+     * @param RrService $service
      * @return void
      */
-    public function close($id)
+    public function close($id, RrService $service)
     {
         $rr = Rr::findOrFail($id);
-
-        if ($rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
-            $rr->update(['status' => 'Closed']);
-
-            // Tutup juga vacancy jika ada
-            if ($rr->vacancy) {
-                $rr->vacancy->update(['status' => 'Closed']);
-            }
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
-        }
-     }
+        $service->close($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
+    }
 
     /**
      * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
      *
      * @param int $id
+     * @param RrService $service
      * @return void
      */
-    public function unpublish($id)
+    public function unpublish($id, RrService $service)
     {
         $rr = Rr::findOrFail($id);
-        if ($rr->status->value === 'Published') {
-            $rr->update(['status' => 'Ready to Publish']);
-
-            // Nonaktifkan vacancy terkait
-            if ($rr->vacancy) {
-                $rr->vacancy->update(['status' => 'Closed']);
-            }
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dinonaktifkan.');
-        }
+        $service->unpublish($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dinonaktifkan.');
     }
 
     /**
      * Hapus RR draft jika tidak memiliki pelamar.
      *
      * @param int $id
+     * @param RrService $service
      * @return void
      */
-    public function delete($id)
+    public function delete($id, RrService $service)
     {
-        $rr = Rr::with('vacancy.candidates')->findOrFail($id);
-
-        if ($rr->hiredCount() > 0 || $rr->status->value !== 'Ready to Publish') {
-            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Ready to Publish tidak dapat dihapus.');
-            return;
+        $rr = Rr::findOrFail($id);
+        try {
+            $service->delete($rr);
+            session()->flash('message', 'Recruitment Request berhasil dihapus.');
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
         }
-
-        $rr->delete();
-        session()->flash('message', 'Recruitment Request berhasil dihapus.');
     }
 
     /**

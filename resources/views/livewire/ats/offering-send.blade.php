@@ -16,7 +16,7 @@
 
     <div class="max-w-4xl mx-auto bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_60px_-15px_rgba(107,56,212,0.06)] border border-surface-container/30 flex flex-col gap-6">
         <div>
-            <h3 class="text-title-md font-headline-lg text-on-surface mb-2">Detail Kandidat & Vacancy</h3>
+            <h3 class="text-title-md font-headline-lg text-on-surface mb-2">Detail Kandidat & Lowongan Kerja</h3>
             <p class="text-body-md text-xs text-on-surface-variant/70">Periksa kembali data di bawah ini sebelum mengirimkan surat penawaran.</p>
         </div>
 
@@ -48,7 +48,7 @@
 
             <!-- Job Info -->
             <div class="space-y-4">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-primary border-b border-surface-container-high/65 pb-1">Informasi Vacancy</h4>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-primary border-b border-surface-container-high/65 pb-1">Informasi Lowongan Kerja</h4>
                 <div>
                     <span class="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/60">Jabatan</span>
                     <span class="text-body-md text-on-surface font-semibold">{{ $vacancy->job_title }}</span>

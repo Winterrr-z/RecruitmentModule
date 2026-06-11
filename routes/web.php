@@ -29,7 +29,7 @@ Route::middleware(['web', 'auth', 'role:hr'])->group(function () {
 // Rute Publik Careers
 // ---------------------------------------------------------------------------
 Route::get('/careers', App\Livewire\Cw\PublicJobList::class)->name('careers');
-Route::get('/blacklist-info', fn() => view('blacklist-info'))->name('blacklist.info');
+Route::get('/blacklist-info', fn() => view('livewire.cw.blacklist-info'))->name('blacklist.info');
 
 // ---------------------------------------------------------------------------
 // Applicant & HR Auth (Registrasi & Login)
@@ -40,15 +40,7 @@ Route::get('/hr/login', App\Livewire\Hr\LoginHr::class)->name('hr.login');
 Route::get('/hr/forgot-password', App\Livewire\Hr\ForgotPasswordHr::class)->name('hr.password.request');
 Route::get('/hr/reset-password/{token}', App\Livewire\Hr\ResetPasswordHr::class)->name('password.reset');
 Route::get('/login-redirect', fn() => redirect()->route('candidate.login'))->name('login');
-Route::match(['get', 'post'], '/logout', function () {
-    $role = Auth::user()?->role; // simpan role sebelum logout
-    Auth::logout();
-    
-    if ($role === 'hr') {
-        return redirect()->route('hr.login');
-    }
-    return redirect()->route('careers');
-})->name('logout');
+Route::match(['get', 'post'], '/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 // ---------------------------------------------------------------------------
 // Candidate area (pelamar yang sudah login)

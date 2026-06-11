@@ -37,6 +37,8 @@ class Stage extends Model
         'interview_type',
         'default_location',
         'default_virtual_link',
+        'is_first_stage',
+        'is_final_stage',
     ];
 
     protected $casts = [
@@ -44,6 +46,8 @@ class Stage extends Model
         'needs_schedule' => 'boolean',
         'sequence' => 'integer',
         'scorecard_criteria' => 'array',
+        'is_first_stage' => 'boolean',
+        'is_final_stage' => 'boolean',
     ];
 
     public function candidates(): HasMany

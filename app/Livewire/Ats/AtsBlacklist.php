@@ -84,48 +84,12 @@ class AtsBlacklist extends Component
     {
         $this->validate();
 
-        \DB::transaction(function () {
-            // Save to blacklist
-            Blacklist::create([
-                'name' => $this->name,
-                'email' => $this->email,
-                'phone' => $this->phone,
-                'reason' => $this->reason,
-            ]);
-
-            // Automatically update candidates with this email/phone
-            $candidates = Candidate::where('email', $this->email)
-                ->orWhere('phone', $this->phone)
-                ->get();
-
-            foreach ($candidates as $c) {
-                $isActive = !in_array($c->status, [
-                    \App\Enums\CandidateStatus::REJECTED,
-                    \App\Enums\CandidateStatus::HIRED,
-                    \App\Enums\CandidateStatus::DECLINED,
-                    \App\Enums\CandidateStatus::EXPIRED,
-                    \App\Enums\CandidateStatus::BLACKLISTED
-                ]);
-
-                if ($isActive) {
-                    if ($c->current_stage_id != 2) {
-                        \App\Models\CandidateMovement::create([
-                            'candidate_id' => $c->id,
-                            'from_stage_id' => $c->current_stage_id,
-                            'to_stage_id' => 2,
-                            'moved_at' => now(),
-                        ]);
-                    }
-                    $c->status = \App\Enums\CandidateStatus::REJECTED;
-                    $c->current_stage_id = 2;
-                    $c->save();
-                } else {
-                    $c->status = \App\Enums\CandidateStatus::BLACKLISTED;
-                    $c->current_stage_id = 2;
-                    $c->save();
-                }
-            }
-        });
+        app(\App\Services\CandidateService::class)->blacklistDetails(
+            $this->name,
+            $this->email,
+            $this->phone,
+            $this->reason
+        );
 
         $this->showModal = false;
         $this->resetForm();

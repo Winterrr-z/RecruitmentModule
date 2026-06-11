@@ -66,9 +66,9 @@
     <x-advanced-filter searchPlaceholder="Cari kandidat di pipeline..." searchModel="search">
         <x-slot:filters>
             <div>
-                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Vacancy</label>
+                <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lowongan</label>
                 <select wire:model.live="selectedVacancyId" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
-                    <option value="">Semua Vacancy</option>
+                    <option value="">Semua Lowongan</option>
                     @foreach($vacancies as $job)
                         <option value="{{ $job->id }}">{{ $job->job_title }}</option>
                     @endforeach
@@ -97,7 +97,7 @@
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant sticky left-0 z-10 bg-gray-50 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Kandidat</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Email</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Status</th>
-                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Vacancy</th>
+                        <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Lowongan</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Tanggal Melamar</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant">Pindah Tahap</th>
                         <th class="px-6 py-4 font-bold text-label-sm uppercase tracking-wider text-on-surface-variant text-center">Aksi</th>

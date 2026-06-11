@@ -107,7 +107,7 @@ class MppDetail extends Component
             session()->flash('message', 'Manpower Planning berhasil ditutup.');
             $this->loadMpp();
         } else {
-            session()->flash('error', 'Tidak dapat menutup plan. Pastikan plan sudah di-approve dan tidak ada Recruitment Request yang aktif.');
+            session()->flash('error', 'Tidak dapat menutup plan. Pastikan plan berstatus Draft/Approved dan tidak ada Recruitment Request atau kandidat yang aktif.');
         }
     }
 

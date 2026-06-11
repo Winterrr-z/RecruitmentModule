@@ -87,6 +87,48 @@ class MppTest extends TestCase
         ]);
     }
 
+    public function test_can_close_draft_mpp()
+    {
+        $mpp = Mpp::create([
+            'plan_name' => 'Draft Plan to Close',
+            'department' => 'HR',
+            'job_title' => 'HR Specialist',
+            'quota' => 1,
+            'sla_days' => 30,
+            'status' => \App\Enums\MppStatus::DRAFT,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        Livewire::test(\App\Livewire\Mpp\MppDetail::class, ['mppId' => $mpp->id])
+            ->call('closePlan');
+
+        $this->assertDatabaseHas('mpps', [
+            'id' => $mpp->id,
+            'status' => \App\Enums\MppStatus::CLOSED,
+        ]);
+    }
+
+    public function test_can_close_approved_mpp()
+    {
+        $mpp = Mpp::create([
+            'plan_name' => 'Approved Plan to Close',
+            'department' => 'HR',
+            'job_title' => 'HR Specialist',
+            'quota' => 1,
+            'sla_days' => 30,
+            'status' => \App\Enums\MppStatus::APPROVED,
+            'absolute_target_date' => now()->addDays(30)->format('Y-m-d'),
+        ]);
+
+        Livewire::test(\App\Livewire\Mpp\MppDetail::class, ['mppId' => $mpp->id])
+            ->call('closePlan');
+
+        $this->assertDatabaseHas('mpps', [
+            'id' => $mpp->id,
+            'status' => \App\Enums\MppStatus::CLOSED,
+        ]);
+    }
+
     public function test_cannot_edit_closed_mpp()
     {
         $mpp = Mpp::create([

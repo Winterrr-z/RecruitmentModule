@@ -39,6 +39,17 @@ class Mpp extends Model
         'status' => \App\Enums\MppStatus::class,
     ];
 
+    protected static function booted()
+    {
+        static::saved(function ($mpp) {
+            \Illuminate\Support\Facades\Cache::forget('mpp_unique_departments');
+        });
+
+        static::deleted(function ($mpp) {
+            \Illuminate\Support\Facades\Cache::forget('mpp_unique_departments');
+        });
+    }
+
     public function rrs(): HasMany
     {
         return $this->hasMany(Rr::class, 'mpp_id');

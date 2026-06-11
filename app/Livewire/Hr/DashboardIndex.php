@@ -54,16 +54,17 @@ class DashboardIndex extends Component
             ->where('application_deadline', '>=', now()->toDateString())
             ->count();
 
+        // 4. Load stages first
+        $this->stages = Stage::getAllCached();
+
         // 2. Widget 2: New candidate count (Applied stage, no movements)
-        $this->newCandidateCount = Candidate::where('current_stage_id', 1)
+        $firstStageId = $this->stages->where('is_first_stage', true)->first()?->id ?? 1;
+        $this->newCandidateCount = Candidate::where('current_stage_id', $firstStageId)
             ->whereDoesntHave('movements')
             ->count();
 
         // 3. Widget 3: Today's interviews count
         $this->todayInterviewCount = InterviewSchedule::whereDate('date', today())->count();
-
-        // 4. Load stages
-        $this->stages = Stage::getAllCached();
 
         // 5. Load active vacancies for Donut Carousel
         $this->activeVacancies = Vacancy::where('status', 'Published')
@@ -149,12 +150,17 @@ class DashboardIndex extends Component
 
     protected function loadGlobalBarChart()
     {
+        $stageCounts = \Illuminate\Support\Facades\Cache::remember('dashboard_stage_counts', 86400, function () {
+            return Candidate::select('current_stage_id', \DB::raw('count(*) as count'))
+                ->groupBy('current_stage_id')
+                ->pluck('count', 'current_stage_id');
+        });
+
         $barChartData = [];
         foreach ($this->stages as $stage) {
-            $count = Candidate::where('current_stage_id', $stage->id)->count();
             $barChartData[] = [
                 'stage' => $stage->name,
-                'count' => $count
+                'count' => $stageCounts->get($stage->id, 0)
             ];
         }
 
@@ -174,15 +180,16 @@ class DashboardIndex extends Component
 
         $vacancy = $this->activeVacancies[$this->currentVacancyIndex];
         
+        $stageCounts = Candidate::where('vacancy_id', $vacancy->id)
+            ->select('current_stage_id', \DB::raw('count(*) as count'))
+            ->groupBy('current_stage_id')
+            ->pluck('count', 'current_stage_id');
+
         $data = [];
         foreach ($this->stages as $stage) {
-            $count = Candidate::where('vacancy_id', $vacancy->id)
-                ->where('current_stage_id', $stage->id)
-                ->count();
-            
             $data[] = [
                 'stage' => $stage->name,
-                'count' => $count
+                'count' => $stageCounts->get($stage->id, 0)
             ];
         }
 

@@ -3,7 +3,7 @@
     <!-- Content Header -->
     <div class="mb-8">
         <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi vacancy pekerjaan yang ada.' : 'Buat vacancy pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi Lowongan pekerjaan yang ada.' : 'Buat Lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
     </div>
 
     <form wire:submit.prevent="save">
@@ -62,15 +62,15 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="quota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Vacancy <span class="text-error">*</span></label>
+                                <label for="quota" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Kuota Lowongan <span class="text-error">*</span></label>
                                 <div class="relative">
-                                    <input type="number" id="quota" wire:model="quota" min="1" placeholder="Masukkan kuota vacancy" 
-                                           class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/20 transition-all @error('quota') ring-2 ring-error/20 @enderror">
+                                    <input type="number" id="quota" wire:model="form.quota" min="1" placeholder="Masukkan kuota lowongan" 
+                                           class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/20 transition-all @error('form.quota') ring-2 ring-error/20 @enderror">
                                 </div>
                                 @if($selectedMppId)
                                     <p class="text-xs text-on-surface-variant/60 mt-1">Isi kuota berdasarkan sisa kebutuhan MPP</p>
                                 @endif
-                                @error('quota')
+                                @error('form.quota')
                                     <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -116,17 +116,17 @@
                     <div class="space-y-6">
                         <div>
                             <label for="job_description" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Deskripsi Pekerjaan <span class="text-error">*</span></label>
-                            <textarea id="job_description" wire:model="job_description" rows="8" 
-                                      class="w-full px-6 py-4 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('job_description') ring-2 ring-error/20 @enderror" 
+                            <textarea id="job_description" wire:model="form.job_description" rows="8" 
+                                      class="w-full px-6 py-4 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.job_description') ring-2 ring-error/20 @enderror" 
                                       placeholder="Tuliskan tugas, tanggung jawab utama, serta rincian pekerjaan untuk posisi ini..."></textarea>
-                            @error('job_description')
+                            @error('form.job_description')
                                 <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
                             <label for="job_requirements" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Spesifikasi Kebutuhan (Opsional)</label>
-                            <textarea id="job_requirements" wire:model="job_requirements" rows="6" 
+                            <textarea id="job_requirements" wire:model="form.job_requirements" rows="6" 
                                       class="w-full px-6 py-4 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface" 
                                       placeholder="Contoh: Kualifikasi pendidikan minimal, tahun pengalaman kerja, keahlian teknis (spt: Laravel, Figma), dll."></textarea>
                         </div>
@@ -148,14 +148,14 @@
                         <div>
                             <label for="employment_type" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Tipe Kerja <span class="text-error">*</span></label>
                             <div class="relative">
-                                <select id="employment_type" wire:model="employment_type" 
-                                        class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('employment_type') ring-2 ring-error/20 @enderror appearance-none cursor-pointer">
+                                <select id="employment_type" wire:model="form.employment_type" 
+                                        class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.employment_type') ring-2 ring-error/20 @enderror appearance-none cursor-pointer">
                                     <option value="full-time">Full-time</option>
                                     <option value="contract">Contract</option>
                                 </select>
                                 <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">keyboard_arrow_down</span>
                             </div>
-                            @error('employment_type')
+                            @error('form.employment_type')
                                 <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
@@ -163,23 +163,23 @@
                         <div>
                             <label for="location" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Lokasi Kerja <span class="text-error">*</span></label>
                             <div class="relative">
-                                <select id="location" wire:model="location" 
-                                        class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('location') ring-2 ring-error/20 @enderror appearance-none cursor-pointer">
+                                <select id="location" wire:model="form.location" 
+                                        class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.location') ring-2 ring-error/20 @enderror appearance-none cursor-pointer">
                                     <option value="remote">Remote</option>
                                     <option value="on-site">On-site</option>
                                 </select>
                                 <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">keyboard_arrow_down</span>
                             </div>
-                            @error('location')
+                            @error('form.location')
                                 <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
                             <label for="application_deadline" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Application Deadline <span class="text-error">*</span></label>
-                            <input type="date" id="application_deadline" wire:model="application_deadline" 
-                                   class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('application_deadline') ring-2 ring-error/20 @enderror">
-                            @error('application_deadline')
+                            <input type="date" id="application_deadline" wire:model="form.application_deadline" 
+                                   class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.application_deadline') ring-2 ring-error/20 @enderror">
+                            @error('form.application_deadline')
                                 <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
                             @enderror
                         </div>
@@ -187,7 +187,7 @@
                         <!-- Tampilkan Gaji Checkbox -->
                         <div class="pt-2">
                             <label class="relative flex items-center gap-3 cursor-pointer select-none">
-                                <input type="checkbox" id="show_salary" wire:model="show_salary" 
+                                <input type="checkbox" id="show_salary" wire:model="form.show_salary" 
                                        class="w-5 h-5 rounded border-none bg-surface-container-low text-primary focus:ring-2 focus:ring-primary/20 cursor-pointer transition-all">
                                 <span class="font-body-md text-on-surface text-sm">
                                     Tampilkan perkiraan gaji kepada kandidat

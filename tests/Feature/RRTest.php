@@ -56,11 +56,11 @@ class RRTest extends TestCase
         ]);
 
         Livewire::test(\App\Livewire\Rr\RRForm::class, ['mppId' => $mpp->id])
-            ->set('job_description', 'Tugas Akuntan')
-            ->set('job_requirements', 'Lulusan S1 Akuntansi')
-            ->set('employment_type', 'full-time')
-            ->set('location', 'on-site')
-            ->set('application_deadline', now()->addDays(10)->format('Y-m-d'))
+            ->set('form.job_description', 'Tugas Akuntan')
+            ->set('form.job_requirements', 'Lulusan S1 Akuntansi')
+            ->set('form.employment_type', 'full-time')
+            ->set('form.location', 'on-site')
+            ->set('form.application_deadline', now()->addDays(10)->format('Y-m-d'))
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('rr.index'));

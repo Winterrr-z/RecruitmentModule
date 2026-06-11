@@ -6,9 +6,9 @@
         <h3 class="text-headline-lg text-on-surface mb-1">Tambah Kandidat secara Manual</h3>
         <p class="text-body-md text-sm text-on-surface-variant/70">
             @if($vacancy)
-                Form pendaftaran pelamar secara manual untuk Vacancy: <span class="font-bold text-primary">{{ $vacancy->job_title }} ({{ $vacancy->department }})</span>
+                Form pendaftaran pelamar secara manual untuk Lowongan Kerja: <span class="font-bold text-primary">{{ $vacancy->job_title }} ({{ $vacancy->department }})</span>
             @else
-                Form pendaftaran pelamar secara manual sebagai <span class="font-bold text-primary">Kandidat Mandiri (Tanpa Vacancy)</span>
+                Form pendaftaran pelamar secara manual sebagai <span class="font-bold text-primary">Kandidat Mandiri (Tanpa Lowongan Kerja)</span>
             @endif
         </p>
     </div>

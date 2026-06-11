@@ -39,7 +39,7 @@
                                     </span>
                                     <div class="flex flex-col">
                                         <!-- Move Up button -->
-                                        @if(!in_array($stage->id, [1, 2]) && $stage->sequence > 2)
+                                        @if(!$stage->is_first_stage && !$stage->is_final_stage && $stage->sequence > 2)
                                             <button wire:click="moveUp({{ $stage->id }})" class="text-primary hover:text-primary-container p-0.5 rounded transition-colors" title="Naikkan Urutan">
                                                 <span class="material-symbols-outlined text-[18px]">keyboard_arrow_up</span>
                                             </button>
@@ -48,7 +48,7 @@
                                         @endif
 
                                         <!-- Move Down button -->
-                                        @if(!in_array($stage->id, [1, 2]) && $stage->sequence < ($finalUrutan - 1))
+                                        @if(!$stage->is_first_stage && !$stage->is_final_stage && $stage->sequence < ($finalUrutan - 1))
                                             <button wire:click="moveDown({{ $stage->id }})" class="text-primary hover:text-primary-container p-0.5 rounded transition-colors" title="Turunkan Urutan">
                                                 <span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
                                             </button>
@@ -61,7 +61,7 @@
                             <!-- Nama Stage -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="font-title-md text-sm font-bold text-on-surface">{{ $stage->name }}</span>
-                                @if(in_array($stage->id, [1, 2]))
+                                @if($stage->is_first_stage || $stage->is_final_stage)
                                     <span class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase tracking-wider">System Default</span>
                                 @endif
                             </td>
@@ -106,7 +106,7 @@
                                     </button>
 
                                     <!-- Delete Button -->
-                                    @if(in_array($stage->id, [1, 2]))
+                                    @if($stage->is_first_stage || $stage->is_final_stage)
                                         <!-- Protected system default stage -->
                                         <button class="p-2 text-on-surface-variant/20 cursor-not-allowed" title="Stage sistem tidak dapat dihapus" disabled>
                                             <span class="material-symbols-outlined text-[20px]">delete_forever</span>
@@ -180,10 +180,10 @@
                     <!-- Nama Stage -->
                     <div>
                     <label for="name" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Stage <span class="text-error">*</span></label>
-                    <input type="text" id="name" wire:model="name" 
+                    <input type="text" id="name" wire:model="form.name" 
                            placeholder="Contoh: Technical Test, HR Interview"
-                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('name') border-error @enderror">
-                    @error('name')
+                           class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.name') border-error @enderror">
+                    @error('form.name')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}
@@ -194,10 +194,10 @@
                 <!-- Deskripsi -->
                 <div>
                     <label for="description" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Deskripsi Stage</label>
-                    <textarea id="description" wire:model="description" rows="3"
+                    <textarea id="description" wire:model="form.description" rows="3"
                               placeholder="Penjelasan singkat mengenai proses seleksi pada tahap ini..."
-                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('description') border-error @enderror"></textarea>
-                    @error('description')
+                              class="w-full p-4 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface @error('form.description') border-error @enderror"></textarea>
+                    @error('form.description')
                         <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
                             <span class="material-symbols-outlined text-[14px]">error</span>
                             {{ $message }}
@@ -210,7 +210,7 @@
                     <!-- Butuh Scorecard Toggle -->
                     <div class="flex items-center">
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model.live="needs_scorecard" class="sr-only peer">
+                            <input type="checkbox" wire:model.live="form.needs_scorecard" class="sr-only peer">
                             <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             <span class="ml-3 font-body-md text-sm font-semibold text-on-surface">Butuh Scorecard</span>
                         </label>
@@ -219,7 +219,7 @@
                     <!-- Butuh Jadwal Toggle -->
                     <div class="flex items-center">
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model.live="needs_schedule" class="sr-only peer">
+                            <input type="checkbox" wire:model.live="form.needs_schedule" class="sr-only peer">
                             <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             <span class="ml-3 font-body-md text-sm font-semibold text-on-surface">Butuh Jadwal</span>
                         </label>
@@ -227,7 +227,7 @@
                 </div>
 
                 <!-- Scorecard Template Section -->
-                @if($needs_scorecard)
+                @if($form->needs_scorecard)
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
                         <div class="flex items-center justify-between border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Kriteria Scorecard</span>
@@ -238,13 +238,13 @@
                         </div>
 
                         <!-- General Errors -->
-                        @error('scorecardKriteria')
+                        @error('form.scorecardKriteria')
                             <p class="text-xs text-error font-semibold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[14px]">error</span>
                                 {{ $message }}
                             </p>
                         @enderror
-                        @error('totalBobot')
+                        @error('form.totalBobot')
                             <p class="text-xs text-error font-semibold flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[14px]">error</span>
                                 {{ $message }}
@@ -252,26 +252,26 @@
                         @enderror
 
                         <div class="space-y-3">
-                            @foreach($scorecardKriteria as $index => $item)
+                            @foreach($form->scorecardKriteria as $index => $item)
                                 <div class="flex gap-3 items-start">
                                     <div class="flex-1">
-                                        <input type="text" wire:model.blur="scorecardKriteria.{{ $index }}.kriteria" 
+                                        <input type="text" wire:model.blur="form.scorecardKriteria.{{ $index }}.kriteria" 
                                                placeholder="Kriteria (misal: Komunikasi, Skill Laravel)"
                                                class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                        @error('scorecardKriteria.'.$index.'.kriteria')
+                                        @error('form.scorecardKriteria.'.$index.'.kriteria')
                                             <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="w-24 relative">
-                                        <input type="number" min="1" max="100" wire:model.blur="scorecardKriteria.{{ $index }}.bobot" 
+                                        <input type="number" min="1" max="100" wire:model.blur="form.scorecardKriteria.{{ $index }}.bobot" 
                                                placeholder="Bobot"
                                                class="w-full pl-3 pr-6 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
                                         <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant/40">%</span>
-                                        @error('scorecardKriteria.'.$index.'.bobot')
+                                        @error('form.scorecardKriteria.'.$index.'.bobot')
                                             <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                         @enderror
                                     </div>
-                                    @if(count($scorecardKriteria) > 1)
+                                    @if(count($form->scorecardKriteria) > 1)
                                         <button type="button" wire:click="removeKriteria({{ $index }})" class="p-2 text-error hover:bg-error/10 rounded-md">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
@@ -283,7 +283,7 @@
                 @endif
 
                 <!-- Penjadwalan Template Section -->
-                @if($needs_schedule)
+                @if($form->needs_schedule)
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
                         <div class="border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Konfigurasi Penjadwalan</span>
@@ -292,38 +292,38 @@
                         <!-- Tipe Wawancara Select -->
                         <div>
                             <label for="interview_type" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tipe Wawancara <span class="text-error">*</span></label>
-                            <select id="interview_type" wire:model.live="interview_type" 
+                            <select id="interview_type" wire:model.live="form.interview_type" 
                                     class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface cursor-pointer">
                                 <option value="online">Online</option>
                                 <option value="offline">Offline (On-site)</option>
                                 <option value="hybrid">Hybrid</option>
                             </select>
-                            @error('interview_type')
+                            @error('form.interview_type')
                                 <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <!-- Lokasi Default (Offline/Hybrid) -->
-                        @if($interview_type === 'offline' || $interview_type === 'hybrid')
+                        @if($form->interview_type === 'offline' || $form->interview_type === 'hybrid')
                             <div>
                                 <label for="default_location" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Lokasi / Ruangan Default <span class="text-error">*</span></label>
-                                <input type="text" id="default_location" wire:model.blur="default_location" 
+                                <input type="text" id="default_location" wire:model.blur="form.default_location" 
                                        placeholder="misal: Ruang Rapat Lt. 2, Kantor Cabang Jakarta"
                                        class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                @error('default_location')
+                                @error('form.default_location')
                                     <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                 @enderror
                             </div>
                         @endif
 
                         <!-- Tautan Virtual Default (Online/Hybrid) -->
-                        @if($interview_type === 'online' || $interview_type === 'hybrid')
+                        @if($form->interview_type === 'online' || $form->interview_type === 'hybrid')
                             <div>
                                 <label for="default_virtual_link" class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Tautan Meeting Virtual Default (Opsional)</label>
-                                <input type="text" id="default_virtual_link" wire:model.blur="default_virtual_link" 
+                                <input type="text" id="default_virtual_link" wire:model.blur="form.default_virtual_link" 
                                        placeholder="misal: https://meet.google.com/abc-defg-hij"
                                        class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                @error('default_virtual_link')
+                                @error('form.default_virtual_link')
                                     <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                 @enderror
                             </div>

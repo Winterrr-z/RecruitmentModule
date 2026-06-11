@@ -34,6 +34,13 @@ class ForgotPasswordHr extends Component
             'email.email'    => 'Format email tidak valid.',
         ]);
 
+        $user = \App\Models\User::where('email', $this->email)->first();
+
+        if (!$user || $user->role !== 'hr') {
+            $this->addError('email', 'Kami tidak dapat menemukan akun HR dengan alamat email tersebut.');
+            return;
+        }
+
         $result = Password::sendResetLink(['email' => $this->email]);
 
         if ($result === Password::RESET_LINK_SENT) {

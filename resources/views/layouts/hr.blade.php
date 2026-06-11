@@ -132,9 +132,6 @@
             <livewire:global-search />
             <a href="{{ route('hr.notifications') }}" class="bg-primary/10 text-primary w-12 h-12 flex items-center justify-center rounded-md hover:bg-primary hover:text-white transition-all active:scale-95 relative">
                 <span class="material-symbols-outlined">notifications</span>
-                @php
-                    $unreadNotifications = Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count() : 0;
-                @endphp
                 @if($unreadNotifications > 0)
                     <span class="absolute top-0 right-0 bg-error text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                         {{ $unreadNotifications > 9 ? '9+' : $unreadNotifications }}

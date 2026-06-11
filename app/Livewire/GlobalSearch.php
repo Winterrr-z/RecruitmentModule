@@ -109,6 +109,6 @@ class GlobalSearch extends Component
 
     public function render()
     {
-        return view('livewire.global-search');
+        return view('components.global-search');
     }
 }

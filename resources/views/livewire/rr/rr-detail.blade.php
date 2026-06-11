@@ -250,23 +250,23 @@
                     @endif
 
                     @if($rrStatusVal === 'Ready to Publish')
-                        <!-- Tombol Tutup Vacancy -->
-                        <button wire:click="close" wire:confirm="Tutup vacancy ini?" class="px-8 h-14 bg-[#ef4444] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <!-- Tombol Tutup Lowongan -->
+                        <button wire:click="close" wire:confirm="Tutup lowongan ini?" class="px-8 h-14 bg-[#ef4444] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">cancel</span>
-                            <span>Tutup Vacancy</span>
+                            <span>Tutup Lowongan</span>
                         </button>
 
                         <button wire:click="publish" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">rocket_launch</span>
-                            <span>Aktifkan Vacancy</span>
+                            <span>Aktifkan Lowongan</span>
                         </button>
                     @endif
 
                     @if($normalizedStatus === 'published')
-                        <!-- Tombol Nonaktifkan Vacancy -->
-                        <button wire:click="unpublish" wire:confirm="Nonaktifkan vacancy pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <!-- Tombol Nonaktifkan Lowongan -->
+                        <button wire:click="unpublish" wire:confirm="Nonaktifkan Lowongan pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">visibility_off</span>
-                            <span>Nonaktifkan Vacancy</span>
+                            <span>Nonaktifkan Lowongan</span>
                         </button>
                     @endif
                 </div>

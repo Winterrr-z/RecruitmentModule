@@ -77,35 +77,22 @@ class CandidateJobDetail extends Component
             'portofolio.max' => 'Ukuran portofolio maksimal 5MB.',
         ]);
 
-        // Cek blacklist
-        $isBlacklisted = DB::table('blacklist')
-            ->where('email', $this->email)
-            ->orWhere('phone', $this->phone)
-            ->exists();
+        // Delegasi ke service
+        $redirectRoute = app(\App\Services\CandidateService::class)->applyForJob(
+            $this->vacancy,
+            auth()->id(),
+            [
+                'name' => $this->name,
+                'email' => $this->email,
+                'phone' => $this->phone,
+            ],
+            $this->cv,
+            $this->portofolio
+        );
 
-        if ($isBlacklisted) {
-            return redirect()->route('blacklist.info');
+        if ($redirectRoute) {
+            return redirect($redirectRoute);
         }
-
-        // Upload file ke storage/app/private/candidates (disk local root adalah storage/app/private)
-        $cvPath = $this->cv->store('candidates', 'local');
-        $portofolioPath = $this->portofolio 
-            ? $this->portofolio->store('candidates', 'local')
-            : null;
-
-        // Simpan kandidat
-        Candidate::create([
-            'vacancy_id' => $this->vacancy->id,
-            'user_id' => auth()->id(),
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'cv_path' => $cvPath,
-            'portofolio_path' => $portofolioPath,
-            'current_stage_id' => 1, // Applied
-            'status' => \App\Enums\CandidateStatus::APPLIED,
-            'source' => 'public',
-        ]);
 
         session()->flash('message', 'Lamaran berhasil dikirim!');
 

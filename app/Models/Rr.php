@@ -41,6 +41,17 @@ class Rr extends Model
         'status' => \App\Enums\RrStatus::class,
     ];
 
+    protected static function booted()
+    {
+        static::saved(function ($rr) {
+            \Illuminate\Support\Facades\Cache::forget('rr_dashboard_stats');
+        });
+
+        static::deleted(function ($rr) {
+            \Illuminate\Support\Facades\Cache::forget('rr_dashboard_stats');
+        });
+    }
+
     public function mpp(): BelongsTo
     {
         return $this->belongsTo(Mpp::class, 'mpp_id');

@@ -5,6 +5,7 @@ namespace App\Livewire\Rr;
 use App\Models\Rr;
 use App\Models\Candidate;
 use App\Models\Stage;
+use App\Services\RrService;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
@@ -39,93 +40,58 @@ class RRDetail extends Component
     /**
      * Publikasikan RR (ubah status dari 'Draft' ke 'Published').
      *
+     * @param RrService $service
      * @return void
      */
-    public function publish()
+    public function publish(RrService $service)
     {
         $rr = Rr::findOrFail($this->rrId);
-        if ($rr->status->value === 'Draft' || $rr->status->value === 'Ready to Publish') {
-            $rr->update(['status' => 'Published']);
-
-            // Buat Vacancy otomatis
-            $rr->vacancy()->updateOrCreate(
-                ['rr_id' => $rr->id],
-                [
-                    'quota' => $rr->quota,
-                    'job_title' => $rr->job_title,
-                    'department' => $rr->department,
-                    'employment_type' => $rr->employment_type,
-                    'location' => $rr->location,
-                    'application_deadline' => $rr->application_deadline,
-                    'show_salary' => $rr->show_salary,
-                    'estimated_salary_min' => $rr->estimated_salary_min,
-                    'estimated_salary_max' => $rr->estimated_salary_max,
-                    'job_description' => $rr->job_description,
-                    'job_requirements' => $rr->job_requirements,
-                    'status' => 'Published'
-                ]
-            );
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan.');
-        }
+        $service->publish($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil dipublikasikan.');
     }
 
     /**
      * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
      *
+     * @param RrService $service
      * @return void
      */
-    public function unpublish()
+    public function unpublish(RrService $service)
     {
         $rr = Rr::findOrFail($this->rrId);
-        if ($rr->status->value === 'Published') {
-            $rr->update(['status' => 'Ready to Publish']);
-
-            if ($rr->vacancy) {
-                $rr->vacancy->update(['status' => 'Draft']);
-            }
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" dinonaktifkan.');
-        }
+        $service->unpublish($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" dinonaktifkan.');
     }
 
     /**
      * Tutup RR (ubah status ke 'Closed').
+     *
+     * @param RrService $service
+     * @return void
      */
-    public function close()
+    public function close(RrService $service)
     {
         $rr = Rr::findOrFail($this->rrId);
-
-        if ($rr->status->value !== 'Closed' && $rr->status->value !== 'Completed') {
-            $rr->update(['status' => 'Closed']);
-
-            // Tutup vacancy juga
-            if ($rr->vacancy) {
-                $rr->vacancy->update(['status' => 'Closed']);
-            }
-
-            session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
-        }
+        $service->close($rr);
+        session()->flash('message', 'Recruitment Request "' . $rr->job_title . '" berhasil ditutup.');
     }
 
     /**
      * Hapus RR draft.
      *
+     * @param RrService $service
      * @return void|\Illuminate\Http\RedirectResponse
      */
-    public function delete()
+    public function delete(RrService $service)
     {
-        $rr = Rr::with('vacancy.candidates')->findOrFail($this->rrId);
-
-        if ($rr->hiredCount() > 0 || ($rr->status->value !== 'Draft' && $rr->status->value !== 'Ready to Publish')) {
-            session()->flash('error', 'Recruitment Request yang memiliki pelamar Hired atau statusnya bukan Draft tidak dapat dihapus.');
-            return;
+        $rr = Rr::findOrFail($this->rrId);
+        try {
+            $service->delete($rr);
+            session()->flash('message', 'Recruitment Request berhasil dihapus.');
+            return redirect()->route('rr.index');
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
         }
-
-        $rr->delete();
-        session()->flash('message', 'Recruitment Request berhasil dihapus.');
-
-        return redirect()->route('rr.index');
     }
 
     /**
@@ -139,21 +105,49 @@ class RRDetail extends Component
 
         $vacancyId = $rr->vacancy?->id;
 
-        // Ambil metrik kandidat
-        $totalCandidates = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)->count() : 0;
-        $hiredCandidates = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)->where('status', \App\Enums\CandidateStatus::HIRED)->count() : 0;
-        $rejectedCandidates = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)->where('status', \App\Enums\CandidateStatus::REJECTED)->count() : 0;
-        $activeCandidates = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)->whereNotIn('status', [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED])->count() : 0;
+        // Ambil metrik kandidat secara agregat dalam satu pemanggilan
+        $candidatesData = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)
+            ->selectRaw("
+                COUNT(*) as total_count,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as hired_count,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as rejected_count,
+                SUM(CASE WHEN status NOT IN (?, ?, ?, ?) THEN 1 ELSE 0 END) as active_count
+            ", [
+                \App\Enums\CandidateStatus::HIRED->value,
+                \App\Enums\CandidateStatus::REJECTED->value,
+                \App\Enums\CandidateStatus::HIRED->value,
+                \App\Enums\CandidateStatus::REJECTED->value,
+                \App\Enums\CandidateStatus::DECLINED->value,
+                \App\Enums\CandidateStatus::EXPIRED->value,
+            ])
+            ->first() : null;
 
-        // Ambil persebaran kandidat per stage
-        $stages = Stage::getAllCached()->map(function ($stage) use ($vacancyId) {
-            return [
-                'name' => $stage->name,
-                'count' => $vacancyId ? Candidate::where('vacancy_id', $vacancyId)
-                    ->where('current_stage_id', $stage->id)
-                    ->count() : 0
-            ];
-        });
+        $totalCandidates = $candidatesData ? (int)$candidatesData->total_count : 0;
+        $hiredCandidates = $candidatesData ? (int)$candidatesData->hired_count : 0;
+        $rejectedCandidates = $candidatesData ? (int)$candidatesData->rejected_count : 0;
+        $activeCandidates = $candidatesData ? (int)$candidatesData->active_count : 0;
+
+        // Ambil persebaran kandidat per stage secara agregat
+        $stageCounts = $vacancyId ? Candidate::where('vacancy_id', $vacancyId)
+            ->select('current_stage_id')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('current_stage_id')
+            ->get()
+            ->pluck('count', 'current_stage_id')
+            ->toArray() : [];
+
+        // Petakan ke stage dan hilangkan stage yang tidak memiliki kandidat sama sekali (count = 0)
+        $stages = Stage::getAllCached()
+            ->map(function ($stage) use ($stageCounts) {
+                return [
+                    'name' => $stage->name,
+                    'count' => $stageCounts[$stage->id] ?? 0
+                ];
+            })
+            ->filter(function ($stageInfo) {
+                return $stageInfo['count'] > 0;
+            })
+            ->values();
 
         return view('livewire.rr.rr-detail', [
             'rr' => $rr,

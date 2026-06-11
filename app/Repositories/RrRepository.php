@@ -50,10 +50,12 @@ class RrRepository
      */
     public function getStats(): array
     {
-        return [
-            'total_active' => Rr::where('status', 'Published')->count(),
-            'ready_to_publish' => Rr::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
-            'completed' => Rr::whereIn('status', ['Completed', 'Closed'])->count(),
-        ];
+        return \Illuminate\Support\Facades\Cache::remember('rr_dashboard_stats', 86400, function () {
+            return [
+                'total_active' => Rr::where('status', 'Published')->count(),
+                'ready_to_publish' => Rr::whereIn('status', ['Draft', 'Ready to Publish'])->count(),
+                'completed' => Rr::whereIn('status', ['Completed', 'Closed'])->count(),
+            ];
+        });
     }
 }

@@ -69,7 +69,7 @@
                         3
                     </div>
                     <div>
-                        <p class="text-label-sm font-label-sm font-bold {{ $isVacancyActive ? 'text-primary' : 'text-on-surface-variant/70' }}">Vacancy Dibuat</p>
+                        <p class="text-label-sm font-label-sm font-bold {{ $isVacancyActive ? 'text-primary' : 'text-on-surface-variant/70' }}">Lowongan Kerja Dibuat</p>
                         <p class="text-xs text-on-surface-variant/70">Proses recruitment aktif</p>
                     </div>
                 </div>
@@ -187,11 +187,11 @@
                         <p class="text-label-sm font-label-sm text-on-surface-variant">Estimasi Gaji</p>
                         <p class="font-body-lg text-body-lg font-semibold text-primary">
                             @if($mpp->estimated_salary_min && $mpp->estimated_salary_max)
-                                Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                                Rp {{ str_replace(',', '.', $mpp->estimated_salary_min) }} - Rp {{ str_replace(',', '.', $mpp->estimated_salary_max) }}
                             @elseif($mpp->estimated_salary_min)
-                                Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }}
+                                Rp {{ str_replace(',', '.', $mpp->estimated_salary_min) }}
                             @elseif($mpp->estimated_salary_max)
-                                Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                                Rp {{ str_replace(',', '.', $mpp->estimated_salary_max) }}
                             @else
                                 -
                             @endif
@@ -223,12 +223,12 @@
                 </div>
             </div>
 
-            <!-- Recruitment Requests (Vacancy) Terkait -->
+            <!-- Recruitment Requests Terkait -->
             @if($hasVacancy)
                 <div class="bg-surface-container-lowest p-8 rounded-md shadow-[0px_40px_40px_-20px_rgba(107,56,212,0.04)] border border-surface-container/30 space-y-6">
                     <h4 class="font-title-md text-title-md flex items-center gap-2 text-on-surface">
                         <span class="material-symbols-outlined text-primary">assignment_ind</span>
-                        Recruitment Request (Vacancy) Terkait
+                        Recruitment Request Terkait
                     </h4>
                     
                     <div class="overflow-x-auto border border-surface-container rounded-md">
@@ -237,7 +237,7 @@
                                 <tr class="bg-surface-container-low border-b border-surface-container text-label-sm font-label-sm text-on-surface-variant">
                                     <th class="p-4 pl-6">Posisi / Jabatan</th>
                                     <th class="p-4">Tipe & Lokasi</th>
-                                    <th class="p-4 text-center">Kuota Vacancy</th>
+                                    <th class="p-4 text-center">Kuota</th>
                                     <th class="p-4 text-center">Hired / Pelamar</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4 pr-6 text-right">Aksi</th>
@@ -335,11 +335,11 @@
                         </button>
                     @endif
 
-                    <!-- Buat Vacancy Button -->
+                    <!-- Buat Rencana Rekrutmen Button -->
                     @if(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $remainingQuota > 0 && !$hasActiveRr)
                         <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_box</span>
-                            <span>Buat Vacancy</span>
+                            <span>Buat Rencana Rekrutmen</span>
                         </a>
                     @endif
                 </div>

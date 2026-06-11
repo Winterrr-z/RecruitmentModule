@@ -61,7 +61,12 @@ class OfferingResponse extends Component
             return;
         }
 
-        $this->processCandidateResponse($this->candidate, $choice);
+        $service = app(\App\Services\OfferingService::class);
+        if ($choice === 'terima') {
+            $service->acceptOffering($this->candidate);
+        } else {
+            $service->declineOffering($this->candidate);
+        }
         $this->statusResponse = $choice === 'terima' ? 'success_accept' : 'success_reject';
     }
 
@@ -92,57 +97,14 @@ class OfferingResponse extends Component
             return redirect()->back()->with('error', 'Pilihan tidak valid.');
         }
 
-        $this->processCandidateResponse($candidate, $choice);
+        $service = app(\App\Services\OfferingService::class);
+        if ($choice === 'terima') {
+            $service->acceptOffering($candidate);
+        } else {
+            $service->declineOffering($candidate);
+        }
 
         return redirect()->route('offering.response', ['token' => $token])->with('status', $choice);
-    }
-
-    /**
-     * Internal logic for candidate response DB update.
-     */
-    protected function processCandidateResponse($candidate, $choice)
-    {
-        DB::transaction(function () use ($candidate, $choice) {
-            if ($choice === 'terima') {
-                $candidate->status = \App\Enums\CandidateStatus::HIRED;
-            } else {
-                $candidate->status = \App\Enums\CandidateStatus::DECLINED;
-            }
-
-            // Clear offering token fields
-            $candidate->offering_token = null;
-            $candidate->offering_token_expires_at = null;
-            $candidate->save();
-
-            // ONLY process vacancy/mpp completion if accepted
-            if ($choice === 'terima') {
-                // Gunakan Pessimistic Locking untuk mencegah race condition pada saat pengurangan kuota
-                $vacancy = $candidate->vacancy()->lockForUpdate()->first();
-                if ($vacancy) {
-                    $vacancy->quota = max(0, $vacancy->quota - 1);
-
-                    if ($vacancy->quota == 0) {
-                        $vacancy->status = 'Closed';
-                        $vacancy->save();
-
-                        $rr = $vacancy->rr;
-                        if ($rr) {
-                            $rr->status = 'Completed';
-                            $rr->save();
-
-                            $mpp = $rr->mpp;
-                            // Optionally, compute if MPP is completely filled and save it
-                            if ($mpp && $mpp->isFilled()) {
-                                $mpp->status = 'Completed';
-                                $mpp->save();
-                            }
-                        }
-                    } else {
-                        $vacancy->save();
-                    }
-                }
-            }
-        });
     }
 
     public function render()

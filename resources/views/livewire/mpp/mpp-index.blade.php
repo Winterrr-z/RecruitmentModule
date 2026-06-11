@@ -126,11 +126,11 @@
                             <span class="text-label-sm font-label-sm text-on-surface-variant">Estimasi Gaji:</span>
                             <span class="text-label-sm font-label-sm font-bold text-primary">
                                 @if($mpp->estimated_salary_min && $mpp->estimated_salary_max)
-                                    Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }} - Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                                    Rp {{ str_replace(',', '.', $mpp->estimated_salary_min) }} - Rp {{ str_replace(',', '.', $mpp->estimated_salary_max) }}
                                 @elseif($mpp->estimated_salary_min)
-                                    Rp {{ number_format($mpp->estimated_salary_min, 0, ',', '.') }}
+                                    Rp {{ str_replace(',', '.', $mpp->estimated_salary_min) }}
                                 @elseif($mpp->estimated_salary_max)
-                                    Rp {{ number_format($mpp->estimated_salary_max, 0, ',', '.') }}
+                                    Rp {{ str_replace(',', '.', $mpp->estimated_salary_max) }}
                                 @else
                                     -
                                 @endif

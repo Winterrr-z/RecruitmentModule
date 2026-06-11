@@ -57,7 +57,7 @@
 <div {{ $attributes->merge(['class' => 'flex items-center gap-2 px-3 py-1 ' . $badge['bg'] . ' ' . $badge['color'] . ' rounded-md text-[11px] font-bold']) }}>
     <span class="w-2 h-2 {{ $badge['dotColor'] }} rounded-full animate-pulse"></span>
     @if(!empty($badge['icon']))
-        <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span>
+        {{-- <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span> --}}
     @endif
     <span>{{ $badge['label'] }}</span>
 </div>

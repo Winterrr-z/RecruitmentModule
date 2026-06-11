@@ -111,30 +111,6 @@ class NotificationsHrTest extends TestCase
         $this->assertFalse($notif->fresh()->is_read);
     }
 
-    /** delete() menghapus notifikasi milik user */
-    public function test_delete_removes_notification(): void
-    {
-        $notif = $this->makeNotif(['user_id' => $this->user->id, 'type' => 'application', 'title' => 'Hapus Ini', 'message' => 'Msg']);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Hr\NotificationsHr::class)
-            ->call('delete', $notif->id);
-
-        $this->assertDatabaseMissing('notifications', ['id' => $notif->id]);
-    }
-
-    /** delete() tidak bisa dilakukan oleh user lain */
-    public function test_delete_cannot_be_done_by_other_user(): void
-    {
-        $notif = $this->makeNotif(['user_id' => $this->user->id, 'type' => 'application', 'title' => 'Protected Del', 'message' => 'Msg']);
-
-        Livewire::actingAs($this->otherUser)
-            ->test(\App\Livewire\Hr\NotificationsHr::class)
-            ->call('delete', $notif->id);
-
-        $this->assertDatabaseHas('notifications', ['id' => $notif->id]);
-    }
-
     /** Notifikasi user lain tidak muncul */
     public function test_user_cannot_see_other_users_notifications(): void
     {

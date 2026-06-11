@@ -50,7 +50,7 @@ class OfferingSend extends Component
     {
         // 1. Stage check (name: 'Final' or id: 2)
         $stage = $this->candidate->currentStage;
-        if (!$stage || ($stage->id !== 2 && strtolower($stage->name) !== 'final')) {
+        if (!$stage || !$stage->is_final_stage) {
             $this->isValid = false;
             $this->errorMessage = 'Kandidat harus berada di stage "Final" untuk dikirimi offering letter.';
             return;
@@ -59,7 +59,7 @@ class OfferingSend extends Component
         // 2. Status check (must be \App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, or \App\Enums\CandidateStatus::OFFERED)
         if (!in_array($this->candidate->status, [\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::OFFERED])) {
             $this->isValid = false;
-            $this->errorMessage = 'Status kandidat tidak valid untuk dikirimi offering letter. Saat ini status kandidat adalah "' . $this->candidate->status . '".';
+            $this->errorMessage = 'Status kandidat tidak valid untuk dikirimi offering letter. Saat ini status kandidat adalah "' . $this->candidate->status->value . '".';
             return;
         }
 

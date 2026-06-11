@@ -19,6 +19,8 @@ use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
+    private int $candidateEmailCounter = 31;
+
     /**
      * Seed the application's database.
      */
@@ -69,6 +71,7 @@ class DatabaseSeeder extends Seeder
             'needs_scorecard' => false,
             'needs_schedule' => false,
             'sequence' => 1,
+            'is_first_stage' => true,
         ]);
 
         $stageScreening = Stage::create([
@@ -105,6 +108,7 @@ class DatabaseSeeder extends Seeder
             'needs_scorecard' => false,
             'needs_schedule' => false,
             'sequence' => 999,
+            'is_final_stage' => true,
         ]);
 
         $stagesArray = [$stageApplied, $stageScreening, $stageInterview, $stageTechnical, $stageFinal];
@@ -297,6 +301,12 @@ class DatabaseSeeder extends Seeder
                     $activeUserIds[] = $user->id;
                 }
             }
+        }
+
+        if (!$candidate->user_id) {
+            $candidate->name = "Kandidat {$this->candidateEmailCounter}";
+            $candidate->email = "kandidat{$this->candidateEmailCounter}@example.org";
+            $this->candidateEmailCounter++;
         }
 
         $candidate->save();

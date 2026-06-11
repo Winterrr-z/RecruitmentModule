@@ -77,7 +77,7 @@
                     @if(!empty($search) || !empty($selectedDepartments) || !empty($selectedTypes))
                         Tidak ada posisi yang cocok dengan filter Anda.
                     @else
-                        Belum ada vacancy saat ini.
+                        Belum ada Lowongan saat ini.
                     @endif
                 </h3>
                 <p class="text-body-md text-on-surface-variant/70 max-w-md mb-4 text-sm">

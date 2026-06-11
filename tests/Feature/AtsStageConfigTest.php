@@ -34,12 +34,12 @@ class AtsStageConfigTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(\App\Livewire\Ats\AtsStageConfig::class)
-            ->set('name', 'Interview HR')
-            ->set('description', 'Interview dengan tim HR')
-            ->set('needs_scorecard', true)
-            ->set('scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
-            ->set('needs_schedule', true)
-            ->set('interview_type', 'online')
+            ->set('form.name', 'Interview HR')
+            ->set('form.description', 'Interview dengan tim HR')
+            ->set('form.needs_scorecard', true)
+            ->set('form.scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
+            ->set('form.needs_schedule', true)
+            ->set('form.interview_type', 'online')
             ->call('save')
             ->assertHasNoErrors()
             ->assertSet('showModal', false);
@@ -68,10 +68,10 @@ class AtsStageConfigTest extends TestCase
         Livewire::actingAs($user)
             ->test(\App\Livewire\Ats\AtsStageConfig::class)
             ->call('editStage', $stage->id)
-            ->assertSet('name', 'Test Stage')
-            ->set('name', 'Test Stage Edited')
-            ->set('needs_scorecard', true)
-            ->set('scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
+            ->assertSet('form.name', 'Test Stage')
+            ->set('form.name', 'Test Stage Edited')
+            ->set('form.needs_scorecard', true)
+            ->set('form.scorecardKriteria', [['criteria' => 'Keahlian Teknis', 'weight' => 100]])
             ->call('save')
             ->assertHasNoErrors();
 
