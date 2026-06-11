@@ -67,11 +67,11 @@ export default {
         full: "9999px",
       },
       spacing: {
-        "section-padding-mobile": "24px",
-        "section-padding-desktop": "64px",
-        "container-max-width": "1280px",
-        "base": "8px",
-        "gutter": "24px",
+        "section-padding-mobile": "1.5rem", /* 24px */
+        "section-padding-desktop": "4rem", /* 64px */
+        "container-max-width": "80rem", /* 1280px */
+        "base": "0.5rem", /* 8px */
+        "gutter": "1.5rem", /* 24px */
       },
       fontFamily: {
         'display-lg': ['Plus Jakarta Sans', 'sans-serif'],
@@ -84,7 +84,7 @@ export default {
       },
       fontSize: {
         'display-lg': [
-          '48px',
+          '3rem', /* 48px */
           {
             lineHeight: '1.1',
             letterSpacing: '-0.02em',
@@ -92,7 +92,7 @@ export default {
           },
         ],
         'headline-lg': [
-          '32px',
+          '2rem', /* 32px */
           {
             lineHeight: '1.2',
             letterSpacing: '-0.01em',
@@ -100,35 +100,35 @@ export default {
           },
         ],
         'headline-lg-mobile': [
-          '28px',
+          '1.75rem', /* 28px */
           {
             lineHeight: '1.2',
             fontWeight: '600',
           },
         ],
         'title-md': [
-          '20px',
+          '1.25rem', /* 20px */
           {
             lineHeight: '1.4',
             fontWeight: '600',
           },
         ],
         'body-lg': [
-          '18px',
+          '1.125rem', /* 18px */
           {
             lineHeight: '1.6',
             fontWeight: '400',
           },
         ],
         'body-md': [
-          '16px',
+          '1rem', /* 16px */
           {
             lineHeight: '1.6',
             fontWeight: '400',
           },
         ],
         'label-sm': [
-          '13px',
+          '0.8125rem', /* 13px */
           {
             lineHeight: '1.2',
             letterSpacing: '0.05em',
@@ -145,11 +145,11 @@ export default {
         full: '9999px',
       },
       spacing: {
-        base: '8px',
-        'section-padding-desktop': '64px',
-        'section-padding-mobile': '24px',
-        gutter: '24px',
-        'container-max-width': '1280px',
+        base: '0.5rem', /* 8px */
+        'section-padding-desktop': '4rem', /* 64px */
+        'section-padding-mobile': '1.5rem', /* 24px */
+        gutter: '1.5rem', /* 24px */
+        'container-max-width': '80rem', /* 1280px */
       },
 
     },

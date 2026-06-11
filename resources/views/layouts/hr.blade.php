@@ -39,7 +39,7 @@
     <!-- Block Overlay for mobile -->
     <div class="lg:hidden fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface p-8 text-center text-on-surface">
         <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 shadow-md">
-            <span class="material-symbols-outlined text-primary text-[40px]">desktop_mac</span>
+            <span class="material-symbols-outlined text-primary text-[2.5rem]">desktop_mac</span>
         </div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface font-extrabold mb-3">Akses Khusus Desktop</h2>
         <p class="font-body-md text-body-md text-on-surface-variant max-w-sm">
@@ -86,17 +86,17 @@
                  class="pl-10 flex flex-col gap-1 mt-1">
                 <a href="{{ route('ats.dashboard') }}" 
                    class="{{ (request()->routeIs('ats.dashboard') || request()->routeIs('ats.candidate.manual') || $activeTab === 'dashboard') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
-                    <span class="material-symbols-outlined text-[18px]">account_tree</span>
+                    <span class="material-symbols-outlined text-[1.125rem]">account_tree</span>
                     <span class="font-body-md text-sm">Pipeline Stages</span>
                 </a>
                 <a href="{{ route('ats.candidates') }}" 
                    class="{{ (request()->routeIs('ats.candidates') || request()->routeIs('ats.blacklist') || $activeTab === 'candidates') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
-                    <span class="material-symbols-outlined text-[18px]">group</span>
+                    <span class="material-symbols-outlined text-[1.125rem]">group</span>
                     <span class="font-body-md text-sm">Candidates List</span>
                 </a>
                 <a href="{{ route('ats.stages') }}" 
                    class="{{ request()->routeIs('ats.stages') ? 'text-primary font-bold bg-primary/10' : 'text-on-surface-variant hover:text-primary hover:bg-primary/5' }} px-4 py-2 flex items-center gap-3 rounded-md transition-all">
-                    <span class="material-symbols-outlined text-[18px]">settings</span>
+                    <span class="material-symbols-outlined text-[1.125rem]">settings</span>
                     <span class="font-body-md text-sm">Stage Configuration</span>
                 </a>
             </div>
@@ -113,7 +113,7 @@
             @if(auth()->check() && auth()->user()->profile_photo_path)
                 <img alt="{{ auth()->user()->name }}" class="w-full h-full object-cover" src="{{ Storage::url(auth()->user()->profile_photo_path) }}">
             @else
-                <span class="material-symbols-outlined text-primary text-[24px]">person</span>
+                <span class="material-symbols-outlined text-primary text-[1.5rem]">person</span>
             @endif
         </div>
         <div>
