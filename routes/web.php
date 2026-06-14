@@ -148,3 +148,23 @@ Route::get('/', function () {
     }
     return redirect()->route('careers');
 });
+
+// ---------------------------------------------------------------------------
+// Shared Hosting Helper — Membuat Symlink Storage Tanpa Terminal
+// ---------------------------------------------------------------------------
+Route::get('/dev/create-symlink', function () {
+    $targetFolder = storage_path('app/public');
+    $linkFolder = public_path('storage');
+    
+    // Jika public/storage sudah ada, coba hapus dulu
+    if (file_exists($linkFolder)) {
+        @unlink($linkFolder);
+    }
+
+    try {
+        symlink($targetFolder, $linkFolder);
+        return "Berhasil! Symlink storage telah dibuat. Foto/Uploads akan berfungsi normal. Silakan kembali ke website.";
+    } catch (\Exception $e) {
+        return "Gagal membuat symlink otomatis: " . $e->getMessage() . "<br>Alternatif: Abaikan jika tidak memakai fitur upload foto.";
+    }
+});
