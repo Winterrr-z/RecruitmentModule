@@ -12,24 +12,24 @@ use Livewire\Attributes\Layout;
 /**
  * Class RRDetail
  * 
- * Komponen Livewire untuk menampilkan detail spesifik dari Recruitment Request (RR).
- * Menampilkan detail posisi, pengaturan publikasi, deskripsi pekerjaan, spesifikasi kebutuhan,
- * informasi MPP terhubung, serta statistik pelamar per stage.
+ * Komponen Livewire untuk menampilkan halaman detail dari Permintaan Rekrutmen (Recruitment Request / RR).
+ * Menampilkan detail spesifik posisi, status publikasi, deskripsi pekerjaan, 
+ * spesifikasi kebutuhan, informasi rencana tenaga kerja (MPP) yang terhubung, 
+ * serta menyajikan ringkasan dan statistik kandidat per tahapan (stage).
  *
- * @package App\Livewire
+ * @package App\Livewire\Rr
  */
 #[Layout('layouts.hr')]
 class RRDetail extends Component
 {
-    /**
-     * @var int ID dari RR yang sedang dilihat.
-     */
+    /** @var int ID dari Recruitment Request (RR) yang sedang dilihat. */
     public $rrId;
 
     /**
-     * Inisialisasi komponen dengan rrId.
+     * Inisialisasi komponen pada saat pertama kali dimuat.
+     * Menerima parameter ID dari rute (URL).
      *
-     * @param int $id
+     * @param int $id ID Recruitment Request.
      * @return void
      */
     public function mount($id)
@@ -38,9 +38,10 @@ class RRDetail extends Component
     }
 
     /**
-     * Publikasikan RR (ubah status dari 'Draft' ke 'Published').
+     * Memublikasikan RR (mengubah status dari 'Draft' atau 'Ready to Publish' menjadi 'Published').
+     * Aksi ini akan otomatis membuat data lowongan (Vacancy) publik.
      *
-     * @param RrService $service
+     * @param RrService $service Layanan bisnis untuk RR.
      * @return void
      */
     public function publish(RrService $service)
@@ -51,9 +52,10 @@ class RRDetail extends Component
     }
 
     /**
-     * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
+     * Menonaktifkan publikasi RR (mengubah status dari 'Published' kembali ke 'Ready to Publish').
+     * Aksi ini akan menghentikan pendaftaran lowongan baru di sisi publik.
      *
-     * @param RrService $service
+     * @param RrService $service Layanan bisnis untuk RR.
      * @return void
      */
     public function unpublish(RrService $service)
@@ -64,9 +66,10 @@ class RRDetail extends Component
     }
 
     /**
-     * Tutup RR (ubah status ke 'Closed').
+     * Menutup RR (mengubah status menjadi 'Closed').
+     * Dilakukan ketika rekrutmen dibatalkan atau tidak dilanjutkan.
      *
-     * @param RrService $service
+     * @param RrService $service Layanan bisnis untuk RR.
      * @return void
      */
     public function close(RrService $service)
@@ -77,9 +80,10 @@ class RRDetail extends Component
     }
 
     /**
-     * Hapus RR draft.
+     * Menghapus data RR (hanya bisa dilakukan jika masih berstatus draft/belum memiliki lamaran).
+     * Jika berhasil, pengguna akan dialihkan kembali ke daftar RR.
      *
-     * @param RrService $service
+     * @param RrService $service Layanan bisnis untuk RR.
      * @return void|\Illuminate\Http\RedirectResponse
      */
     public function delete(RrService $service)
@@ -95,7 +99,9 @@ class RRDetail extends Component
     }
 
     /**
-     * Render komponen Livewire.
+     * Merender komponen antarmuka halaman detail RR.
+     * Memuat data utama RR, kemudian menghitung statistik agregat 
+     * kandidat dan sebarannya berdasarkan tahapan (stage).
      *
      * @return \Illuminate\View\View
      */
@@ -117,7 +123,7 @@ class RRDetail extends Component
                 \App\Enums\CandidateStatus::REJECTED->value,
                 \App\Enums\CandidateStatus::HIRED->value,
                 \App\Enums\CandidateStatus::REJECTED->value,
-                \App\Enums\CandidateStatus::DECLINED->value,
+                \App\Enums\CandidateStatus::WITHDRAWN->value,
                 \App\Enums\CandidateStatus::EXPIRED->value,
             ])
             ->first() : null;

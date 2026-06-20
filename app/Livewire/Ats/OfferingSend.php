@@ -10,19 +10,43 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class OfferingSend
+ *
+ * Komponen Livewire untuk memeriksa kelayakan dan mengirimkan Offering Letter 
+ * melalui email kepada kandidat yang lolos ke tahap 'Final'.
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.hr')]
 class OfferingSend extends Component
 {
+    /** @var int ID Kandidat penerima penawaran. */
     public $candidateId;
+
+    /** @var \App\Models\Candidate Objek kandidat terkait. */
     public $candidate;
+
+    /** @var \App\Models\Vacancy Objek lowongan terkait. */
     public $vacancy;
 
+    /** @var string URL tujuan untuk tombol kembali. */
     public $backUrl;
+
+    /** @var string Label teks untuk tombol kembali. */
     public $backLabel;
 
+    /** @var bool Menandakan apakah kandidat memenuhi syarat untuk menerima surat penawaran. */
     public $isValid = false;
+
+    /** @var string Pesan error jika kondisi kelayakan ($isValid) tidak terpenuhi. */
     public $errorMessage = '';
 
+    /**
+     * Inisialisasi awal. Memuat data kandidat, lowongan, dan mengecek kelayakan awal.
+     *
+     * @param int $candidateId
+     */
     public function mount($candidateId)
     {
         $referer = request()->headers->get('referer');
@@ -44,7 +68,11 @@ class OfferingSend extends Component
     }
 
     /**
-     * Validate candidate eligibility.
+     * Melakukan pengecekan kelayakan sebelum mengirim surat penawaran:
+     * 1. Harus berada di tahapan 'Final'.
+     * 2. Status belum rejected/blacklisted/expired.
+     * 3. Ada data lowongan.
+     * 4. Lowongan masih memiliki kuota kosong.
      */
     protected function validateCandidate()
     {
@@ -81,7 +109,8 @@ class OfferingSend extends Component
     }
 
     /**
-     * Send Offering Letter action.
+     * Menghasilkan token, menyimpan ke database (status OFFERED),
+     * lalu mengirimkan email Offering Letter ke kandidat.
      */
     public function sendOffering()
     {
@@ -115,6 +144,9 @@ class OfferingSend extends Component
         return redirect()->route('ats.dashboard');
     }
 
+    /**
+     * Render komponen antarmuka pengiriman offering.
+     */
     public function render()
     {
         return view('livewire.ats.offering-send');

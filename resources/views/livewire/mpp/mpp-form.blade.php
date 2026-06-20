@@ -1,7 +1,10 @@
 <div>
     <x-breadcrumb :items="[['label' => 'Manpower Planning', 'url' => route('mpp.index')], ['label' => isset($mppId) ? 'Edit' : 'Tambah', 'url' => null]]" />
     <!-- Content Header -->
-    <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+    <div class="mb-8 flex items-center gap-4">
+        <a href="{{ route('mpp.index') }}" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-surface-container transition-all text-on-surface-variant border border-surface-container/50 flex-shrink-0">
+            <span class="material-symbols-outlined text-[1.25rem]">arrow_back</span>
+        </a>
         <div>
             <h2 class="font-headline-lg text-headline-lg text-on-surface">
                 {{ $isEdit ? 'Edit Manpower Planning' : 'Tambah Manpower Planning' }}
@@ -10,10 +13,6 @@
                 Silakan lengkapi form di bawah ini untuk {{ $isEdit ? 'memperbarui' : 'membuat' }} manpower plan.
             </p>
         </div>
-        <a href="{{ route('mpp.index') }}" class="inline-flex items-center justify-center gap-2 px-6 h-12 bg-surface-container-low text-on-surface font-bold rounded-md hover:bg-surface-container transition-all active:scale-95 border border-surface-container/50">
-            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-            <span>Kembali</span>
-        </a>
     </div>
 
     <!-- Form Container -->

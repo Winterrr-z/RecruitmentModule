@@ -1,23 +1,52 @@
 <?php
 
-namespace App\Livewire\Forms;
+namespace App\Livewire\Ats;
 
 use Livewire\Form;
 use App\Models\Stage;
 
+/**
+ * Class StageConfigForm
+ *
+ * Livewire Form Object (kelas khusus untuk membungkus properti formulir)
+ * digunakan oleh AtsStageConfig untuk memisahkan logika validasi dan form state.
+ *
+ * @package App\Livewire\Ats
+ */
 class StageConfigForm extends Form
 {
+    /** @var \App\Models\Stage|null Objek Stage saat dalam mode edit, null jika sedang tambah baru. */
     public ?Stage $stage = null;
 
+    /** @var string Nama tahapan. */
     public $name = '';
+
+    /** @var string Deskripsi tahapan. */
     public $description = '';
+
+    /** @var bool Apakah tahapan ini membutuhkan form evaluasi (scorecard). */
     public $needs_scorecard = false;
+
+    /** @var bool Apakah tahapan ini membutuhkan jadwal wawancara. */
     public $needs_schedule = false;
+
+    /** @var array Daftar kriteria penilaian. */
     public $scorecardKriteria = [];
+
+    /** @var string Tipe wawancara bawaan (online/offline/hybrid). */
     public $interview_type = 'online';
+
+    /** @var string Lokasi luring (offline) bawaan. */
     public $default_location = '';
+
+    /** @var string Tautan ruang virtual bawaan. */
     public $default_virtual_link = '';
 
+    /**
+     * Mengisi nilai form menggunakan data tahapan yang sudah ada (untuk keperluan Edit).
+     *
+     * @param \App\Models\Stage $stage
+     */
     public function setStage(Stage $stage)
     {
         $this->stage = $stage;
@@ -31,6 +60,9 @@ class StageConfigForm extends Form
         $this->default_virtual_link = $stage->default_virtual_link ?: '';
     }
 
+    /**
+     * Aturan validasi bawaan Laravel untuk formulir tahapan rekrutmen.
+     */
     public function rules()
     {
         $stageId = $this->stage ? $this->stage->id : 'NULL';
@@ -42,6 +74,9 @@ class StageConfigForm extends Form
         ];
     }
 
+    /**
+     * Pesan error khusus dalam bahasa Indonesia.
+     */
     public function messages()
     {
         return [
@@ -51,6 +86,9 @@ class StageConfigForm extends Form
         ];
     }
 
+    /**
+     * Mengembalikan nilai formulir ke kondisi semula (kosong).
+     */
     public function resetForm()
     {
         $this->stage = null;

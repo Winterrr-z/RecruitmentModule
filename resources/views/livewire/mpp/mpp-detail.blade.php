@@ -31,7 +31,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 {{ $isDraftActive ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface-container-high text-on-surface-variant' }}">
                         @if($isApprovedActive)
-                            <span class="material-symbols-outlined text-[18px]">check</span>
+                            <span class="material-symbols-outlined text-[1.125rem]">check</span>
                         @else
                             1
                         @endif
@@ -49,7 +49,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 {{ $isApprovedActive ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-surface-container-high text-on-surface-variant' }}">
                         @if($isVacancyActive)
-                            <span class="material-symbols-outlined text-[18px]">check</span>
+                            <span class="material-symbols-outlined text-[1.125rem]">check</span>
                         @else
                             2
                         @endif
@@ -285,7 +285,7 @@
                                         <td class="p-4 pr-6 text-right">
                                             <a href="{{ route('rr.show', $l->id) }}" class="inline-flex items-center gap-1 text-primary hover:text-primary-container font-bold transition-all text-sm">
                                                 <span>Detail</span>
-                                                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                                                <span class="material-symbols-outlined text-[1rem]">arrow_forward</span>
                                             </a>
                                         </td>
                                     </tr>
@@ -308,36 +308,35 @@
                 </div>
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Edit Button -->
-                    @if($computedStatus === 'Closed' || $computedStatus === 'Filled')
-                        {{-- Edit disabled/hidden if closed or filled --}}
-                    @elseif(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $mpp->hasPublishedRr())
+                    @if($computedStatus === 'Closed' || $computedStatus === 'Completed')
+                        {{-- Edit disabled/hidden if closed or Completed --}}
+                    @elseif(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' || $mpp->hasPublishedRr())
                         {{-- Edit disabled if plan is approved and RR is published --}}
                     @else
-                        <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                            <span>Edit Plan</span>
+                        <a href="{{ route('mpp.edit', $mpp->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2" title="Ubah Manpower Planning">
+                            <span class="material-symbols-outlined text-[1.5rem]">edit</span>
+                            {{-- <span>Edit</span> --}}
                         </a>
                     @endif
                     
                     <!-- Tutup Plan Button -->
                     @if(in_array(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status), ['Approved', 'Draft']) && !$hasActiveRr)
-                        <button wire:click="closePlan" wire:confirm="Anda yakin ingin menutup Plan ini?" class="px-6 h-14 bg-error text-white hover:brightness-110 border border-error font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">cancel</span>
+                        <button wire:click="closePlan" wire:confirm="Anda anda yakin ingin MENUTUP Plan ini?" class="px-6 h-14 bg-error text-white hover:brightness-110 border border-error font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] transition-all active:scale-95 flex items-center justify-center gap-2" title="Tutup Manpower Planning">
+                            <span class="material-symbols-outlined">cancel</span>
                             <span>Tutup Plan</span>
                         </button>
                     @endif
 
                     <!-- Approve Button -->
                     @if(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Draft')
-                        <button wire:click="approve" wire:confirm="Approve MPP ini?" class="px-8 h-14 bg-[#10b981] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(16,185,129,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <button wire:click="approve" wire:confirm="Approve MPP ini?" class="px-8 h-14 bg-[#10b981] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(16,185,129,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2" title="Approve Manpower Planning">
                             <span class="material-symbols-outlined">check_circle</span>
-                            <span>Approve Perencanaan</span>
+                            <span>Approve Plan</span>
                         </button>
-                    @endif
 
                     <!-- Buat Rencana Rekrutmen Button -->
-                    @if(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $remainingQuota > 0 && !$hasActiveRr)
-                        <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
+                    @elseif(($mpp->status instanceof \App\Enums\MppStatus ? $mpp->status->value : $mpp->status) === 'Approved' && $remainingQuota > 0 && !$hasActiveRr)
+                        <a href="{{ route('rr.create', ['mpp_id' => $mpp->id]) }}" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2" title="Buat Rencana Rekrutmen">
                             <span class="material-symbols-outlined">add_box</span>
                             <span>Buat Rencana Rekrutmen</span>
                         </a>

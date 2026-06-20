@@ -11,11 +11,12 @@ use Livewire\Attributes\Layout;
 /**
  * Class LoginApplicant
  *
- * Form login untuk pelamar.
- * Dilengkapi rate-limiting (max 5 percobaan/menit per email+IP)
- * dan pesan sisa percobaan saat mendekati batas.
+ * Komponen Livewire untuk formulir masuk (login) bagi pelamar.
+ * Dilengkapi pembatasan frekuensi (rate-limiting) maksimal 5 percobaan per menit
+ * untuk setiap kombinasi alamat email dan IP, serta pesan sisa percobaan 
+ * saat mendekati batas pemblokiran.
  *
- * @package App\Livewire
+ * @package App\Livewire\Cw
  */
 #[Layout('layouts.auth')]
 class LoginApplicant extends Component
@@ -40,7 +41,7 @@ class LoginApplicant extends Component
     private const DECAY_SECONDS = 60;
 
     /**
-     * Reset error saat field email / password diubah.
+     * Menghapus pesan error ketika pengguna mengetik ulang email atau kata sandi.
      */
     public function updatedEmail(): void
     {
@@ -55,7 +56,10 @@ class LoginApplicant extends Component
     }
 
     /**
-     * Kunci throttle unik berdasarkan email + IP.
+     * Membuat kunci identifikasi (throttle key) unik berdasarkan email dan alamat IP.
+     * Digunakan untuk pembatasan jumlah percobaan login.
+     * 
+     * @return string Kunci rate-limiting.
      */
     private function throttleKey(): string
     {
@@ -63,7 +67,10 @@ class LoginApplicant extends Component
     }
 
     /**
-     * Proses login pelamar.
+     * Memproses percobaan login pelamar.
+     * Melakukan validasi input, pengecekan rate-limit, dan autentikasi.
+     *
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function login()
     {
@@ -129,7 +136,7 @@ class LoginApplicant extends Component
     }
 
     /**
-     * Render komponen.
+     * Render komponen antarmuka halaman login pelamar.
      */
     public function render()
     {

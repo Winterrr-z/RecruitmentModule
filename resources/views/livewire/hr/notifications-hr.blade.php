@@ -45,8 +45,8 @@
     @else
         <div class="space-y-3">
             @foreach ($notifications as $notification)
-                <div @if(!$notification->is_read) wire:click="markAsRead({{ $notification->id }})" @endif
-                     class="p-4 rounded-md border transition-all {{ $notification->is_read ? 'bg-surface-container-lowest border-surface-container-high' : 'bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10' }}">
+                <div wire:click="markAsRead({{ $notification->id }})"
+                     class="p-4 rounded-md border transition-all {{ $notification->is_read ? 'bg-surface-container-lowest border-surface-container-high cursor-pointer hover:bg-surface-container-low' : 'bg-primary/5 border-primary/20 cursor-pointer hover:bg-primary/10' }}">
                     <div class="flex items-start gap-4">
                         <!-- Icon -->
                         <div class="flex-shrink-0 mt-0.5">

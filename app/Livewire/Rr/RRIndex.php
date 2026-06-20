@@ -12,39 +12,36 @@ use Livewire\Attributes\Layout;
 /**
  * Class RRIndex
  * 
- * Komponen Livewire untuk menampilkan daftar Recruitment Request (RR).
- * Menangani pencarian, filter status, pagination, serta aksi publish dan close RR.
+ * Komponen Livewire untuk menampilkan daftar Permintaan Rekrutmen (Recruitment Request / RR).
+ * Menangani fungsi pencarian, penyaringan (filter) berdasarkan status, pembagian halaman (pagination), 
+ * serta aksi untuk memublikasikan (publish) dan menutup (close) RR.
  *
- * @package App\Livewire
+ * @package App\Livewire\Rr
  */
 #[Layout('layouts.hr')]
 class RRIndex extends Component
 {
     use WithPagination;
 
-    /**
-     * @var string Query pencarian jabatan atau departemen.
-     */
+    /** @var string Query pencarian jabatan atau departemen. Tersimpan di URL. */
     #[Url]
     public $search = '';
 
-    /**
-     * @var string Filter status RR.
-     */
+    /** @var string Filter status RR (misal: Draft, Published). Tersimpan di URL. */
     #[Url]
     public $status = '';
 
-    /**
-     * @var string Filter sortBy.
-     */
+    /** @var string Filter kriteria pengurutan tabel (contoh: 'newest', 'oldest'). Tersimpan di URL. */
     #[Url]
     public $sortBy = 'newest';
 
     /**
-     * Reset pagination page ketika pencarian atau filter diubah.
+     * Otomatis dipanggil oleh Livewire sebelum sebuah properti diperbarui.
+     * Digunakan untuk mereset halaman paginasi kembali ke halaman 1 
+     * ketika pencarian atau filter diubah.
      *
-     * @param string $property
-     * @param mixed $value
+     * @param string $property Nama properti yang sedang diubah.
+     * @param mixed $value Nilai baru properti tersebut.
      * @return void
      */
     public function updating($property, $value)
@@ -55,11 +52,11 @@ class RRIndex extends Component
     }
 
     /**
-     * Publish RR (ubah status dari 'Draft' ke 'Published').
-     * Akan otomatis membuat entri Vacancy untuk publik.
+     * Memublikasikan RR (mengubah status dari 'Draft' ke 'Published').
+     * Aksi ini otomatis akan membuatkan entri Lowongan (Vacancy) agar bisa diakses oleh publik.
      *
-     * @param int $id
-     * @param RrService $service
+     * @param int $id ID Recruitment Request.
+     * @param RrService $service Layanan bisnis RR.
      * @return void
      */
     public function publish($id, RrService $service)
@@ -70,10 +67,11 @@ class RRIndex extends Component
     }
 
     /**
-     * Tutup RR (ubah status ke 'Closed').
+     * Menutup RR (mengubah status menjadi 'Closed').
+     * Artinya proses rekrutmen untuk posisi ini telah dihentikan secara manual.
      *
-     * @param int $id
-     * @param RrService $service
+     * @param int $id ID Recruitment Request.
+     * @param RrService $service Layanan bisnis RR.
      * @return void
      */
     public function close($id, RrService $service)
@@ -84,10 +82,11 @@ class RRIndex extends Component
     }
 
     /**
-     * Nonaktifkan RR (ubah status dari 'Published' ke 'Ready to Publish').
+     * Menonaktifkan RR publik (mengubah status dari 'Published' kembali menjadi 'Ready to Publish').
+     * Lowongan (Vacancy) terkait akan disembunyikan dari publik.
      *
-     * @param int $id
-     * @param RrService $service
+     * @param int $id ID Recruitment Request.
+     * @param RrService $service Layanan bisnis RR.
      * @return void
      */
     public function unpublish($id, RrService $service)
@@ -98,10 +97,11 @@ class RRIndex extends Component
     }
 
     /**
-     * Hapus RR draft jika tidak memiliki pelamar.
+     * Menghapus data RR secara permanen.
+     * Operasi ini hanya bisa dilakukan pada RR berstatus draf yang belum memiliki pelamar.
      *
-     * @param int $id
-     * @param RrService $service
+     * @param int $id ID Recruitment Request.
+     * @param RrService $service Layanan bisnis RR.
      * @return void
      */
     public function delete($id, RrService $service)
@@ -116,8 +116,11 @@ class RRIndex extends Component
     }
 
     /**
-     * Render komponen Livewire.
+     * Merender komponen daftar RR.
+     * Mengambil statistik ringkasan dan daftar RR dari RrRepository berdasarkan filter aktif,
+     * kemudian menampilkannya di tampilan (view) dengan sistem paginasi.
      *
+     * @param \App\Repositories\RrRepository $repository Repositori RR.
      * @return \Illuminate\View\View
      */
     public function render(\App\Repositories\RrRepository $repository)

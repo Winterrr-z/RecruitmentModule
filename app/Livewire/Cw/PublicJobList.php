@@ -7,6 +7,14 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class PublicJobList
+ *
+ * Komponen Livewire untuk menampilkan daftar lowongan pekerjaan (vacancy)
+ * bagi pengunjung umum (belum login/guest). 
+ *
+ * @package App\Livewire\Cw
+ */
 #[Layout('layouts.guest')]
 class PublicJobList extends Component
 {
@@ -32,7 +40,8 @@ class PublicJobList extends Component
     }
 
     /**
-     * Render daftar vacancy publik.
+     * Render daftar lowongan untuk publik.
+     * Memfilter berdasarkan lowongan yang 'Published', kuota tersedia, dan belum melewati batas waktu lamaran.
      */
     public function render()
     {
@@ -43,7 +52,8 @@ class PublicJobList extends Component
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('job_title', 'like', '%' . $this->search . '%')
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhere('job_title', 'like', '%' . $this->search . '%')
                   ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }

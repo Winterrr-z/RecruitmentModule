@@ -25,6 +25,7 @@ class RrService
             $rr->vacancy()->updateOrCreate(
                 ['rr_id' => $rr->id],
                 [
+                    'title' => $rr->title,
                     'quota' => $rr->quota,
                     'job_title' => $rr->job_title,
                     'department' => $rr->department,

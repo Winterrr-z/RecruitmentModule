@@ -200,7 +200,7 @@ class OfferingWorkflowTest extends TestCase
             ->assertSee('Tawaran Telah Ditolak');
 
         $this->candidate = $this->candidate->fresh();
-        $this->assertEquals(\App\Enums\CandidateStatus::DECLINED, $this->candidate->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::WITHDRAWN, $this->candidate->status);
         $this->assertNull($this->candidate->offering_token);
         
         $this->vacancy = $this->vacancy->fresh();

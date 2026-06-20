@@ -4,10 +4,11 @@ namespace App\Livewire\Hr;
 
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 /**
  * Class ResetPasswordHr
@@ -35,8 +36,12 @@ class ResetPasswordHr extends Component
     public ?string $status = null;
 
     /**
-     * Inisialisasi token dan email dari URL.
+     * Inisialisasi token dan email dari URL (query string).
+     *
+     * @param string $token Token reset sandi.
+     * @param string|null $email Alamat email.
      */
+
     public function mount(string $token, ?string $email = null): void
     {
         $this->token = $token;

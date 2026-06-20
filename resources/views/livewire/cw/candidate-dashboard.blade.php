@@ -23,9 +23,46 @@
                 <div class="text-white flex-1 text-center md:text-left">
                     <h2 class="text-2xl font-extrabold mb-2 tracking-tight">Selamat! Anda Diterima 🎉</h2>
                     <p class="text-white/80 font-medium">
-                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->vacancy?->job_title ?? 'terkait' }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
+                        Selamat bergabung! Lamaran Anda untuk posisi <span class="font-bold text-white">{{ $hiredApplications->first()->vacancy?->title ?: ($hiredApplications->first()->vacancy?->job_title ?? 'terkait') }}</span> telah disetujui. Silakan cek email Anda untuk instruksi onboarding selanjutnya.
                     </p>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ===== INTERVIEW HARI INI BANNER ===== --}}
+    @php
+        $hasInterviewToday = false;
+        $todayInterviewDetails = [];
+        foreach($activeApplications as $app) {
+            $schedule = $app->interviewSchedules->where('stage_id', $app->current_stage_id)->first();
+            if ($schedule && $schedule->date->isToday()) {
+                $hasInterviewToday = true;
+                $todayInterviewDetails[] = [
+                    'job' => $app->vacancy?->title ?: ($app->vacancy?->job_title ?? 'Posisi'),
+                    'time' => $schedule->time ? \Carbon\Carbon::parse($schedule->time)->format('H:i') : null,
+                ];
+            }
+        }
+    @endphp
+
+    @if($hasInterviewToday)
+        <div class="mb-10 bg-blue-50 border border-blue-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center gap-5 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 opacity-10">
+                <span class="material-symbols-outlined text-[120px] text-blue-600">calendar_today</span>
+            </div>
+            <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center shrink-0 relative z-10 border border-blue-200">
+                <span class="material-symbols-outlined text-[32px] text-blue-600">event_available</span>
+            </div>
+            <div class="flex-1 text-center md:text-left relative z-10">
+                <h3 class="text-lg font-extrabold text-blue-800 mb-1.5 tracking-tight">Pengingat: Wawancara Hari Ini!</h3>
+                <p class="text-sm text-blue-700 leading-relaxed">
+                    Mohon persiapkan diri Anda sebaik mungkin. Anda memiliki jadwal wawancara untuk posisi: 
+                    @foreach($todayInterviewDetails as $detail)
+                        <span class="font-bold text-blue-900">{{ $detail['job'] }}</span> @if($detail['time']) (Pukul {{ $detail['time'] }}) @endif{{ $loop->last ? '.' : ', ' }}
+                    @endforeach
+                    Cek detail lokasi atau tautan pertemuan pada kartu lamaran di bawah.
+                </p>
             </div>
         </div>
     @endif
@@ -60,7 +97,7 @@
                         {{-- Info Lamaran --}}
                         <div>
                             <h3 class="font-title-md text-title-md text-on-surface font-bold">
-                                {{ $candidate->vacancy?->job_title ?? 'Posisi tidak tersedia' }}
+                                {{ $candidate->vacancy?->title ?: ($candidate->vacancy?->job_title ?? 'Posisi tidak tersedia') }}
                             </h3>
                             <p class="font-body-md text-xs text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}
@@ -100,6 +137,18 @@
                                                 @endif
                                             </span>
                                         </div>
+                                        @if($schedule->venue)
+                                            <div class="w-full max-w-[240px] mt-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-surface-container-high text-[11px] text-on-surface-variant flex items-center justify-center gap-1.5 font-semibold">
+                                                <span class="material-symbols-outlined text-[14px] shrink-0">location_on</span>
+                                                <span class="truncate" title="{{ $schedule->venue }}">{{ $schedule->venue }}</span>
+                                            </div>
+                                        @endif
+                                        @if($schedule->virtual_link)
+                                            <div class="w-full max-w-[240px] mt-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-100 text-[11px] text-blue-700 flex items-center justify-center gap-1.5 font-semibold">
+                                                <span class="material-symbols-outlined text-[14px] shrink-0">videocam</span>
+                                                <a href="{{ $schedule->virtual_link }}" target="_blank" class="truncate hover:underline" title="{{ $schedule->virtual_link }}">Gabung Rapat Virtual</a>
+                                            </div>
+                                        @endif
                                     @else
                                         <div class="w-full max-w-[240px] px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/10 text-xs text-amber-600 flex items-center justify-center gap-1.5 font-semibold">
                                             <span class="material-symbols-outlined text-[16px] shrink-0">pending_actions</span>
@@ -112,38 +161,24 @@
 
                         {{-- Offering Actions --}}
                         @if($candidate->offering_token && (!$candidate->offering_token_expires_at || !$candidate->offering_token_expires_at->isPast()))
-                            <div class="w-full mt-4 bg-green-50 border border-green-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+                            <div class="w-full mt-4 bg-green-50 border border-green-200 rounded-md p-4 flex flex-col gap-3 shadow-sm">
                                 <p class="text-sm font-extrabold text-green-700 text-center flex items-center justify-center gap-2">
                                     <span class="material-symbols-outlined text-[20px]">stars</span>
                                     Selamat! Ada Penawaran Baru
                                 </p>
-                                <a href="{{ route('offering.response', ['token' => $candidate->offering_token]) }}" target="_blank" class="w-full py-3 bg-white text-primary font-bold text-sm rounded-lg border border-primary/20 hover:bg-primary/5 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                <a href="{{ route('offering.response', ['token' => $candidate->offering_token]) }}" target="_blank" class="w-full py-3 bg-white text-primary font-bold text-sm rounded-md border border-primary/20 hover:bg-primary/5 transition-colors shadow-sm flex items-center justify-center gap-2">
                                     <span class="material-symbols-outlined text-[18px]">visibility</span>
                                     Lihat Surat Penawaran
                                 </a>
-                                <div class="grid grid-cols-2 gap-3 mt-1">
-                                    <button wire:click="respondOffering({{ $candidate->id }}, 'terima')" wire:confirm="Apakah Anda yakin ingin MENERIMA tawaran ini?" class="py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-lg shadow-md transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
-                                        <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'terima')">Terima Tawaran</span>
-                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'terima')" class="flex items-center gap-1">
-                                            <span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                                        </span>
-                                    </button>
-                                    <button wire:click="respondOffering({{ $candidate->id }}, 'tolak')" wire:confirm="Apakah Anda yakin ingin MENOLAK tawaran ini? Keputusan tidak dapat diubah." class="py-3 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1" wire:loading.attr="disabled">
-                                        <span wire:loading.remove wire:target="respondOffering({{ $candidate->id }}, 'tolak')">Tolak Tawaran</span>
-                                        <span wire:loading wire:target="respondOffering({{ $candidate->id }}, 'tolak')" class="flex items-center gap-1">
-                                            <span class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
-                                        </span>
-                                    </button>
-                                </div>
                             </div>
-                        @elseif($candidate->status === \App\Enums\CandidateStatus::OFFERED)
+                        @elseif($candidate->currentStage?->is_final_stage)
                             <div class="w-full mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col gap-2 shadow-sm">
                                 <p class="text-xs font-bold text-amber-700 text-center flex items-center justify-center gap-1.5">
                                     <span class="material-symbols-outlined text-[18px]">info</span>
-                                    Penawaran Sedang Diproses
+                                    Lamaran Sedang Diproses
                                 </p>
                                 <p class="text-[11px] text-amber-600/90 text-center leading-relaxed">
-                                    Tim HR kami sedang menyiapkan surat penawaran resmi untuk Anda. Harap periksa email Anda atau dashboard ini secara berkala.
+                                    Harap periksa email Anda atau dashboard ini secara berkala.
                                 </p>
                             </div>
                         @endif
@@ -185,8 +220,8 @@
                                 'label'      => 'Arsip',
                                 'labelCls'   => 'text-on-surface-variant',
                             ],
-                            \App\Enums\CandidateStatus::DECLINED          => [
-                                'badge'      => 'Offering Ditolak',
+                            \App\Enums\CandidateStatus::WITHDRAWN          => [
+                                'badge'      => 'Mengundurkan Diri',
                                 'badgeCls'   => 'bg-red-100 text-red-700',
                                 'icon'       => 'cancel',
                                 'circleCls'  => 'bg-surface-container-high text-on-surface-variant',
@@ -220,38 +255,87 @@
                         };
                     @endphp
 
-                    <div class="aspect-square bg-surface-container-lowest rounded-xl p-8 border border-surface-container-high opacity-60 grayscale flex flex-col items-center justify-center text-center max-w-sm mx-auto w-full">
+                    <div class="min-h-[360px] bg-surface-container-lowest rounded-xl p-6 border border-surface-container-high opacity-85 flex flex-col items-center justify-center text-center max-w-sm mx-auto w-full shadow-[0_20px_30px_rgba(0,0,0,0.02)]">
                         {{-- Info Lamaran --}}
-                        <div class="mb-6">
-                            <h3 class="font-title-md text-title-md text-on-surface">
-                                {{ $candidate->vacancy?->job_title ?? 'Posisi tidak tersedia' }}
+                        <div class="mb-4">
+                            <h3 class="font-title-md text-title-md text-on-surface font-bold">
+                                {{ $candidate->vacancy?->title ?: ($candidate->vacancy?->job_title ?? 'Posisi tidak tersedia') }}
                             </h3>
-                            <p class="font-body-md text-body-md text-on-surface-variant mt-1">
+                            <p class="font-body-md text-xs text-on-surface-variant mt-1">
                                 Dikirim pada {{ $candidate->created_at->translatedFormat('d F Y') }}
                             </p>
                         </div>
 
                         {{-- Badge Status & Ikon --}}
-                        <div class="flex flex-col items-center gap-4">
+                        <div class="flex flex-col items-center gap-3 w-full">
                             {{-- Badge status --}}
-                            <span class="font-label-sm text-label-sm px-4 py-2 rounded-full inline-flex items-center gap-1.5 {{ $config['badgeCls'] }}">
+                            <span class="font-label-sm text-xs px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 {{ $config['badgeCls'] }} font-semibold">
                                 <span class="material-symbols-outlined text-[14px]">{{ $config['icon'] }}</span>
                                 {{ $config['badge'] }}
                             </span>
 
                             {{-- Lingkaran statis (tanpa ping) --}}
                             <div class="flex flex-col items-center">
-                                <div class="w-12 h-12 rounded-full {{ $config['circleCls'] }} flex items-center justify-center shadow-sm mb-2">
-                                    <span class="material-symbols-outlined text-[24px]">{{ $config['icon'] }}</span>
+                                <div class="w-11 h-11 rounded-full {{ $config['circleCls'] }} flex items-center justify-center shadow-sm mb-2">
+                                    <span class="material-symbols-outlined text-[20px]">{{ $config['icon'] }}</span>
                                 </div>
-                                <span class="font-label-sm text-label-sm {{ $config['labelCls'] }} font-bold uppercase tracking-wider">
+                                <span class="font-label-sm text-[10px] {{ $config['labelCls'] }} font-bold uppercase tracking-wider">
                                     {{ $config['label'] }}
                                 </span>
                             </div>
                         </div>
+
+                        {{-- Rejection Actions --}}
+                        @if($candidate->status === \App\Enums\CandidateStatus::REJECTED)
+                            <div class="w-full mt-4">
+                                <button type="button" wire:click="showRejection({{ $candidate->id }})" 
+                                        class="w-full py-2.5 bg-red-50 hover:bg-red-100/80 text-red-700 font-bold text-xs rounded-lg border border-red-200 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">mail</span>
+                                    <span>Lihat Surat Penolakan</span>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
         </section>
+    @endif
+
+    {{-- ===== MODAL SURAT PENOLAKAN ===== --}}
+    @if($showRejectModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto" x-cloak>
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" wire:click="closeRejectModal"></div>
+            
+            <!-- Modal Dialog Box -->
+            <div class="relative bg-surface-container-lowest rounded-xl w-full max-w-lg mx-4 p-6 shadow-2xl border border-surface-container-high z-10 transition-all">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center pb-4 mb-4 border-b border-surface-container-high/60">
+                    <div class="flex items-center gap-2 text-red-700">
+                        <span class="material-symbols-outlined text-[22px]">mail</span>
+                        <h3 class="text-base font-bold text-on-surface">Surat Penolakan Lamaran</h3>
+                    </div>
+                    <button type="button" wire:click="closeRejectModal" class="p-1 hover:bg-surface-container rounded-lg text-on-surface-variant transition-colors" title="Tutup">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+                
+                <!-- Modal Content -->
+                <div class="space-y-4 text-xs text-on-surface-variant leading-relaxed bg-surface-container-low/20 p-5 rounded-lg border border-surface-container">
+                    @include('emails.templates.rejected-text', [
+                        'name' => $selectedRejectCandidateName,
+                        'jobTitle' => $selectedRejectJobTitle
+                    ])
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end pt-4 mt-2">
+                    <button type="button" wire:click="closeRejectModal" 
+                            class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-container transition-all active:scale-95 text-xs shadow-md">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

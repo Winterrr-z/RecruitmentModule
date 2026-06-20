@@ -23,38 +23,48 @@
             </p>
         @enderror
 
-        <!-- Predefined Rows List -->
-        <div class="space-y-4">
-            @foreach($kriteriaList as $index => $item)
-                <div class="p-4 rounded-md border border-surface-container-high/60 bg-surface-container-low/20 flex flex-col sm:flex-row gap-6 items-stretch sm:items-center relative group">
-                    
-                    <!-- Criterion Name (Read-only) -->
-                    <div class="flex-1">
-                        <label class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Kriteria Penilaian</label>
-                        <span class="text-sm font-semibold text-on-surface block">{{ $item['criteria'] }}</span>
-                    </div>
-
-                    <!-- Weight percentage (Read-only) -->
-                    <div class="w-full sm:w-28">
-                        <label class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1">Bobot</label>
-                        <span class="text-sm font-bold text-primary block">{{ $item['weight'] }}%</span>
-                    </div>
-
-                    <!-- Score 1-100 (Editable) -->
-                    <div class="w-full sm:w-32">
-                        <label class="block font-bold text-[10px] uppercase tracking-wider text-on-surface-variant mb-1.5">Nilai (1-100) <span class="text-error">*</span></label>
-                        <input type="number" min="1" max="100" wire:model.blur="kriteriaList.{{ $index }}.nilai" 
-                               placeholder="1 - 100"
-                               class="w-full px-3 h-10 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-xs font-semibold text-on-surface @error('kriteriaList.'.$index.'.nilai') border-error @enderror">
-                        @error('kriteriaList.'.$index.'.nilai')
-                            <p class="mt-1 text-[10px] text-error font-semibold flex items-center gap-0.5">
-                                <span class="material-symbols-outlined text-[12px]">error</span>
-                                {{ $message }}
-                            </p>
-                        @enderror
-                    </div>
-                </div>
-            @endforeach
+        <!-- Scorecard Table -->
+        <div class="overflow-x-auto rounded-md border border-surface-container-high/60 bg-surface-container-low/10 mb-6">
+            <table class="w-full border-collapse text-left">
+                <thead>
+                    <tr class="bg-surface-container-low border-b border-surface-container-high/65">
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/85 w-16 text-center">No</th>
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/85">Kriteria Penilaian</th>
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/85 w-32 text-center">Bobot</th>
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant/85 w-44">Nilai (1-100) <span class="text-error">*</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container-high/40">
+                    @foreach($kriteriaList as $index => $item)
+                        <tr class="hover:bg-surface-container-low/30 transition-colors">
+                            <!-- Number -->
+                            <td class="px-6 py-4 text-xs font-semibold text-on-surface-variant/75 text-center">
+                                {{ $index + 1 }}
+                            </td>
+                            <!-- Criteria Name -->
+                            <td class="px-6 py-4">
+                                <span class="text-sm font-semibold text-on-surface">{{ $item['criteria'] }}</span>
+                            </td>
+                            <!-- Weight -->
+                            <td class="px-6 py-4 text-center">
+                                <span class="text-sm font-bold text-primary">{{ $item['weight'] }}%</span>
+                            </td>
+                            <!-- Score Input -->
+                            <td class="px-6 py-4">
+                                <input type="number" min="1" max="100" wire:model.blur="kriteriaList.{{ $index }}.score" 
+                                       placeholder="1 - 100"
+                                       class="w-full max-w-[140px] px-3 h-10 bg-surface-container-lowest border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-xs font-semibold text-on-surface @error('kriteriaList.'.$index.'.score') border-error @enderror">
+                                @error('kriteriaList.'.$index.'.score')
+                                    <p class="mt-1 text-[10px] text-error font-semibold flex items-center gap-0.5">
+                                        <span class="material-symbols-outlined text-[12px]">error</span>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
 
         <!-- Real-time calculation summaries panel -->

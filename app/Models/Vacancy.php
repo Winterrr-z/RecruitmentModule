@@ -15,6 +15,7 @@ class Vacancy extends Model
 
     protected $fillable = [
         'rr_id',
+        'title',
         'quota',
         'job_title',
         'department',

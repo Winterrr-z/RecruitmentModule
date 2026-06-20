@@ -16,6 +16,24 @@
     <!-- Form -->
     <form wire:submit.prevent="save" class="space-y-6">
 
+        <!-- Lowongan Kerja -->
+        <div>
+            <label for="vacancyId" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Lowongan Kerja (Opsional)</label>
+            <select id="vacancyId" wire:model.live="vacancyId" 
+                    class="w-full px-4 h-12 bg-surface-container-low border border-surface-container focus:border-primary/55 rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-body-md text-on-surface cursor-pointer @error('vacancyId') border-error @enderror">
+                <option value="">Kandidat Mandiri (Tanpa Lowongan)</option>
+                @foreach($vacancies as $vac)
+                    <option value="{{ $vac->id }}">{{ $vac->job_title }} ({{ $vac->department }})</option>
+                @endforeach
+            </select>
+            @error('vacancyId')
+                <p class="mt-1 text-xs text-error font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">error</span>
+                    {{ $message }}
+                </p>
+            @enderror
+        </div>
+
         <!-- Nama Lengkap -->
         <div>
             <label for="name" class="block font-bold text-label-sm uppercase tracking-wider text-on-surface-variant mb-2">Nama Lengkap <span class="text-error">*</span></label>
@@ -111,9 +129,19 @@
                class="inline-flex items-center justify-center px-5 h-12 border border-outline/35 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-all active:scale-95 font-semibold text-sm">
                 Batal
             </a>
-            <button type="submit" wire:loading.attr="disabled"
+            <button type="submit" 
+                    wire:loading.attr="disabled" 
+                    wire:target="cv, portofolio"
                     class="px-6 h-12 bg-primary text-white font-bold rounded-md hover:bg-primary-container transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_12px_rgba(107,56,212,0.18)] text-sm">
-                Simpan Pelamar
+                <span wire:loading.remove wire:target="cv, portofolio" class="flex items-center gap-1">
+                    Simpan Pelamar
+                </span>
+                <span wire:loading wire:target="cv, portofolio" class="inline-flex items-center justify-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
             </button>
         </div>
     </form>

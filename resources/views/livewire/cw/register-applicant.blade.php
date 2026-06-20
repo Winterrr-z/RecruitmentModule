@@ -17,6 +17,26 @@
                 </p>
             </div>
 
+            {{-- Alert Error --}}
+            @if ($authError)
+                <div class="mb-5 p-4 rounded-xl bg-error/10 border border-error/20 flex items-start gap-3">
+                    <span class="material-symbols-outlined text-error text-[20px] shrink-0 mt-0.5">error</span>
+                    <div class="text-sm font-semibold text-error">
+                        {{ $authError }}
+                    </div>
+                </div>
+            @endif
+
+            {{-- Alert Sisa Percobaan --}}
+            @if ($attemptsLeft !== null && $attemptsLeft > 0)
+                <div class="mb-5 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
+                    <span class="material-symbols-outlined text-amber-600 text-[20px] shrink-0 mt-0.5">warning</span>
+                    <div class="text-sm font-semibold text-amber-700">
+                        Sisa {{ $attemptsLeft }} percobaan lagi sebelum pembuatan akun dikunci sementara.
+                    </div>
+                </div>
+            @endif
+
             {{-- Form --}}
             <form wire:submit="register" class="space-y-4" novalidate>
 

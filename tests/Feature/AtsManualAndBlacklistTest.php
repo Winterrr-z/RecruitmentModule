@@ -83,6 +83,10 @@ class AtsManualAndBlacklistTest extends TestCase
             'current_stage_id' => 1,
             'status' => 'Applied',
         ]);
+
+        $candidate = Candidate::where('email', 'alice@example.com')->first();
+        $this->assertNotNull($candidate->cv_path);
+        Storage::disk('local')->assertExists($candidate->cv_path);
     }
 
     public function test_blacklist_manages_records_and_picker()
@@ -104,7 +108,7 @@ class AtsManualAndBlacklistTest extends TestCase
             'email' => 'bad@example.com',
             'phone' => '0866666666',
             'current_stage_id' => 2,
-            'status' => 'Declined',
+            'status' => 'Withdrawn',
         ]);
 
         // 2. Test Livewire component Blacklist
@@ -171,6 +175,36 @@ class AtsManualAndBlacklistTest extends TestCase
             'name' => 'Independent Candidate',
             'email' => 'independent@example.com',
             'vacancy_id' => null,
+            'source' => 'manual',
+            'current_stage_id' => 1,
+            'status' => 'Applied',
+        ]);
+
+        $candidate = Candidate::where('email', 'independent@example.com')->first();
+        $this->assertNotNull($candidate->cv_path);
+        Storage::disk('local')->assertExists($candidate->cv_path);
+    }
+
+    public function test_can_select_vacancy_from_dropdown_and_save()
+    {
+        Storage::fake('local');
+        $dummyCv = UploadedFile::fake()->create('my_cv.pdf', 100, 'application/pdf');
+
+        Livewire::actingAs($this->user)
+            ->test(\App\Livewire\Ats\AtsManualCandidate::class)
+            ->set('name', 'Changed Vacancy Candidate')
+            ->set('email', 'changed@example.com')
+            ->set('phone', '0899999997')
+            ->set('cv', $dummyCv)
+            ->set('vacancyId', $this->job->id)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('ats.dashboard', ['selectedVacancyId' => $this->job->id]));
+
+        $this->assertDatabaseHas('candidates', [
+            'name' => 'Changed Vacancy Candidate',
+            'email' => 'changed@example.com',
+            'vacancy_id' => $this->job->id,
             'source' => 'manual',
             'current_stage_id' => 1,
             'status' => 'Applied',

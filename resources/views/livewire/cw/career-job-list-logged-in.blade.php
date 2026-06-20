@@ -120,7 +120,7 @@
 
                         {{-- Job Title --}}
                         <h3 class="text-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">
-                            {{ $vacancy->job_title }}
+                            {{ $vacancy->title ?: $vacancy->job_title }}
                         </h3>
 
                         {{-- Meta Row --}}

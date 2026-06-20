@@ -30,15 +30,17 @@
                 </select>
             </div>
 
-            <!-- Filter Status -->
             <div>
                 <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Status</label>
                 <select wire:model.live="filterStatus" class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
                     <option value="">Semua Status</option>
                     <option value="Applied">Applied</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Offered">Offered</option>
                     <option value="Hired">Hired</option>
-                    <option value="Ditolak">Ditolak</option>
-                    <option value="Offering Expired">Offering Expired</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Withdrawn">Withdrawn</option>
+                    <option value="Expired">Expired</option>
                 </select>
             </div>
 
@@ -130,10 +132,15 @@
                                             @break
                                         @case('Ditolak')
                                         @case('Rejected')
-                                        @case('Declined')
                                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-700 border border-red-500/20">
                                                 <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
                                                 Ditolak
+                                            </span>
+                                            @break
+                                        @case('Withdrawn')
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-700 border border-red-500/20">
+                                                <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
+                                                Withdrawn
                                             </span>
                                             @break
                                         @case('Offering Expired')

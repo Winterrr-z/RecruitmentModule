@@ -81,15 +81,23 @@ class MppRepository
         }
 
         // Apply sorting
-        $sortBy = $filters['sortBy'] ?? 'newest';
+        $sortBy = $filters['sortBy'] ?? 'status_priority';
         if ($sortBy === 'newest') {
             $query->orderBy('created_at', 'desc');
         } elseif ($sortBy === 'oldest') {
             $query->orderBy('created_at', 'asc');
+        } elseif ($sortBy === 'status_priority') {
+            $query->orderByRaw("CASE 
+                WHEN status = 'Draft' THEN 1 
+                WHEN status = 'Approved' THEN 2 
+                WHEN status = 'Completed' THEN 3 
+                WHEN status = 'Closed' THEN 4 
+                ELSE 5 
+            END ASC")
+            ->orderBy('created_at', 'desc');
         } else {
-            // Default ordering by active first, then newest
-            $query->orderByRaw("CASE WHEN lower(status) = 'closed' OR hired_count >= quota THEN 1 ELSE 0 END ASC")
-                ->orderBy('created_at', 'desc');
+            // Default ordering
+            $query->orderBy('created_at', 'desc');
         }
 
         return $query->paginate($perPage);

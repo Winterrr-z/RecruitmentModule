@@ -16,6 +16,7 @@ class Rr extends Model
 
     protected $fillable = [
         'mpp_id',
+        'title',
         'job_title',
         'department',
         'estimated_salary_min',

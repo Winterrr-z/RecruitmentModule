@@ -8,19 +8,42 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class AtsManualCandidate
+ *
+ * Komponen Livewire untuk menambahkan data kandidat secara manual oleh HR.
+ * Digunakan jika lamaran masuk di luar portal rekrutmen (misal: referal, email langsung).
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.hr')]
 class AtsManualCandidate extends Component
 {
     use WithFileUploads;
 
+    /** @var int|null ID Lowongan yang dipilih (bisa kosong jika melamar mandiri tanpa loker). */
     public $vacancyId;
+
+    /** @var \App\Models\Vacancy|null Objek lowongan berdasarkan $vacancyId. */
     public $vacancy;
 
-    // Form fields
+    // ==========================================
+    // ISIAN FORMULIR
+    // ==========================================
+
+    /** @var string Nama lengkap kandidat. */
     public $name = '';
+
+    /** @var string Email kandidat. */
     public $email = '';
+
+    /** @var string Nomor telepon kandidat. */
     public $phone = '';
+
+    /** @var mixed File CV yang diunggah. */
     public $cv;
+
+    /** @var mixed File Portofolio yang diunggah (opsional). */
     public $portofolio;
 
     protected function rules()
@@ -31,6 +54,7 @@ class AtsManualCandidate extends Component
             'phone' => 'required|string|max:20',
             'cv' => 'required|file|mimetypes:application/pdf|mimes:pdf|max:5120', // max 5MB
             'portofolio' => 'nullable|file|mimetypes:application/pdf|mimes:pdf|max:5120', // max 5MB
+            'vacancyId' => 'nullable|exists:vacancies,id',
         ];
     }
 
@@ -47,14 +71,33 @@ class AtsManualCandidate extends Component
         'cv.max' => 'Ukuran CV maksimal 5MB.',
         'portofolio.mimes' => 'Portofolio harus berupa file PDF.',
         'portofolio.max' => 'Ukuran portofolio maksimal 5MB.',
+        'vacancyId.exists' => 'Lowongan kerja yang dipilih tidak valid.',
     ];
 
+    /**
+     * Inisialisasi awal. Jika ID lowongan dikirim lewat URL, langsung pilih lowongan tersebut.
+     *
+     * @param int|null $vacancyId
+     */
     public function mount($vacancyId = null)
     {
         $this->vacancyId = $vacancyId;
         $this->vacancy = $vacancyId ? Vacancy::find($vacancyId) : null;
     }
 
+    /**
+     * Dijalankan otomatis saat $vacancyId berubah. Mengambil data model Vacancy.
+     *
+     * @param int|string|null $value
+     */
+    public function updatedVacancyId($value)
+    {
+        $this->vacancy = $value ? Vacancy::find($value) : null;
+    }
+
+    /**
+     * Simpan data kandidat manual ke database dan unggah (upload) filenya ke media penyimpanan lokal.
+     */
     public function save()
     {
         $this->validate();
@@ -81,8 +124,14 @@ class AtsManualCandidate extends Component
         return redirect()->route('ats.dashboard', ['selectedVacancyId' => $this->vacancyId ?: null]);
     }
 
+    /**
+     * Render antarmuka form penambahan kandidat manual.
+     */
     public function render()
     {
-        return view('livewire.ats.manual-candidate');
+        $vacancies = Vacancy::all();
+        return view('livewire.ats.manual-candidate', [
+            'vacancies' => $vacancies,
+        ]);
     }
 }

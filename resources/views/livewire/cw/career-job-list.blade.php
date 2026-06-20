@@ -113,7 +113,7 @@
 
                         <!-- Job Title -->
                         <h3 class="text-title-md font-bold text-on-surface mb-3 line-clamp-2 hover:text-primary transition-colors">
-                            {{ $vacancy->job_title }}
+                            {{ $vacancy->title ?: $vacancy->job_title }}
                         </h3>
 
                         <!-- Badges -->

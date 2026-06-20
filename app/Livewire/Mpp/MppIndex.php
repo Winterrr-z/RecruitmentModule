@@ -11,11 +11,11 @@ use Livewire\Attributes\Layout;
 /**
  * Class MppIndex
  *
- * Komponen Livewire untuk menampilkan daftar Manpower Planning (MPP).
- * Menangani fungsi CRUD termasuk pembuatan, pengeditan (melalui modal),
- * penghapusan, dan pemformatan data seperti gaji dan kalkulasi target waktu.
+ * Komponen Livewire untuk menampilkan daftar (tabel) seluruh Rencana Tenaga Kerja (MPP).
+ * Dilengkapi dengan fitur pencarian, filter berdasarkan departemen, 
+ * filter status, dan pengurutan (sorting), serta aksi untuk menghapus data.
  *
- * @package App\Livewire
+ * @package App\Livewire\Mpp
  */
 #[Layout('layouts.hr')]
 class MppIndex extends Component
@@ -28,11 +28,14 @@ class MppIndex extends Component
     /** @var string Departemen terpilih untuk filter. */
     public $selectedDepartment = '';
 
+    /** @var string Status terpilih untuk filter (misal: Draft, Approved, Closed). */
     public $status = '';
-    public $sortBy = 'newest';
+
+    /** @var string Kriteria pengurutan tabel (default: berdasarkan prioritas status). */
+    public $sortBy = 'status_priority';
 
     /**
-     * Reset pagination page when search keyword is updated.
+     * Mereset halaman paginasi ke awal (halaman 1) setiap kali kata kunci pencarian berubah.
      */
     public function updatingSearch()
     {
@@ -40,7 +43,7 @@ class MppIndex extends Component
     }
 
     /**
-     * Reset pagination page when selected department filter is updated.
+     * Mereset halaman paginasi ke awal setiap kali filter departemen berubah.
      */
     public function updatingSelectedDepartment()
     {
@@ -48,28 +51,28 @@ class MppIndex extends Component
     }
 
     /**
-     * Delete the specified Manpower Plan.
-     * Menghapus MPP berdasarkan ID dari database.
+     * Menghapus Rencana Tenaga Kerja (MPP) yang ditentukan.
+     * Akan dicegah (error) jika MPP sudah berstatus 'Closed' atau 'Completed'.
      * 
-     * @param int $id
+     * @param int $id ID MPP yang akan dihapus.
      * @return void
      */
-    public function delete($id)
-    {
-        $mpp = Mpp::findOrFail($id);
-        $status = $mpp->getComputedStatus();
-        if ($status === 'Closed' || $status === 'Completed') {
-            session()->flash('error', 'Tidak dapat menghapus MPP plan yang sudah closed atau completed.');
-            return;
-        }
-        
-        $mpp->delete();
-
-        session()->flash('message', 'Manpower Plan berhasil dihapus.');
-    }
-
+     public function delete($id)
+     {
+         $mpp = Mpp::findOrFail($id);
+         $status = $mpp->getComputedStatus();
+         if ($status === 'Closed' || $status === 'Completed') {
+             session()->flash('error', 'Tidak dapat menghapus MPP plan yang sudah closed atau completed.');
+             return;
+         }
+         
+         $mpp->delete();
+ 
+         session()->flash('message', 'Manpower Plan berhasil dihapus.');
+     }
+ 
     /**
-     * Reset search and department filters.
+     * Mengembalikan semua parameter pencarian dan filter ke nilai kosong (default).
      * 
      * @return void
      */
@@ -78,13 +81,15 @@ class MppIndex extends Component
         $this->search = '';
         $this->selectedDepartment = '';
         $this->status = '';
-        $this->sortBy = 'newest';
+        $this->sortBy = 'status_priority';
     }
 
     /**
-     * Render the Livewire component.
-     * Memuat daftar semua MPP dari database berdasarkan filter dan menampilkannya di view index.
+     * Render komponen Livewire.
+     * Mengambil daftar MPP dari repositori menggunakan filter yang sedang aktif, 
+     * lalu menampilkannya dalam bentuk tabel dengan sistem paginasi.
      * 
+     * @param \App\Repositories\MppRepository $repository Repositori MPP
      * @return \Illuminate\View\View
      */
     public function render(\App\Repositories\MppRepository $repository)

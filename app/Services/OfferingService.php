@@ -74,7 +74,7 @@ class OfferingService
     public function declineOffering(Candidate $candidate): void
     {
         DB::transaction(function () use ($candidate) {
-            $candidate->status = CandidateStatus::DECLINED;
+            $candidate->status = CandidateStatus::WITHDRAWN;
             $candidate->offering_token = null;
             $candidate->offering_token_expires_at = null;
             $candidate->save();

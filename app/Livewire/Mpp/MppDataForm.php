@@ -6,20 +6,49 @@ use Livewire\Form;
 use App\Models\Mpp;
 use Carbon\Carbon;
 
+/**
+ * Class MppDataForm
+ *
+ * Objek Form Livewire khusus untuk merangkum logika validasi, pembaruan,
+ * dan penyimpanan data Manpower Planning (MPP) secara terpisah.
+ *
+ * @package App\Livewire\Mpp
+ */
 class MppDataForm extends Form
 {
+    /** @var \App\Models\Mpp|null Model MPP terkait (null jika sedang membuat baru). */
     public ?Mpp $mpp = null;
 
+    /** @var string Nama Rencana (Plan Name). */
     public $plan_name;
+
+    /** @var string Departemen pengaju. */
     public $department;
+
+    /** @var string Jabatan yang dibutuhkan. */
     public $job_title;
+
+    /** @var int Jumlah orang yang dibutuhkan (kuota). */
     public $quota = 1;
+
+    /** @var int|string|null Estimasi batas bawah gaji. */
     public $estimated_salary_min;
+
+    /** @var int|string|null Estimasi batas atas gaji. */
     public $estimated_salary_max;
+
+    /** @var int Jumlah hari Service Level Agreement (SLA) rekrutmen. */
     public $sla_days;
+
+    /** @var string|null Tanggal target selesai absolut (hasil perhitungan SLA). */
     public $absolute_target_date;
+
+    /** @var string|null Catatan tambahan. */
     public $note;
 
+    /**
+     * Aturan validasi input untuk formulir MPP.
+     */
     public function rules(): array
     {
         return [
@@ -34,6 +63,9 @@ class MppDataForm extends Form
         ];
     }
 
+    /**
+     * Pesan error khusus dalam bahasa Indonesia jika validasi gagal.
+     */
     public function messages(): array
     {
         return [
@@ -48,6 +80,11 @@ class MppDataForm extends Form
         ];
     }
 
+    /**
+     * Mengisi formulir dengan data MPP yang sudah ada (untuk keperluan Edit).
+     *
+     * @param \App\Models\Mpp $mpp
+     */
     public function setMpp(Mpp $mpp)
     {
         $this->mpp = $mpp;
@@ -64,6 +101,9 @@ class MppDataForm extends Form
         $this->note = $mpp->note;
     }
 
+    /**
+     * Menghitung tanggal target berdasarkan penambahan `sla_days` dari hari ini.
+     */
     public function calculateTargetWaktu()
     {
         if (is_numeric($this->sla_days) && $this->sla_days > 0) {
@@ -73,6 +113,10 @@ class MppDataForm extends Form
         }
     }
 
+    /**
+     * Melakukan pembersihan data, memvalidasi input, dan menyimpannya 
+     * ke dalam tabel MPP (membuat baru atau memperbarui data lama).
+     */
     public function store()
     {
         $this->calculateTargetWaktu();

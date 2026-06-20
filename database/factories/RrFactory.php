@@ -22,19 +22,20 @@ class RrFactory extends Factory
     {
         return [
             'mpp_id' => Mpp::factory(),
-            'quota' => $this->faker->numberBetween(1, 5),
-            'job_title' => $this->faker->jobTitle(),
-            'department' => $this->faker->randomElement(['IT', 'HR', 'Finance', 'Marketing', 'Operations']),
-            'estimated_salary_min' => $this->faker->numberBetween(4000000, 6000000),
-            'estimated_salary_max' => $this->faker->numberBetween(7000000, 15000000),
-            'expected_join_date' => $this->faker->dateTimeBetween('+1 month', '+3 months')->format('Y-m-d'),
-            'job_description' => $this->faker->paragraphs(3, true),
-            'job_requirements' => $this->faker->paragraphs(2, true),
-            'employment_type' => $this->faker->randomElement(['full-time', 'contract']),
-            'location' => $this->faker->randomElement(['remote', 'on-site']),
-            'application_deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
-            'show_salary' => $this->faker->boolean(),
-            'status' => $this->faker->randomElement([\App\Enums\RrStatus::READY_TO_PUBLISH, \App\Enums\RrStatus::PUBLISHED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]),
+            'title' => fn (array $attributes) => 'Rekrutmen ' . $attributes['job_title'],
+            'quota' => fake()->numberBetween(1, 5),
+            'job_title' => fake()->jobTitle(),
+            'department' => fake()->randomElement(['IT', 'HR', 'Finance', 'Marketing', 'Operations']),
+            'estimated_salary_min' => fake()->numberBetween(4000000, 6000000),
+            'estimated_salary_max' => fake()->numberBetween(7000000, 15000000),
+            'expected_join_date' => fake()->dateTimeBetween('+1 month', '+3 months')->format('Y-m-d'),
+            'job_description' => fake()->paragraphs(3, true),
+            'job_requirements' => fake()->paragraphs(2, true),
+            'employment_type' => fake()->randomElement(['full-time', 'contract']),
+            'location' => fake()->randomElement(['remote', 'on-site']),
+            'application_deadline' => fake()->dateTimeBetween('+1 week', '+4 weeks')->format('Y-m-d'),
+            'show_salary' => fake()->boolean(),
+            'status' => fake()->randomElement([\App\Enums\RrStatus::READY_TO_PUBLISH, \App\Enums\RrStatus::PUBLISHED, \App\Enums\RrStatus::COMPLETED, \App\Enums\RrStatus::CLOSED]),
         ];
     }
 }

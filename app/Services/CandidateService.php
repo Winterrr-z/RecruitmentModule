@@ -140,7 +140,7 @@ class CandidateService
                 $isActive = !in_array($c->status, [
                     \App\Enums\CandidateStatus::REJECTED,
                     \App\Enums\CandidateStatus::HIRED,
-                    \App\Enums\CandidateStatus::DECLINED,
+                    \App\Enums\CandidateStatus::WITHDRAWN,
                     \App\Enums\CandidateStatus::EXPIRED,
                     \App\Enums\CandidateStatus::BLACKLISTED
                 ]);
@@ -189,7 +189,7 @@ class CandidateService
                 $candidate->current_stage_id = $finalStage->id;
             }
 
-            $candidate->status = \App\Enums\CandidateStatus::OFFERED;
+            $candidate->status = \App\Enums\CandidateStatus::IN_PROGRESS;
             $candidate->save();
         });
     }
@@ -211,9 +211,9 @@ class CandidateService
         }
 
         // Upload file ke storage/app/private/candidates
-        $cvPath = $cvFile->store('candidates', 'local');
+        $cvPath = $cvFile->store('candidates/cv', 'local');
         $portofolioPath = $portofolioFile 
-            ? $portofolioFile->store('candidates', 'local')
+            ? $portofolioFile->store('candidates/portofolio', 'local')
             : null;
 
         // Simpan kandidat

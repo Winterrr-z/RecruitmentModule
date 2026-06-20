@@ -20,6 +20,14 @@ use Livewire\Attributes\Layout;
 #[Layout('layouts.applicant')]
 class CandidateDashboard extends Component
 {
+    /** @var bool Status tampil/sembunyikan modal konfirmasi penolakan offering. */
+    public $showRejectModal = false;
+
+    /** @var string Nama kandidat yang dipilih untuk penolakan. */
+    public $selectedRejectCandidateName = '';
+
+    /** @var string Jabatan/pekerjaan yang akan ditolak oleh pelamar. */
+    public $selectedRejectJobTitle = '';
     /**
      * Mapping nama stage ke ikon Material Symbols.
      *
@@ -40,7 +48,7 @@ class CandidateDashboard extends Component
     private const INACTIVE_STATUSES = [
         \App\Enums\CandidateStatus::REJECTED,
         \App\Enums\CandidateStatus::HIRED,
-        \App\Enums\CandidateStatus::DECLINED,
+        \App\Enums\CandidateStatus::WITHDRAWN,
         \App\Enums\CandidateStatus::EXPIRED,
         \App\Enums\CandidateStatus::BLACKLISTED
     ];
@@ -53,11 +61,14 @@ class CandidateDashboard extends Component
      */
     public function getStageIcon(?string $stageName): string
     {
-        return self::STAGE_ICONS[$stageName] ?? 'help';
+        return self::STAGE_ICONS[$stageName] ?? 'search'; // Default icon jika stage tidak ditemukan
     }
 
     /**
-     * Respon terhadap offering (terima/tolak) langsung dari dashboard.
+     * Respon terhadap offering (terima/tolak) langsung dari dashboard pelamar.
+     *
+     * @param int $candidateId ID dari lamaran kandidat.
+     * @param string $choice Pilihan pelamar ('terima' atau 'tolak').
      */
     public function respondOffering($candidateId, $choice)
     {
@@ -88,6 +99,29 @@ class CandidateDashboard extends Component
         }
 
         session()->flash('success', $choice === 'terima' ? 'Selamat! Anda telah menerima penawaran pekerjaan ini.' : 'Anda telah menolak penawaran pekerjaan ini.');
+    }
+
+    /**
+     * Membuka modal konfirmasi ketika pelamar ingin menolak sebuah offering.
+     *
+     * @param int $candidateId ID lamaran terkait.
+     */
+    public function showRejection($candidateId)
+    {
+        $candidate = Candidate::where('id', $candidateId)->where('user_id', auth()->id())->first();
+        if ($candidate) {
+            $this->selectedRejectCandidateName = $candidate->name;
+            $this->selectedRejectJobTitle = $candidate->vacancy ? ($candidate->vacancy->title ?: $candidate->vacancy->job_title) : 'Posisi Pekerjaan';
+            $this->showRejectModal = true;
+        }
+    }
+
+    /**
+     * Menutup modal penolakan offering.
+     */
+    public function closeRejectModal()
+    {
+        $this->showRejectModal = false;
     }
 
     /**

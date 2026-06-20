@@ -1,9 +1,14 @@
 <div>
     <x-breadcrumb :items="[['label' => 'Recruitment Request', 'url' => route('rr.index')], ['label' => isset($rrId) ? 'Edit' : 'Tambah', 'url' => null]]" />
     <!-- Content Header -->
-    <div class="mb-8">
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi Lowongan pekerjaan yang ada.' : 'Buat Lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
+    <div class="mb-8 flex items-center gap-4">
+        <a href="{{ route('rr.index') }}" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-surface-container transition-all text-on-surface-variant border border-surface-container/50 flex-shrink-0">
+            <span class="material-symbols-outlined text-[1.25rem]">arrow_back</span>
+        </a>
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">{{ $isEdit ? 'Edit Recruitment Request' : 'Buat Recruitment Request' }}</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant/70">{{ $isEdit ? 'Perbarui informasi Lowongan pekerjaan yang ada.' : 'Buat Lowongan pekerjaan baru berdasarkan rencana tenaga kerja (MPP) yang telah disetujui.' }}</p>
+        </div>
     </div>
 
     <form wire:submit.prevent="save">
@@ -87,12 +92,15 @@
                                 <div class="relative">
                                     @php
                                         $gajiFormatted = '';
-                                        if ($estimated_salary_min && $estimated_salary_max) {
-                                            $gajiFormatted = 'Rp ' . number_format($estimated_salary_min, 0, ',', '.') . ' - Rp ' . number_format($estimated_salary_max, 0, ',', '.');
-                                        } elseif ($estimated_salary_min) {
-                                            $gajiFormatted = 'Rp ' . number_format($estimated_salary_min, 0, ',', '.');
-                                        } elseif ($estimated_salary_max) {
-                                            $gajiFormatted = 'Rp ' . number_format($estimated_salary_max, 0, ',', '.');
+                                        $min = $estimated_salary_min ? (int) preg_replace('/\D/', '', (string) $estimated_salary_min) : null;
+                                        $max = $estimated_salary_max ? (int) preg_replace('/\D/', '', (string) $estimated_salary_max) : null;
+                                        
+                                        if ($min && $max) {
+                                            $gajiFormatted = 'Rp ' . number_format($min, 0, ',', '.') . ' - Rp ' . number_format($max, 0, ',', '.');
+                                        } elseif ($min) {
+                                            $gajiFormatted = 'Rp ' . number_format($min, 0, ',', '.');
+                                        } elseif ($max) {
+                                            $gajiFormatted = 'Rp ' . number_format($max, 0, ',', '.');
                                         } elseif ($selectedMppId) {
                                             $gajiFormatted = 'Negosiasi';
                                         }
@@ -114,6 +122,15 @@
                     </div>
                     
                     <div class="space-y-6">
+                        <div>
+                            <label for="title" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Judul RR <span class="text-error">*</span></label>
+                            <input type="text" id="title" wire:model="form.title" placeholder="Masukkan judul recruitment request (misal: Urgently Needed - Senior Laravel Developer)"
+                                   class="w-full h-12 px-6 bg-surface-container-low border-none rounded-md text-body-md text-on-surface focus:ring-2 focus:ring-primary/20 transition-all @error('form.title') ring-2 ring-error/20 @enderror">
+                            @error('form.title')
+                                <p class="text-error text-xs mt-1 px-1 font-semibold">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div>
                             <label for="job_description" class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Deskripsi Pekerjaan <span class="text-error">*</span></label>
                             <textarea id="job_description" wire:model="form.job_description" rows="8" 

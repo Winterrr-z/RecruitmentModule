@@ -103,7 +103,7 @@ class EditProfileHr extends Component
         ];
 
         if ($this->photo) {
-            // Delete old photo if it exists
+            // Hapus foto profil lama dari storage jika sebelumnya sudah ada
             if ($user->profile_photo_path) {
                 Storage::disk('public')->delete($user->profile_photo_path);
             }

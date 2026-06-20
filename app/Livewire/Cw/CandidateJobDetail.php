@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+/**
+ * Class CandidateJobDetail
+ *
+ * Komponen Livewire untuk menampilkan halaman detail lowongan pekerjaan.
+ * Halaman ini dapat diakses oleh publik maupun kandidat yang telah masuk (login),
+ * dan berisi formulir pengiriman lamaran (CV & Portofolio).
+ *
+ * @package App\Livewire\Cw
+ */
 class CandidateJobDetail extends Component
 {
     use WithFileUploads;
@@ -18,14 +27,30 @@ class CandidateJobDetail extends Component
     /** @var Vacancy Model vacancy */
     public $vacancy;
 
-    // Form properties
+    // ==========================================
+    // ISIAN FORMULIR LAMARAN
+    // ==========================================
+
+    /** @var string Nama lengkap kandidat. */
     public string $name = '';
+
+    /** @var string Alamat email kandidat. */
     public string $email = '';
+
+    /** @var string Nomor telepon kandidat. */
     public string $phone = '';
+
+    /** @var mixed File CV yang diunggah pelamar. */
     public $cv;
+
+    /** @var mixed File Portofolio yang diunggah pelamar (opsional). */
     public $portofolio;
 
+    /** @var bool Mengecek apakah pelamar saat ini masih memiliki lamaran aktif di posisi manapun. */
     public bool $hasActiveApplication = false;
+
+    /** @var bool Mengecek apakah pelamar saat ini sudah berstatus dipekerjakan (Hired). */
+    public bool $isHired = false;
 
     /**
      * Inisialisasi data komponen.
@@ -42,21 +67,31 @@ class CandidateJobDetail extends Component
             $this->email = $user->email;
             
             if ($user->role === 'applicant') {
+                $this->isHired = Candidate::where('user_id', $user->id)
+                    ->where('status', \App\Enums\CandidateStatus::HIRED)
+                    ->exists();
+
                 $this->hasActiveApplication = Candidate::where('user_id', $user->id)
-                    ->whereNotIn('status', [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED])
+                    ->whereNotIn('status', [\App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::WITHDRAWN, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED])
                     ->exists();
             }
         }
     }
 
     /**
-     * Proses lamaran pekerjaan.
+     * Proses pengiriman lamaran pekerjaan oleh kandidat.
+     * Termasuk memvalidasi unggahan file dan mendelegasikan logika ke CandidateService.
      */
     public function apply()
     {
         // Hanya user logged-in dengan role applicant yang bisa melamar
         if (!auth()->check() || auth()->user()->role !== 'applicant') {
             abort(403, 'Aksi ini tidak diizinkan.');
+        }
+
+        if ($this->isHired) {
+            session()->flash('error', 'Anda sudah berstatus Hired dan tidak dapat melamar lowongan baru.');
+            return;
         }
 
         if ($this->hasActiveApplication) {

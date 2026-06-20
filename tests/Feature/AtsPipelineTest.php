@@ -247,11 +247,11 @@ class AtsPipelineTest extends TestCase
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsPipeline::class)
             ->call('approve', $this->candidate->id)
-            ->assertSee("Kandidat 'John Doe' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
+            ->assertRedirect(route('ats.offering.send', ['candidateId' => $this->candidate->id]));
 
         // Next stage in order is Final (since approve moves to Final stage directly with status Offered)
         $this->assertEquals(2, $this->candidate->fresh()->current_stage_id);
-        $this->assertEquals(\App\Enums\CandidateStatus::OFFERED, $this->candidate->fresh()->status);
+        $this->assertEquals(\App\Enums\CandidateStatus::IN_PROGRESS, $this->candidate->fresh()->status);
     }
 
     public function test_dashboard_displays_manual_candidate_button()

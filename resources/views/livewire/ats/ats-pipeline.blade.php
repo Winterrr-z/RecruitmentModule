@@ -158,10 +158,10 @@
                                             Hired
                                         </span>
                                         @break
-                                    @case('Declined')
+                                    @case('Withdrawn')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-700 border border-red-500/20">
                                             <span class="w-1.5 h-1.5 bg-red-600 rounded-full"></span>
-                                            Declined
+                                            Withdrawn
                                         </span>
                                         @break
                                     @case('Expired')
@@ -208,7 +208,7 @@
 
                             <!-- Aksi Buttons -->
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                @if(in_array($candidate->status, [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::DECLINED, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED]) || ($candidate->current_stage_id == 2 && $candidate->status !== \App\Enums\CandidateStatus::IN_PROGRESS))
+                                @if(in_array($candidate->status, [\App\Enums\CandidateStatus::HIRED, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::WITHDRAWN, \App\Enums\CandidateStatus::EXPIRED, \App\Enums\CandidateStatus::BLACKLISTED]) || ($candidate->current_stage_id == 2 && $candidate->status !== \App\Enums\CandidateStatus::IN_PROGRESS))
                                     <span class="text-on-surface-variant/40 pr-6">-</span>
                                 @else
                                     <div class="flex items-center justify-end gap-1.5">

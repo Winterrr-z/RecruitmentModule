@@ -40,3 +40,6 @@ Homestead.yaml
 /.vagrant
 /dokumentasi
 server.log
+public/images/logo_company.png
+public/images/logo_company.webp
+public/favicon.ico

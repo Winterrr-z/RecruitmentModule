@@ -93,7 +93,7 @@ class AtsCandidateDetailFormTest extends TestCase
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Ats\AtsCandidateDetail::class, ['candidateId' => $this->candidate->id])
             ->call('downloadCv')
-            ->assertFileDownloaded('bob_cv.pdf');
+            ->assertFileDownloaded('CV_bob_smith_it_engineer.pdf');
     }
 
     public function test_displays_scorecard_and_schedule_when_required()

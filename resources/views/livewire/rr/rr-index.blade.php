@@ -78,9 +78,9 @@
                 @php
                     $rrStatusVal = $rr->status instanceof \App\Enums\RrStatus ? $rr->status->value : $rr->status;
                     $normalizedStatus = strtolower(trim($rrStatusVal));
-                    $isCompleted = in_array($normalizedStatus, ['completed/closed', 'completed', 'closed']);
+                    $isCompleted = in_array($normalizedStatus, ['completed', 'closed']);
                 @endphp
-                <div onclick="window.location='{{ route('rr.show', $rr->id) }}'" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex flex-col justify-between text-on-surface
+                <div onclick="if (!event.target.closest('a, button')) { window.location='{{ route('rr.show', $rr->id) }}' }" class="cursor-pointer block group p-6 rounded-md border transition-all duration-300 flex flex-col justify-between text-on-surface
                     {{ $isCompleted 
                         ? 'bg-surface-container-low border-surface-container/60 opacity-70 grayscale shadow-none' 
                         : 'bg-surface-container-lowest border-surface-container-high shadow-[0px_20px_40px_-15px_rgba(107,56,212,0.04)] hover:shadow-[0px_35px_60px_-15px_rgba(107,56,212,0.08)] hover:-translate-y-1' }}">
@@ -116,13 +116,13 @@
                             @endif
                         </div>
 
-                        <!-- Judul dan Departemen -->
+                        <!-- Judul dan Jabatan -->
                         <div class="mb-4">
                             <h4 class="text-title-md font-title-md font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2">
-                                {{ $rr->job_title }}
+                                {{ $rr->title ?: $rr->job_title }}
                             </h4>
-                            <p class="text-label-sm font-label-sm text-on-surface-variant/80 mt-1">
-                                {{ $rr->department }}
+                            <p class="text-label-sm font-label-sm text-primary font-semibold mt-1">
+                                {{ $rr->job_title }}
                             </p>
                         </div>
 
@@ -157,37 +157,31 @@
 
                         @if($normalizedStatus === 'ready to publish' || $normalizedStatus === 'published')
                             <div class="flex items-center justify-end gap-2 pt-3 border-t border-surface-container-low">
-                                <!-- Tombol Edit (Draft & Tanpa Pelamar) -->
-                                @if($normalizedStatus === 'ready to publish' && $rr->candidates_count === 0)
-                                    <a href="{{ route('rr.edit', $rr->id) }}" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95 no-underline">
-                                        <span class="material-symbols-outlined text-[16px]">edit</span>
-                                        <span>Edit</span>
-                                    </a>
-                                @endif
+                                <!-- Tombol Tutup -->
+                                {{-- @if($normalizedStatus === 'ready to publish')
+                                    <button wire:click="close({{ $rr->id }})" wire:confirm="Apakah anda yakin ingin MENUTUP Permintaan Rekrutmen ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/15 text-error font-label-sm text-xs font-semibold hover:bg-error/25 transition-all active:scale-95" title="Tutup Recruitment Request">
+                                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                                        {{-- <span>Tutup</span> --}}
+                                    {{-- </button> --}}
+                                {{-- endif --}}
 
+
+                                @if ($normalizedStatus === 'ready to publish')
                                 <!-- Tombol Aktifkan -->
-                                @if($normalizedStatus === 'ready to publish')
-                                    <button wire:click="publish({{ $rr->id }})" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-on-primary font-label-sm text-xs font-semibold hover:bg-primary-container shadow-sm transition-all active:scale-95">
+                                    <button wire:click="publish({{ $rr->id }})" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-primary text-on-primary font-label-sm text-xs font-semibold hover:bg-primary-container shadow-sm transition-all active:scale-95" title="Aktifkan Lowongan">
                                         <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
                                         <span>Aktifkan</span>
                                     </button>
-                                @endif
 
                                 <!-- Tombol Nonaktifkan -->
-                                @if($normalizedStatus === 'published')
-                                    <button wire:click="unpublish({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95">
+                                @elseif($normalizedStatus === 'published')
+                                    <button wire:click="unpublish({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menonaktifkan lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-sm text-xs font-semibold hover:bg-surface-container-highest shadow-sm transition-all active:scale-95" title="Nonaktifkan Lowongan">
                                         <span class="material-symbols-outlined text-[16px]">visibility_off</span>
                                         <span>Nonaktifkan</span>
                                     </button>
                                 @endif
 
-                                <!-- Tombol Tutup -->
-                                @if($normalizedStatus === 'ready to publish')
-                                    <button wire:click="close({{ $rr->id }})" wire:confirm="Apakah Anda yakin ingin menutup lowongan pekerjaan ini?" onclick="event.stopPropagation()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-error/15 text-error font-label-sm text-xs font-semibold hover:bg-error/25 transition-all active:scale-95">
-                                        <span class="material-symbols-outlined text-[16px]">cancel</span>
-                                        <span>Tutup</span>
-                                    </button>
-                                @endif
+                                
                             </div>
                         @endif
                     </div>

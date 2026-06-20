@@ -26,7 +26,8 @@ class RrRepository
 
         if (!empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('job_title', 'like', '%' . $filters['search'] . '%')
+                $q->where('title', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('job_title', 'like', '%' . $filters['search'] . '%')
                   ->orWhere('department', 'like', '%' . $filters['search'] . '%');
             });
         }

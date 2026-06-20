@@ -3,34 +3,62 @@
 namespace App\Livewire\Ats;
 
 use App\Models\Stage;
-use App\Livewire\Forms\StageConfigForm;
+use App\Livewire\Ats\StageConfigForm;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class AtsStageConfig
+ *
+ * Komponen Livewire untuk mengatur konfigurasi tahapan rekrutmen (Pipeline Stages).
+ * Termasuk menambah, mengubah urutan, serta menentukan syarat scorecard dan wawancara 
+ * di setiap tahapannya.
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.hr')]
 class AtsStageConfig extends Component
 {
+    /** @var \App\Livewire\Ats\StageConfigForm Objek penampung nilai form (Livewire Form Object). */
     public StageConfigForm $form;
 
-    // List of stages
+    /** @var \Illuminate\Database\Eloquent\Collection Daftar seluruh tahapan. */
     public $stages;
 
-    // Modal control
+    // ==========================================
+    // PROPERTI MODAL
+    // ==========================================
+
+    /** @var bool Status tampil/sembunyikan modal pengaturan tahapan. */
     public $showModal = false;
+
+    /** @var bool Menandakan apakah modal dibuka untuk pengubahan (edit) atau penambahan (tambah baru). */
     public $isEdit = false;
 
+    /** @var bool Menandakan jika konfigurasi scorecard terkunci karena sudah ada nilai kandidat (tidak boleh diedit). */
+    public $isScorecardLocked = false;
+
+    /**
+     * Inisialisasi awal. Memperbaiki urutan dan memuat semua tahapan.
+     */
     public function mount()
     {
         $this->normalizeUrutan();
         $this->loadStages();
     }
 
+    /**
+     * Memuat ulang daftar tahapan dari database/cache.
+     */
     public function loadStages()
     {
         $this->stages = Stage::getAllCached();
     }
 
+    /**
+     * Menambahkan baris kosong ke dalam formulir pembuatan kriteria scorecard.
+     */
     public function addKriteria()
     {
         $this->form->scorecardKriteria[] = [
@@ -39,6 +67,11 @@ class AtsStageConfig extends Component
         ];
     }
 
+    /**
+     * Menghapus salah satu kriteria scorecard berdasarkan urutannya di form.
+     *
+     * @param int $index
+     */
     public function removeKriteria($index)
     {
         unset($this->form->scorecardKriteria[$index]);
@@ -46,53 +79,69 @@ class AtsStageConfig extends Component
     }
 
     /**
-     * Normalize stage sequence numbers:
-     * - Applied (is_first_stage) is always 1.
-     * - Custom stages (middle stages) are numbered 2, 3, ... N-1.
-     * - Final (is_final_stage) is always at the end (N).
+     * Merapikan nomor urut tahapan (sequence number):
+     * - 'Applied' (is_first_stage) selalu berada di urutan 1.
+     * - 'Final' (is_final_stage) selalu berada di urutan terakhir.
+     * - Tahapan lain diurutkan mulai dari angka 2.
      */
-    private function normalizeUrutan()
+    public function normalizeUrutan()
     {
-        DB::transaction(function () {
-            // Get all intermediate custom stages
-            $middleStages = Stage::where('is_first_stage', false)
-                ->where('is_final_stage', false)
-                ->orderBy('sequence', 'asc')
-                ->get();
+        $stages = Stage::orderBy('sequence', 'asc')->get();
+        
+        DB::transaction(function () use ($stages) {
+            $applied = $stages->where('is_first_stage', true)->first();
+            $final = $stages->where('is_final_stage', true)->first();
+            $customStages = $stages->where('is_first_stage', false)->where('is_final_stage', false)->values();
 
-            // Set Applied to 1
-            Stage::where('is_first_stage', true)->update(['sequence' => 1]);
-
-            // Set middle stages starting from 2
-            $current = 2;
-            foreach ($middleStages as $stage) {
-                $stage->update(['sequence' => $current]);
-                $current++;
+            if ($applied) {
+                $applied->update(['sequence' => 1]);
             }
 
-            // Set Final to N
-            Stage::where('is_final_stage', true)->update(['sequence' => $current]);
+            $currentUrutan = 2;
+            foreach ($customStages as $stage) {
+                $stage->update(['sequence' => $currentUrutan]);
+                $currentUrutan++;
+            }
+
+            if ($final) {
+                $final->update(['sequence' => $currentUrutan]);
+            }
         });
     }
 
+    /**
+     * Membuka modal untuk menambah tahapan baru (reset isi form).
+     */
     public function openAddModal()
     {
         $this->resetValidation();
         $this->form->resetForm();
         $this->isEdit = false;
+        $this->isScorecardLocked = false;
         $this->showModal = true;
     }
 
+    /**
+     * Membuka modal untuk mengubah tahapan lama.
+     * Mengecek apakah tahapan ini memiliki scorecard yang terkunci.
+     *
+     * @param int $id ID tahapan.
+     */
     public function editStage($id)
     {
         $this->resetValidation();
         $stage = Stage::findOrFail($id);
         $this->form->setStage($stage);
+        $this->isScorecardLocked = \App\Models\Scorecard::where('stage_id', $id)->exists();
 
         $this->isEdit = true;
         $this->showModal = true;
     }
 
+    /**
+     * Menyimpan data tahapan baru atau perubahan tahapan lama ke database.
+     * Melakukan berbagai pemeriksaan keabsahan data scorecard dan wawancara.
+     */
     public function save()
     {
         $this->form->validate();
@@ -107,11 +156,11 @@ class AtsStageConfig extends Component
             $totalWeight = 0;
             foreach ($this->form->scorecardKriteria as $index => $item) {
                 if (empty(trim($item['criteria'] ?? ''))) {
-                    $this->addError("form.scorecardKriteria.{$index}.kriteria", 'Nama kriteria wajib diisi.');
+                    $this->addError("form.scorecardKriteria.{$index}.criteria", 'Nama kriteria wajib diisi.');
                     return;
                 }
                 if (!isset($item['weight']) || intval($item['weight']) <= 0 || intval($item['weight']) > 100) {
-                    $this->addError("form.scorecardKriteria.{$index}.bobot", 'Bobot kriteria harus bernilai antara 1-100%.');
+                    $this->addError("form.scorecardKriteria.{$index}.weight", 'Bobot kriteria harus bernilai antara 1-100%.');
                     return;
                 }
                 $totalWeight += intval($item['weight']);
@@ -123,7 +172,7 @@ class AtsStageConfig extends Component
             }
         }
 
-        // 2. Scheduling validation
+        // 2. Validasi pengaturan jadwal wawancara (Scheduling validation)
         if ($this->form->needs_schedule) {
             if (empty($this->form->interview_type)) {
                 $this->addError('form.interview_type', 'Tipe wawancara wajib dipilih.');
@@ -152,13 +201,29 @@ class AtsStageConfig extends Component
 
         if ($this->isEdit) {
             $stage = Stage::findOrFail($this->form->stage->id);
+
+            // Pengecekan keamanan sisi server: mencegah modifikasi scorecard jika sudah ada yang ternilai
+            $hasScorecardEvaluations = \App\Models\Scorecard::where('stage_id', $stage->id)->exists();
+            if ($hasScorecardEvaluations) {
+                $oldNeeds = (bool)$stage->needs_scorecard;
+                $newNeeds = (bool)$this->form->needs_scorecard;
+                
+                $oldCriteria = json_encode($stage->scorecard_criteria);
+                $newCriteria = json_encode($this->form->needs_scorecard ? array_values($this->form->scorecardKriteria) : null);
+                
+                if ($oldNeeds !== $newNeeds || $oldCriteria !== $newCriteria) {
+                    $this->addError('form.scorecardKriteria', 'Tidak bisa merubah scorecard karena sudah ada kandidat yang dinilai.');
+                    return;
+                }
+            }
+
             $stage->update($data);
             session()->flash('message', 'Stage berhasil diperbarui.');
         } else {
-            // Get current Final's order
+            // Ambil nomor urut tahap 'Final' saat ini
             $finalUrutan = Stage::where('is_final_stage', true)->value('sequence') ?? 2;
             
-            // Create stage with Final's current sequence, pushing it before Final
+            // Simpan tahapan baru tepat sebelum tahap 'Final'
             $data['sequence'] = $finalUrutan;
             Stage::create($data);
             session()->flash('message', 'Stage baru berhasil ditambahkan.');
@@ -170,6 +235,12 @@ class AtsStageConfig extends Component
         $this->loadStages();
     }
 
+    /**
+     * Menghapus tahapan.
+     * Akan ditolak jika tahapan merupakan 'Applied' atau 'Final', atau masih berisi kandidat.
+     *
+     * @param int $id ID tahapan.
+     */
     public function deleteStage($id)
     {
         $stage = Stage::findOrFail($id);
@@ -191,6 +262,12 @@ class AtsStageConfig extends Component
         $this->loadStages();
     }
 
+    /**
+     * Menaikkan urutan tahapan ke atas.
+     * Tahapan pertama ('Applied') tidak bisa diganggu gugat.
+     *
+     * @param int $id ID tahapan.
+     */
     public function moveUp($id)
     {
         $stage = Stage::findOrFail($id);
@@ -200,13 +277,13 @@ class AtsStageConfig extends Component
             return;
         }
         
-        // Find stage with highest urutan that is smaller than current
+        // Mencari tahapan yang berada tepat di atas tahapan ini
         $prevStage = Stage::where('sequence', '<', $stage->sequence)
             ->orderBy('sequence', 'desc')
             ->first();
 
         if ($prevStage) {
-            // Applied's position is fixed at 1
+            // Posisi 'Applied' (1) selalu menetap
             if ($prevStage->is_first_stage) {
                 session()->flash('error', 'Tidak dapat memindahkan stage sebelum Applied.');
                 return;
@@ -223,6 +300,12 @@ class AtsStageConfig extends Component
         $this->loadStages();
     }
 
+    /**
+     * Menurunkan urutan tahapan ke bawah.
+     * Tahapan terakhir ('Final') tidak bisa diganggu gugat.
+     *
+     * @param int $id ID tahapan.
+     */
     public function moveDown($id)
     {
         $stage = Stage::findOrFail($id);
@@ -232,13 +315,13 @@ class AtsStageConfig extends Component
             return;
         }
         
-        // Find stage with lowest urutan that is larger than current
+        // Mencari tahapan yang berada tepat di bawah tahapan ini
         $nextStage = Stage::where('sequence', '>', $stage->sequence)
             ->orderBy('sequence', 'asc')
             ->first();
 
         if ($nextStage) {
-            // Final's position is fixed at the end
+            // Posisi 'Final' selalu menetap di akhir
             if ($nextStage->is_final_stage) {
                 session()->flash('error', 'Tidak dapat memindahkan stage setelah Final.');
                 return;
@@ -255,6 +338,9 @@ class AtsStageConfig extends Component
         $this->loadStages();
     }
 
+    /**
+     * Render komponen antarmuka konfigurasi tahapan.
+     */
     public function render()
     {
         $finalUrutan = Stage::where('is_final_stage', true)->value('sequence') ?? 2;

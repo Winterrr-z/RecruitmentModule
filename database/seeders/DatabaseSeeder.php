@@ -30,11 +30,11 @@ class DatabaseSeeder extends Seeder
         Schema::disableForeignKeyConstraints();
 
         // Clear existing data
-        User::truncate();
+        User::where('role', 'applicant')->delete();
         Mpp::truncate();
         Rr::truncate();
         Vacancy::truncate();
-        Stage::truncate();
+        Stage::whereNotIn('id', [1, 2])->delete();
         Candidate::truncate();
         CandidateMovement::truncate();
         InterviewSchedule::truncate();
@@ -45,9 +45,18 @@ class DatabaseSeeder extends Seeder
 
         // 1. Seed Users
         // HR User
-        User::create([
+        User::updateOrCreate(['email' => 'hr1@company.com'], [
             'name' => 'HR Manager',
-            'email' => 'hr@company.com',
+            'password' => Hash::make('HrPassword'),
+            'role' => 'hr',
+        ]);
+        User::updateOrCreate(['email' => 'hr2@company.com'], [
+            'name' => 'HR Staff',
+            'password' => Hash::make('HrPassword'),
+            'role' => 'hr',
+        ]);
+        User::updateOrCreate(['email' => 'hr3@company.com'], [
+            'name' => 'HR Staff',
             'password' => Hash::make('HrPassword'),
             'role' => 'hr',
         ]);
@@ -57,15 +66,14 @@ class DatabaseSeeder extends Seeder
         for ($i = 1; $i <= 30; $i++) {
             $applicants->push(User::create([
                 'name' => "Kandidat {$i}",
-                'email' => "kandidat{$i}@example.org",
+                'email' => "kandidat{$i}@example.com",
                 'password' => Hash::make('AppPassword'),
                 'role' => 'applicant',
             ]));
         }
 
         // 2. Seed Stages
-        $stageApplied = Stage::create([
-            'id' => 1,
+        $stageApplied = Stage::updateOrCreate(['id' => 1], [
             'name' => 'Applied',
             'description' => 'Kandidat baru saja melamar vacancy',
             'needs_scorecard' => false,
@@ -74,8 +82,7 @@ class DatabaseSeeder extends Seeder
             'is_first_stage' => true,
         ]);
 
-        $stageScreening = Stage::create([
-            'id' => 3,
+        $stageScreening = Stage::updateOrCreate(['id' => 3], [
             'name' => 'Screening',
             'description' => 'Penyaringan berkas dan kualifikasi awal',
             'needs_scorecard' => false,
@@ -83,8 +90,7 @@ class DatabaseSeeder extends Seeder
             'sequence' => 2,
         ]);
 
-        $stageInterview = Stage::create([
-            'id' => 4,
+        $stageInterview = Stage::updateOrCreate(['id' => 4], [
             'name' => 'Interview',
             'description' => 'Wawancara dengan HR atau User',
             'needs_scorecard' => false,
@@ -92,17 +98,20 @@ class DatabaseSeeder extends Seeder
             'sequence' => 3,
         ]);
 
-        $stageTechnical = Stage::create([
-            'id' => 5,
+        $stageTechnical = Stage::updateOrCreate(['id' => 5], [
             'name' => 'Technical Test',
             'description' => 'Ujian kompetensi teknis',
             'needs_scorecard' => true,
             'needs_schedule' => false,
             'sequence' => 4,
+            'scorecard_criteria' => [
+                ['criteria' => 'Problem Solving & Logic', 'weight' => 40],
+                ['criteria' => 'Technical Knowledge', 'weight' => 40],
+                ['criteria' => 'Communication Skill', 'weight' => 20],
+            ],
         ]);
-
-        $stageFinal = Stage::create([
-            'id' => 2,
+        
+        $stageFinal = Stage::updateOrCreate(['id' => 2], [
             'name' => 'Final',
             'description' => 'Tahap keputusan penawaran (offering)',
             'needs_scorecard' => false,
@@ -193,7 +202,7 @@ class DatabaseSeeder extends Seeder
         // Scenario 7: Completed RR (Quota reached, Vacancy Closed)
         $mpp7 = Mpp::factory()->create([
             'plan_name' => "Q1 Marketing Campaign",
-            'status' => \App\Enums\MppStatus::APPROVED, // Computed status might be Filled later
+            'status' => \App\Enums\MppStatus::COMPLETED,
             'quota' => 3,
             'department' => 'Marketing',
             'job_title' => 'Social Media Specialist',
@@ -225,7 +234,7 @@ class DatabaseSeeder extends Seeder
         // Scenario 8: Manually Closed RR
         $mpp8 = Mpp::factory()->create([
             'plan_name' => "Canceled Department",
-            'status' => \App\Enums\MppStatus::APPROVED,
+            'status' => \App\Enums\MppStatus::CLOSED,
             'quota' => 1,
         ]);
         $rr8 = Rr::factory()->create([
@@ -324,17 +333,17 @@ class DatabaseSeeder extends Seeder
                 ]);
 
                 if ($currentLoopStage->needs_scorecard) {
-                    $kriteriaList = [
-                        ['name' => 'Problem Solving & Logic', 'weight' => 40],
-                        ['name' => 'Technical Knowledge', 'weight' => 40],
-                        ['name' => 'Communication Skill', 'weight' => 20],
+                    $criteria = $currentLoopStage->scorecard_criteria ?: [
+                        ['criteria' => 'Problem Solving & Logic', 'weight' => 40],
+                        ['criteria' => 'Technical Knowledge', 'weight' => 40],
+                        ['criteria' => 'Communication Skill', 'weight' => 20],
                     ];
 
-                    foreach ($kriteriaList as $k) {
+                    foreach ($criteria as $k) {
                         Scorecard::create([
                             'candidate_id' => $candidate->id,
                             'stage_id' => $currentLoopStage->id,
-                            'criteria' => $k['name'],
+                            'criteria' => $k['criteria'] ?? $k['name'] ?? '',
                             'weight' => $k['weight'],
                             'score' => rand(65, 95),
                         ]);

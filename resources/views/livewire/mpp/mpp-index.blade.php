@@ -41,6 +41,7 @@
             <div>
                 <label class="block font-bold text-[11px] uppercase tracking-wider text-on-surface-variant mb-1.5">Urutkan</label>
                 <select wire:model.live="sortBy" class="w-full px-3 h-11 bg-surface-container-low border border-surface-container rounded-md focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm text-on-surface cursor-pointer">
+                    <option value="status_priority">Prioritas Status (Draft -> Approved -> Completed -> Closed)</option>
                     <option value="newest">Terbaru (Latest)</option>
                     <option value="oldest">Terlama (Oldest)</option>
                 </select>
@@ -102,6 +103,8 @@
                                 <span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded uppercase">Approved</span>
                             @elseif($mpp->status === \App\Enums\MppStatus::CLOSED)
                                 <span class="px-2 py-1 bg-gray-200 text-gray-700 text-[10px] font-bold rounded uppercase">Closed</span>
+                            @elseif($mpp->status === \App\Enums\MppStatus::COMPLETED)
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-[10px] font-bold rounded uppercase">Completed</span>
                             @else
                                 <span class="px-2 py-1 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold rounded uppercase">Draft</span>
                             @endif
@@ -137,7 +140,7 @@
                             </span>
                         </div>
                     </div>
-                    <!-- Action Menu -->
+                    {{-- <!-- Action Menu -->
                     @php $computedStatus = $mpp->getComputedStatus(); @endphp
                     @if($computedStatus !== 'Closed' && $computedStatus !== 'Completed')
                         <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
@@ -145,7 +148,7 @@
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </a>
                         </div>
-                    @endif
+                    @endif --}}
                 </div>
             @endforeach
         </div>

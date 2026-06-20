@@ -39,6 +39,9 @@ return new class extends Migration
 
             // Unique index for offering token lookup (OfferingResponse.php, ExpireOfferings.php)
             $table->unique('offering_token');
+
+            // Email index for application history lookup
+            $table->index('email');
         });
 
         // ================================================================
@@ -88,6 +91,9 @@ return new class extends Migration
         // RRS TABLE - HR internal queries
         // ================================================================
         Schema::table('rrs', function (Blueprint $table) {
+            // Title search index
+            $table->index('title');
+
             // Status filtering (Draft, Ready to Publish, Published, Closed)
             $table->index('status');
 
@@ -100,6 +106,9 @@ return new class extends Migration
         // VACANCIES TABLE - Public job listings
         // ================================================================
         Schema::table('vacancies', function (Blueprint $table) {
+            // Title search index
+            $table->index('title');
+
             // Composite for public careers page: status + application_deadline
             // Replaces single index('status') — status is covered as prefix
             $table->index(['status', 'application_deadline']);
@@ -160,6 +169,7 @@ return new class extends Migration
             $table->dropIndex(['user_id', 'status']);
             $table->dropIndex(['status', 'created_at']);
             $table->dropUnique(['offering_token']);
+            $table->dropIndex(['email']);
         });
 
         Schema::table('candidate_movements', function (Blueprint $table) {
@@ -181,11 +191,13 @@ return new class extends Migration
         });
 
         Schema::table('rrs', function (Blueprint $table) {
+            $table->dropIndex(['title']);
             $table->dropIndex(['status']);
             $table->dropIndex(['mpp_id', 'status']);
         });
 
         Schema::table('vacancies', function (Blueprint $table) {
+            $table->dropIndex(['title']);
             $table->dropIndex(['status', 'application_deadline']);
             $table->dropIndex(['rr_id', 'status']);
         });

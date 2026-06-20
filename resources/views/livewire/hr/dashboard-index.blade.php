@@ -1,4 +1,5 @@
 <div>
+    <x-breadcrumb :items="[['label' => 'Dashboard', 'url' => null]]" />
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

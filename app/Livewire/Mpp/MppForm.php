@@ -9,11 +9,15 @@ use Livewire\Attributes\Layout;
 /**
  * Class MppForm
  * 
- * Component for creating and editing Manpower Planning (MPP).
+ * Komponen Livewire untuk merender antarmuka pengisian (pembuatan) atau pengubahan (edit) 
+ * Manpower Planning (MPP).
+ *
+ * @package App\Livewire\Mpp
  */
 #[Layout('layouts.hr')]
 class MppForm extends Component
 {
+    /** @var \App\Livewire\Mpp\MppDataForm Objek formulir Livewire khusus MPP. */
     public MppDataForm $form;
 
     /** @var int|null ID MPP yang sedang diedit (null jika mode Create). */
@@ -22,6 +26,13 @@ class MppForm extends Component
     /** @var bool Penanda apakah form saat ini dalam mode Edit. */
     public $isEdit = false;
 
+    /**
+     * Memuat data saat komponen pertama kali dirender.
+     * Mengisi data ke objek form jika dalam mode Edit dan mengecek apakah 
+     * MPP tersebut masih diperbolehkan untuk diubah.
+     *
+     * @param int|null $id ID MPP (jika ada).
+     */
     public function mount($id = null)
     {
         $this->mppId = $id;
@@ -40,11 +51,19 @@ class MppForm extends Component
         }
     }
 
+    /**
+     * Otomatis memicu perhitungan ulang batas waktu target
+     * setiap kali nilai "SLA Hari" diubah di formulir.
+     */
     public function updatedFormSlaDays()
     {
         $this->form->calculateTargetWaktu();
     }
 
+    /**
+     * Menyimpan data MPP (Buat Baru atau Perbarui).
+     * Mencegah pembaruan jika status MPP sudah 'Closed' atau 'Completed'.
+     */
     public function save()
     {
         if ($this->isEdit) {
@@ -67,6 +86,9 @@ class MppForm extends Component
         return redirect()->route('mpp.index');
     }
 
+    /**
+     * Render komponen antarmuka formulir MPP.
+     */
     public function render()
     {
         return view('livewire.mpp.mpp-form');

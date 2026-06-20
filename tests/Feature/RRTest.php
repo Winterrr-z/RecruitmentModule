@@ -56,6 +56,7 @@ class RRTest extends TestCase
         ]);
 
         Livewire::test(\App\Livewire\Rr\RRForm::class, ['mppId' => $mpp->id])
+            ->set('form.title', 'Accountant Recruitment')
             ->set('form.job_description', 'Tugas Akuntan')
             ->set('form.job_requirements', 'Lulusan S1 Akuntansi')
             ->set('form.employment_type', 'full-time')

@@ -21,7 +21,7 @@
                 </span>
                 
                 <h1 class="text-3xl font-extrabold text-on-surface tracking-tight leading-tight mb-2">
-                    {{ $vacancy->job_title }}
+                    {{ $vacancy->title ?: $vacancy->job_title }}
                 </h1>
                 
                 <div class="flex flex-wrap gap-x-6 gap-y-3 text-sm text-on-surface-variant font-medium mt-4">
@@ -88,7 +88,19 @@
             
             @if (auth()->check())
                 @if (auth()->user()->role === 'applicant')
-                    @if ($hasActiveApplication)
+                    @if ($isHired)
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center shadow-[0_4px_20px_rgba(16,185,129,0.03)]">
+                            <span class="material-symbols-outlined text-emerald-600 text-[36px] mb-3">verified</span>
+                            <h3 class="text-md font-bold text-emerald-800 mb-1">Karyawan Resmi</h3>
+                            <p class="text-sm text-emerald-700 leading-relaxed mb-4">
+                                Anda sudah berstatus diterima (Hired) di perusahaan kami. Anda tidak perlu melamar pekerjaan lain lagi.
+                            </p>
+                            <a href="{{ route('candidate.dashboard') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm transition-colors w-full no-underline">
+                                <span class="material-symbols-outlined text-[18px]">person</span>
+                                Lihat Profil Saya
+                            </a>
+                        </div>
+                    @elseif ($hasActiveApplication)
                         <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-center shadow-[0_4px_20px_rgba(239,68,68,0.03)]">
                             <span class="material-symbols-outlined text-red-600 text-[36px] mb-3">error</span>
                             <h3 class="text-md font-bold text-red-800 mb-1">Anda Memiliki Lamaran Aktif</h3>
@@ -213,11 +225,19 @@
                             <div class="pt-2">
                                 <button type="submit"
                                         wire:loading.attr="disabled"
+                                        wire:target="apply, cv, portofolio"
                                         class="w-full h-11 rounded-full bg-primary text-white font-bold text-sm tracking-wide hover:bg-primary-container shadow-[0_4px_16px_rgba(107,56,212,0.25)] hover:shadow-[0_4px_24px_rgba(107,56,212,0.35)] transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                    <span wire:loading.remove wire:target="apply">
+                                    <span wire:loading.remove wire:target="apply, cv, portofolio">
                                         Kirim Lamaran
                                     </span>
                                     <span wire:loading wire:target="apply" class="inline-flex items-center justify-center gap-2">
+                                        <svg class="animate-spin h-4 w-4 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                        </svg>
+                                        Memproses...
+                                    </span>
+                                    <span wire:loading wire:target="cv, portofolio" class="inline-flex items-center justify-center gap-2">
                                         <svg class="animate-spin h-4 w-4 text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>

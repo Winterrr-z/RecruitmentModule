@@ -14,24 +14,47 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class AtsPipeline
+ *
+ * Komponen Livewire untuk menampilkan halaman utama ATS (Dashboard Pipeline).
+ * Menampilkan kandidat dalam bentuk tahapan (kanban-like board/list) dan
+ * menyediakan aksi pindah tahapan, tolak (reject), terima (approve), dan blacklist.
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.hr')]
 class AtsPipeline extends Component
 {
     use WithPagination;
 
-    // Filters & States
+    // ==========================================
+    // FILTER & STATUS PENCARIAN (Menyatu dengan URL)
+    // ==========================================
+
+    /** @var int|null ID Lowongan yang dipilih dari dropdown. */
     #[Url]
     public $selectedVacancyId = null;
     
+    /** @var int|null ID Tahapan (Stage) yang sedang aktif dilihat. */
     #[Url]
     public $selectedStageId = null;
     
+    /** @var string Kata kunci pencarian nama/email kandidat. */
     #[Url]
     public $search = '';
 
-    // Blacklist Modal States
+    // ==========================================
+    // PROPERTI MODAL BLACKLIST
+    // ==========================================
+
+    /** @var bool Status tampil/sembunyikan modal blacklist. */
     public $showBlacklistModal = false;
+
+    /** @var int|null ID Kandidat yang akan dimasukkan ke blacklist. */
     public $blacklistCandidateId = null;
+
+    /** @var string Alasan mengapa kandidat ini diblacklist. */
     public $blacklistAlasan = '';
 
     protected $paginationTheme = 'tailwind';
@@ -48,6 +71,12 @@ class AtsPipeline extends Component
         'blacklistAlasan.min' => 'Alasan blacklist minimal 5 karakter.',
     ];
 
+    /**
+     * Inisialisasi awal saat komponen dimuat.
+     * Mengatur lowongan aktif dan mengambil tahapan terakhir dari sesi (session).
+     *
+     * @param int|null $selectedVacancyId
+     */
     public function mount($selectedVacancyId = null)
     {
         $this->selectedVacancyId = $selectedVacancyId;
@@ -56,7 +85,7 @@ class AtsPipeline extends Component
         if (session()->has('pipeline_selected_stage')) {
             $this->selectedStageId = session()->get('pipeline_selected_stage');
         } else {
-            // Default: set selected stage to first stage by urutan
+            // Default: atur stage terpilih ke stage urutan pertama
             $firstStage = Stage::getAllCached()->first();
             if ($firstStage) {
                 $this->selectedStageId = $firstStage->id;
@@ -64,16 +93,26 @@ class AtsPipeline extends Component
         }
     }
 
+    /**
+     * Dijalankan otomatis ketika kotak pencarian diisi. Mereset paginasi.
+     */
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
+    /**
+     * Dijalankan otomatis ketika opsi lowongan diganti. Mereset paginasi.
+     */
     public function updatedSelectedVacancyId()
     {
         $this->resetPage();
     }
 
+    /**
+     * Dijalankan otomatis ketika tab tahapan (stage) diganti.
+     * Menyimpan pilihan tahapan ke dalam sesi (session).
+     */
     public function updatedSelectedStageId()
     {
         session()->put('pipeline_selected_stage', $this->selectedStageId);
@@ -81,7 +120,11 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Check if a candidate meets requirements for their current stage before moving.
+     * Memeriksa apakah kandidat telah memenuhi semua persyaratan pada tahapan saat ini
+     * (misal: isi form nilai, jadwal wawancara) sebelum diizinkan pindah ke tahapan selanjutnya.
+     *
+     * @param \App\Models\Candidate $candidate
+     * @return string|null Mengembalikan pesan error jika belum lengkap, atau null jika lengkap.
      */
     private function validateCurrentStageRequirements($candidate)
     {
@@ -89,7 +132,11 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Move candidate to a specified stage.
+     * Memindahkan kandidat ke tahapan (stage) lain.
+     * Validasi kelengkapan data akan dilakukan terlebih dahulu.
+     *
+     * @param int $id ID Kandidat.
+     * @param int $toStageId ID Tahapan tujuan.
      */
     public function moveCandidate($id, $toStageId)
     {
@@ -116,7 +163,9 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Reject candidate (status = \App\Enums\CandidateStatus::REJECTED).
+     * Menolak kandidat (Mengubah status menjadi REJECTED).
+     *
+     * @param int $id ID Kandidat yang ditolak.
      */
     public function reject($id)
     {
@@ -139,7 +188,9 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Confirm blacklist: set ID, reset inputs, open modal.
+     * Konfirmasi membuka modal untuk proses daftar hitam (blacklist).
+     *
+     * @param int $id ID Kandidat yang akan di-blacklist.
      */
     public function confirmBlacklist($id)
     {
@@ -150,7 +201,7 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Blacklist candidate: save to blacklist table, reject candidate, close modal.
+     * Menyimpan data kandidat ke daftar hitam, lalu mengubah statusnya menjadi REJECTED.
      */
     public function blacklist()
     {
@@ -173,7 +224,11 @@ class AtsPipeline extends Component
     }
 
     /**
-     * Approve candidate: now acts as "Hired", auto-moving to Final stage and setting status to Offered.
+     * Menyetujui kandidat (Hired/Diterima).
+     * Secara otomatis memindahkan kandidat ke tahap terakhir dan mengubah status menjadi OFFERED.
+     * Kemudian mengarahkan HR ke halaman pengiriman surat penawaran (Offering).
+     *
+     * @param int $id ID Kandidat.
      */
     public function approve($id)
     {
@@ -192,9 +247,14 @@ class AtsPipeline extends Component
             return;
         }
 
-        session()->flash('message', "Kandidat '{$candidate->name}' berhasil di-hire dan dipindahkan ke stage Final dengan status Offered.");
+        return redirect()->route('ats.offering.send', ['candidateId' => $candidate->id]);
     }
 
+    /**
+     * Mengganti tahapan (tab stage) secara manual berdasarkan interaksi pengguna.
+     *
+     * @param int $stageId
+     */
     public function selectStage($stageId)
     {
         $this->selectedStageId = $stageId;
@@ -202,18 +262,22 @@ class AtsPipeline extends Component
         $this->resetPage();
     }
 
+    /**
+     * Render komponen antarmuka Pipeline.
+     * Memuat lowongan, tahapan, jumlah kandidat per tahapan, dan daftar kandidat.
+     */
     public function render()
     {
-        // 1. Get published or ready vacancies
+        // 1. Ambil daftar lowongan yang telah diterbitkan atau siap diterbitkan
         $vacancies = Vacancy::whereIn('status', ['Published', 'Ready to Publish'])->get();
 
-        // 2. Get all stages
+        // 2. Ambil semua definisi tahapan rekrutmen
         $stages = Stage::getAllCached();
 
-        // 3. Compute dynamic candidate counts per stage based on filters (excluding selectedStageId filter so you see counts across all stages)
+        // 3. Hitung jumlah kandidat per tahapan berdasarkan filter pencarian
         $stageCounts = app(\App\Repositories\CandidateRepository::class)->getStageCounts($this->selectedVacancyId, $this->search);
 
-        // 4. Query candidates
+        // 4. Ambil data kandidat di tahapan yang sedang aktif dengan batas paginasi 10 data
         $candidates = app(\App\Repositories\CandidateRepository::class)->getPipelineCandidates($this->selectedVacancyId, $this->selectedStageId, $this->search, 10);
 
         return view('livewire.ats.ats-pipeline', [

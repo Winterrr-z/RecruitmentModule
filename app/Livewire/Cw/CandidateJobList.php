@@ -7,6 +7,14 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class CandidateJobList
+ *
+ * Komponen Livewire untuk menampilkan daftar lowongan pekerjaan khusus
+ * bagi pelamar yang telah masuk (login).
+ *
+ * @package App\Livewire\Cw
+ */
 #[Layout('layouts.applicant')]
 class CandidateJobList extends Component
 {
@@ -36,7 +44,8 @@ class CandidateJobList extends Component
     }
 
     /**
-     * Render daftar vacancy khusus pelamar login.
+     * Render daftar lowongan (vacancy) khusus pelamar login.
+     * Mengambil lowongan yang berstatus 'Published', kuota tersedia, dan belum melewati batas waktu.
      */
     public function render()
     {
@@ -47,7 +56,8 @@ class CandidateJobList extends Component
 
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('job_title', 'like', '%' . $this->search . '%')
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhere('job_title', 'like', '%' . $this->search . '%')
                   ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }

@@ -105,4 +105,65 @@ class CandidateDashboardTest extends TestCase
             ->assertSee('Applied')
             ->assertSee('Tidak Lolos');
     }
+
+    public function test_candidate_can_view_rejection_letter()
+    {
+        $user = User::factory()->create(['role' => 'applicant']);
+        
+        $mpp = Mpp::create([
+            'plan_name' => 'Plan A',
+            'department' => 'IT',
+            'job_title' => 'Developer',
+            'quota' => 1,
+            'sla_days' => 60,
+            'absolute_target_date' => now()->addDays(60)->format('Y-m-d'),
+        ]);
+
+        $rr_temp = \App\Models\Rr::create([
+            'mpp_id' => $mpp->id,
+            'job_title' => 'Test Jabatan',
+            'department' => 'IT',
+            'status' => 'Published',
+            'job_description' => 'Test Desc',
+            'employment_type' => 'full-time',
+            'location' => 'remote',
+            'application_deadline' => now()->addDays(15)->format('Y-m-d'),
+            'quota' => 1,
+        ]);
+        $vacancy = Vacancy::create([
+            'rr_id' => \App\Models\Rr::latest('id')->first()->id,
+            'job_title' => 'Developer',
+            'department' => 'IT',
+            'expected_join_date' => now()->addDays(60)->format('Y-m-d'),
+            'job_description' => 'Kerja',
+            'job_requirements' => 'Bisa ngoding',
+            'employment_type' => 'full-time',
+            'location' => 'on-site',
+            'application_deadline' => now()->addDays(10)->format('Y-m-d'),
+            'status' => 'Published',
+            'quota' => 1,
+        ]);
+
+        $candidate = Candidate::create([
+            'vacancy_id' => $vacancy->id,
+            'user_id' => $user->id,
+            'name' => 'User Tester',
+            'email' => $user->email,
+            'phone' => '0812345',
+            'current_stage_id' => 1,
+            'status' => 'Rejected',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(\App\Livewire\Cw\CandidateDashboard::class)
+            ->assertSee('Lihat Surat Penolakan')
+            ->assertSet('showRejectModal', false)
+            ->call('showRejection', $candidate->id)
+            ->assertSet('showRejectModal', true)
+            ->assertSet('selectedRejectCandidateName', 'User Tester')
+            ->assertSet('selectedRejectJobTitle', 'Developer')
+            ->assertSee('dengan berat hati kami menginformasikan')
+            ->call('closeRejectModal')
+            ->assertSet('showRejectModal', false);
+    }
 }

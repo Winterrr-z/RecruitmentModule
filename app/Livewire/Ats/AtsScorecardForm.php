@@ -8,21 +8,53 @@ use App\Models\Scorecard;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class AtsScorecardForm
+ *
+ * Komponen Livewire untuk mengisi dan menyimpan formulir evaluasi (scorecard)
+ * kandidat berdasarkan kriteria yang telah ditentukan pada tahapan (stage) tersebut.
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.hr')]
 class AtsScorecardForm extends Component
 {
+    /** @var int ID Kandidat yang dievaluasi. */
     public $candidateId;
+
+    /** @var int ID Tahapan tempat evaluasi dilakukan. */
     public $stageId;
+
+    /** @var \App\Models\Candidate Objek kandidat terkait. */
     public $candidate;
+
+    /** @var \App\Models\Stage Objek tahapan terkait. */
     public $stage;
 
-    // Evaluation list input fields: [['id' => null, 'criteria' => '', 'weight' => '', 'score' => '']]
+    /**
+     * @var array Daftar isian evaluasi.
+     * Format: [['id' => null, 'criteria' => '', 'weight' => '', 'score' => '']]
+     */
     public $kriteriaList = [];
 
-    // Weighted calculations
+    // ==========================================
+    // PERHITUNGAN BOBOT & SKOR
+    // ==========================================
+
+    /** @var int Total persentase bobot (idealnya 100). */
     public $totalBobot = 0;
+
+    /** @var float Total skor tertimbang (Σ(bobot * nilai) / 100). */
     public $totalWeightedScore = 0;
 
+    /**
+     * Memuat data awal formulir scorecard.
+     * Jika scorecard sudah pernah diisi, maka nilai akan dimuat ulang.
+     * Jika belum, daftar kriteria akan diisi dari format standar tahapan tersebut (template).
+     *
+     * @param int $candidateId
+     * @param int $stageId
+     */
     public function mount($candidateId, $stageId)
     {
         $this->candidateId = $candidateId;
@@ -30,7 +62,7 @@ class AtsScorecardForm extends Component
         $this->candidate = Candidate::findOrFail($candidateId);
         $this->stage = Stage::findOrFail($stageId);
 
-        // Load existing scorecards if they exist
+        // Muat nilai jika sudah pernah disimpan sebelumnya
         $existing = Scorecard::where('candidate_id', $candidateId)
             ->where('stage_id', $stageId)
             ->get();
@@ -45,14 +77,14 @@ class AtsScorecardForm extends Component
                 ];
             }
         } else {
-            // Load from stage template
+            // Jika belum ada, gunakan template dari pengaturan stage
             $template = $this->stage->scorecard_criteria ?: [];
             foreach ($template as $item) {
                 $this->kriteriaList[] = [
                     'id' => null,
                     'criteria' => $item['criteria'],
                     'weight' => $item['weight'],
-                    'score' => 0, // default
+                    'score' => 0, // Nilai default awal
                 ];
             }
         }
@@ -61,8 +93,8 @@ class AtsScorecardForm extends Component
     }
 
     /**
-     * Re-calculate the sum of weights and weighted score
-     * Weighted Score: Σ(bobot * nilai) / 100
+     * Menghitung ulang jumlah persentase bobot dan total skor tertimbang secara real-time.
+     * Skor Tertimbang: Σ(bobot * nilai) / 100
      */
     public function calculateTotals()
     {
@@ -81,7 +113,9 @@ class AtsScorecardForm extends Component
     }
 
     /**
-     * Listening hook when input models change to trigger real-time calculations.
+     * Menangkap perubahan data pada input nilai dan langsung memperbarui perhitungan total skor.
+     *
+     * @param string $propertyName Nama properti yang diubah pengguna.
      */
     public function updated($propertyName)
     {
@@ -90,15 +124,18 @@ class AtsScorecardForm extends Component
         }
     }
 
+    /**
+     * Validasi data dan simpan semua kriteria evaluasi (scorecard) ke dalam database secara atomik.
+     */
     public function save()
     {
-        // 1. Predefined kriteria check
+        // 1. Pengecekan daftar kriteria dari konfigurasi awal
         if (empty($this->kriteriaList)) {
             $this->addError('kriteriaList', 'Tidak ada kriteria penilaian yang dikonfigurasi untuk stage ini.');
             return;
         }
 
-        // 2. Validate scores using Laravel array validation
+        // 2. Validasi nilai input (harus berupa angka 1 - 100)
         $this->validate([
             'kriteriaList.*.score' => 'required|integer|between:1,100',
         ], [
@@ -107,14 +144,14 @@ class AtsScorecardForm extends Component
             'kriteriaList.*.score.between' => 'Nilai harus berkisar antara 1-100.',
         ]);
 
-        // Save atomically within a transaction block
+        // Simpan keseluruhan menggunakan Database Transaction
         \DB::transaction(function () {
-            // Delete old scorecard criteria for this candidate & stage
+            // Hapus data nilai lama milik kandidat di tahapan ini
             Scorecard::where('candidate_id', $this->candidateId)
                 ->where('stage_id', $this->stageId)
                 ->delete();
 
-            // Insert new evaluation rows
+            // Masukkan (insert) data evaluasi baru
             foreach ($this->kriteriaList as $item) {
                 Scorecard::create([
                     'candidate_id' => $this->candidateId,
@@ -131,6 +168,9 @@ class AtsScorecardForm extends Component
         return redirect()->route('ats.candidate.detail', ['candidateId' => $this->candidateId]);
     }
 
+    /**
+     * Render komponen formulir scorecard.
+     */
     public function render()
     {
         return view('livewire.ats.scorecard-form');

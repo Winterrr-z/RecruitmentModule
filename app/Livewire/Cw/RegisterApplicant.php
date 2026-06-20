@@ -3,8 +3,10 @@
 namespace App\Livewire\Cw;
 
 use App\Models\User;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
@@ -12,11 +14,11 @@ use Livewire\Attributes\Layout;
 /**
  * Class RegisterApplicant
  *
- * Form registrasi untuk pelamar baru.
- * Setelah berhasil mendaftar, user langsung di-login
- * dan diarahkan ke dashboard kandidat.
+ * Komponen Livewire untuk formulir pendaftaran akun (registrasi) pelamar baru.
+ * Setelah pendaftaran berhasil, pengguna akan langsung diotentikasi (login otomatis)
+ * dan diarahkan ke halaman dashboard pelamar.
  *
- * @package App\Livewire
+ * @package App\Livewire\Cw
  */
 #[Layout('layouts.auth')]
 class RegisterApplicant extends Component
@@ -33,8 +35,29 @@ class RegisterApplicant extends Component
     /** @var string Konfirmasi kata sandi. */
     public string $password_confirmation = '';
 
+    /** @var string|null Pesan error autentikasi. */
+    public ?string $authError = null;
+
+    /** @var int|null Sisa percobaan pendaftaran. */
+    public ?int $attemptsLeft = null;
+
+    // Batas maksimum percobaan & durasi lockout (detik)
+    private const MAX_ATTEMPTS = 2;
+    private const DECAY_SECONDS = 600; // 10 menit
+
     /**
-     * Aturan validasi form registrasi.
+     * Membuat kunci identifikasi unik berdasarkan IP untuk membatasi pendaftaran berulang.
+     *
+     * @return string Kunci rate-limiting.
+     */
+    private function throttleKey(): string
+    {
+        return 'register:' . request()->ip();
+    }
+
+    /**
+     * Menentukan aturan validasi untuk formulir registrasi.
+     * Mengatur syarat kata sandi yang kuat (huruf besar, kecil, angka, dll).
      *
      * @return array<string, mixed>
      */
@@ -56,7 +79,7 @@ class RegisterApplicant extends Component
     }
 
     /**
-     * Pesan validasi kustom.
+     * Menentukan pesan error kustom dalam Bahasa Indonesia untuk setiap validasi.
      *
      * @return array<string, string>
      */
@@ -76,12 +99,25 @@ class RegisterApplicant extends Component
     }
 
     /**
-     * Proses registrasi pelamar baru.
+     * Memproses pendaftaran pelamar baru.
+     * Termasuk melakukan validasi pembatasan laju pembuatan akun (rate-limit), 
+     * menghubungkan akun pengguna dengan data lamaran manual yang ada sebelumnya,
+     * serta melakukan login otomatis.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function register()
     {
+        $limiter = app(RateLimiter::class);
+        $key     = $this->throttleKey();
+
+        // Cek apakah IP sedang terkunci
+        if ($limiter->tooManyAttempts($key, self::MAX_ATTEMPTS)) {
+            $this->authError    = "Terlalu banyak percobaan. Pendaftaran dikunci selama 10 menit. Silakan coba lagi nanti.";
+            $this->attemptsLeft = 0;
+            return;
+        }
+
         $this->validate();
 
         $user = User::create([
@@ -96,6 +132,9 @@ class RegisterApplicant extends Component
             ->whereNull('user_id')
             ->update(['user_id' => $user->id]);
 
+        // Gagal — catat hit (jika berhasil sampai sini berarti akun dibuat, tapi kita catat hit agar membatasi pendaftaran berulang)
+        $limiter->hit($key, self::DECAY_SECONDS);
+
         Auth::login($user);
 
         session()->flash('message', 'Selamat datang, ' . $user->name . '!');
@@ -104,7 +143,7 @@ class RegisterApplicant extends Component
     }
 
     /**
-     * Render komponen.
+     * Render komponen antarmuka halaman registrasi.
      *
      * @return \Illuminate\View\View
      */

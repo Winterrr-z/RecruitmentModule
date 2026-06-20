@@ -9,10 +9,10 @@ use Livewire\Attributes\Layout;
 /**
  * Class MppDetail
  * 
- * Komponen Livewire untuk menampilkan detail spesifik dari sebuah Manpower Planning (MPP).
- * Menangani logika persetujuan (approval) dan pengecekan relasi dengan vacancy.
+ * Komponen Livewire untuk menampilkan detail spesifik dari sebuah rencana tenaga kerja (Manpower Planning / MPP).
+ * Menangani logika persetujuan (approval), penutupan manual, dan pengecekan relasi dengan lowongan.
  *
- * @package App\Livewire
+ * @package App\Livewire\Mpp
  */
 #[Layout('layouts.hr')]
 class MppDetail extends Component
@@ -48,10 +48,11 @@ class MppDetail extends Component
     public $mppVacancies;
 
     /**
-     * Initialize the component.
-     * Menerima parameter mppId dan memuat data terkait.
+     * Inisialisasi komponen.
+     * Menerima parameter ID MPP dan memuat data terkait.
      *
-     * @param int $mppId
+     * @param int|null $id
+     * @param int|null $mppId
      * @return void
      */
     public function mount($id = null, $mppId = null)
@@ -61,8 +62,8 @@ class MppDetail extends Component
     }
 
     /**
-     * Load the MPP and check relationship status.
-     * Mengambil data Mpp berdasarkan ID dan mengecek status vacancy, sisa kuota, serta relasi vacancy.
+     * Mengambil data MPP dari database beserta relasi Recruitment Request (RR).
+     * Melakukan perhitungan sisa kuota dan mengecek status RR.
      * 
      * @return void
      */
@@ -82,9 +83,10 @@ class MppDetail extends Component
     }
 
     /**
-     * Approve the Manpower Planning.
-     * Mengubah status MPP dari 'draft' menjadi 'approved' dan menampilkan pesan flash.
+     * Menyetujui (Approve) Manpower Planning melalui MppService.
+     * Akan mengubah status MPP dari 'Draft' menjadi 'Approved'.
      * 
+     * @param \App\Services\MppService $service Layanan MPP.
      * @return void
      */
     public function approve(\App\Services\MppService $service)
@@ -96,9 +98,11 @@ class MppDetail extends Component
     }
 
     /**
-     * Tutup Manpower Planning.
-     * Mengubah status MPP menjadi 'Closed' jika syarat terpenuhi.
+     * Menutup paksa Manpower Planning melalui MppService.
+     * Mengubah status MPP menjadi 'Closed' jika belum sepenuhnya terpenuhi 
+     * namun HR memutuskan untuk menghentikan pencarian.
      * 
+     * @param \App\Services\MppService $service Layanan MPP.
      * @return void
      */
     public function closePlan(\App\Services\MppService $service)
@@ -112,7 +116,7 @@ class MppDetail extends Component
     }
 
     /**
-     * Render the component view.
+     * Render komponen antarmuka halaman detail MPP.
      * 
      * @return \Illuminate\View\View
      */

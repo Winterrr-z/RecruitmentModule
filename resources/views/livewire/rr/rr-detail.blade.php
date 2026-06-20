@@ -13,16 +13,16 @@
         <section class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->job_title }}</h1>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">{{ $rr->title ?: $rr->job_title }}</h1>
                     
                     @php
                         $rrStatusVal = $rr->status instanceof \App\Enums\RrStatus ? $rr->status->value : $rr->status;
                         $normalizedStatus = strtolower(trim($rrStatusVal));
                     @endphp
                     @if($normalizedStatus === 'ready to publish')
-                        <span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Ready to Publish</span>
+                        <span class="px-4 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-label-sm font-label-sm rounded-md font-bold tracking-wider">Ready to Publish</span>
                     @elseif($normalizedStatus === 'published')
-                        <span class="inline-flex items-center gap-1.5 px-4 py-1 bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">
+                        <span class="inline-flex items-center gap-1.5 px-4 py-1 bg-primary-fixed text-on-primary-fixed-variant text-label-sm font-label-sm rounded-md font-bold tracking-wider">
                             <span class="relative flex h-2 w-2">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -30,11 +30,11 @@
                             Published
                         </span>
                     @elseif($normalizedStatus === 'closed')
-                        <span class="px-4 py-1 bg-error/10 text-error text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-error/20">Closed</span>
-                    @elseif(in_array($normalizedStatus, ['completed/closed', 'completed']))
-                        <span class="px-4 py-1 bg-green-100 text-green-800 text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider border border-green-200">Completed</span>
+                        <span class="px-4 py-1 bg-error/10 text-error text-label-sm font-label-sm rounded-md font-bold tracking-wider border border-error/20">Closed</span>
+                    @elseif(in_array($normalizedStatus, ['closed', 'completed']))
+                        <span class="px-4 py-1 bg-green-100 text-green-800 text-label-sm font-label-sm rounded-md font-bold tracking-wider border border-green-200">Completed</span>
                     @else
-                        <span class="px-4 py-1 bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm rounded-md font-bold uppercase tracking-wider">Draft</span>
+                        <span class="px-4 py-1 bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm rounded-md font-bold tracking-wider">Draft</span>
                     @endif
                 </div>
                 
@@ -149,7 +149,7 @@
                     <div class="space-y-4">
                         <!-- Tipe Kerja -->
                         <div class="flex items-start gap-3">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">work</span>
+                            <span class="material-symbols-outlined text-primary text-[1.25rem] mt-0.5">work</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Tipe Kerja</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->employment_type }}</span>
@@ -158,7 +158,7 @@
 
                         <!-- Lokasi Kerja -->
                         <div class="flex items-start gap-3 pt-3 border-t border-surface-container-low">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">location_on</span>
+                            <span class="material-symbols-outlined text-primary text-[1.25rem] mt-0.5">location_on</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Lokasi</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface capitalize block mt-0.5">{{ $rr->location }}</span>
@@ -167,7 +167,7 @@
 
                         <!-- Application Deadline -->
                         <div class="flex items-start gap-3 pt-3 border-t border-surface-container-low">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">calendar_month</span>
+                            <span class="material-symbols-outlined text-primary text-[1.25rem] mt-0.5">calendar_month</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Batas Pendaftaran (Deadline)</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface block mt-0.5">
@@ -178,7 +178,7 @@
 
                         <!-- Estimasi Gaji Internal -->
                         <div class="flex items-start gap-3 pt-3 border-t border-surface-container-low">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">payments</span>
+                            <span class="material-symbols-outlined text-primary text-[1.25rem] mt-0.5">payments</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Estimasi Rentang Gaji</span>
                                 <span class="font-body-md text-sm font-bold text-primary block mt-0.5">
@@ -194,13 +194,13 @@
                                 </span>
                                 <div class="mt-1">
                                     @if($rr->show_salary)
-                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 bg-green-500/10 px-2 py-0.5 rounded">
-                                            <span class="material-symbols-outlined text-[12px]">visibility</span>
+                                        <span class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-green-700 bg-green-500/10 px-2 py-0.5 rounded">
+                                            <span class="material-symbols-outlined text-[0.75rem]">visibility</span>
                                             Tampil Publik
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-on-surface-variant/60 bg-surface-container-low px-2 py-0.5 rounded border border-surface-container">
-                                            <span class="material-symbols-outlined text-[12px]">visibility_off</span>
+                                        <span class="inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-on-surface-variant/60 bg-surface-container-low px-2 py-0.5 rounded border border-surface-container">
+                                            <span class="material-symbols-outlined text-[0.75rem]">visibility_off</span>
                                             Disembunyikan
                                         </span>
                                     @endif
@@ -210,7 +210,7 @@
 
                         <!-- Expected Join Date -->
                         <div class="flex items-start gap-3 pt-3 border-t border-surface-container-low">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">date_range</span>
+                            <span class="material-symbols-outlined text-primary text-[1.25rem] mt-0.5">date_range</span>
                             <div>
                                 <span class="text-xs text-on-surface-variant/60 block">Expected Join Date</span>
                                 <span class="font-body-md text-sm font-bold text-on-surface block mt-0.5">
@@ -236,36 +236,37 @@
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <!-- Action button berdasarkan status -->
                     @if($normalizedStatus === 'ready to publish' && $totalCandidates === 0)
-                        <!-- Tombol Edit Draft -->
-                        <a href="{{ route('rr.edit', $rr->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                            <span>Edit Draft</span>
-                        </a>
-
                         <!-- Tombol Hapus Draft -->
-                        <button wire:click="delete" wire:confirm="Apakah Anda yakin ingin menghapus Recruitment Request ini?" class="px-6 h-14 bg-error/10 text-error hover:bg-error/20 border border-error/20 font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                            <span>Hapus Draft</span>
+                        <button wire:click="delete" wire:confirm="Apakah Anda yakin ingin MENGHAPUS Recruitment Request ini?" class="px-6 h-14 bg-error/10 text-error hover:bg-error/20 border border-error/20 font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2" title="Hapus Recruitment Request">
+                            <span class="material-symbols-outlined text-[1.5rem]">delete</span>
+                            {{-- <span>Hapus</span> --}}
                         </button>
                     @endif
 
                     @if($rrStatusVal === 'Ready to Publish')
+                        <!-- Tombol Edit Draft -->
+                        <a href="{{ route('rr.edit', $rr->id) }}" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2" title="Ubah Recruitment Request">
+                            <span class="material-symbols-outlined text-[1.5rem]">edit</span>
+                            {{-- <span>Edit</span> --}}
+                        </a>      
+                    @endif
+                    @if($normalizedStatus === 'ready to publish' && $totalCandidates === 0)
                         <!-- Tombol Tutup Lowongan -->
-                        <button wire:click="close" wire:confirm="Tutup lowongan ini?" class="px-8 h-14 bg-[#ef4444] text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <button wire:click="close" wire:confirm="Apakah anda yakin ingin MENUTUP Permintaan Rekrutmen ini?" class="px-8 h-14 bg-error border-error text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(239,68,68,0.3)] hover:brightness-110 transition-all active:scale-95 flex items-center justify-center gap-2" title="Tutup Recruitment Request">
                             <span class="material-symbols-outlined">cancel</span>
-                            <span>Tutup Lowongan</span>
+                            <span>Tutup Permintaan</span>
                         </button>
-
-                        <button wire:click="publish" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2">
+                    @endif
+                    @if($normalizedStatus === 'ready to publish')
+                    <!-- Tombol Aktifkan Lowongan -->
+                        <button wire:click="publish" wire:confirm="Aktifkan Lowongan Pekerjaan ini?" class="px-8 h-14 bg-primary text-white font-bold rounded-md shadow-[0px_8px_16px_-4px_rgba(107,56,212,0.3)] hover:bg-primary-container transition-all active:scale-95 flex items-center justify-center gap-2" title="Aktifkan Lowongan">
                             <span class="material-symbols-outlined">rocket_launch</span>
                             <span>Aktifkan Lowongan</span>
                         </button>
-                    @endif
-
-                    @if($normalizedStatus === 'published')
+                    @elseif($normalizedStatus === 'published')
                         <!-- Tombol Nonaktifkan Lowongan -->
-                        <button wire:click="unpublish" wire:confirm="Nonaktifkan Lowongan pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                        <button wire:click="unpublish" wire:confirm="Nonaktifkan Lowongan pekerjaan ini?" class="px-6 h-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-surface-container font-bold rounded-md transition-all active:scale-95 flex items-center justify-center gap-2" title="Nonaktifkan Lowongan">
+                            <span class="material-symbols-outlined text-[1.25rem]">visibility_off</span>
                             <span>Nonaktifkan Lowongan</span>
                         </button>
                     @endif

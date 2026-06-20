@@ -24,14 +24,14 @@ class CandidateFactory extends Factory
         return [
             'vacancy_id' => Vacancy::factory(),
             'user_id' => null,
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'phone' => $this->faker->phoneNumber(),
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'phone' => fake()->phoneNumber(),
             'cv_path' => 'cv/sample.pdf',
             'portofolio_path' => null,
             'current_stage_id' => 1, // Default ke stage Applied yang di-seed
-            'status' => $this->faker->randomElement([\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED]),
-            'source' => $this->faker->randomElement(['public', 'manual']),
+            'status' => fake()->randomElement([\App\Enums\CandidateStatus::APPLIED, \App\Enums\CandidateStatus::IN_PROGRESS, \App\Enums\CandidateStatus::REJECTED, \App\Enums\CandidateStatus::HIRED]),
+            'source' => fake()->randomElement(['public', 'manual']),
         ];
     }
 }

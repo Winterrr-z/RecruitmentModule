@@ -206,4 +206,49 @@ class AtsAllCandidatesTest extends TestCase
             ->test(\App\Livewire\Ats\AtsAllCandidates::class)
             ->assertSee(route('ats.blacklist'));
     }
+
+    public function test_candidate_list_shows_unique_candidates_by_email_with_latest_application_and_count()
+    {
+        // candidate1 has email 'john@example.com' and vacancy job1.
+        // Let's create a second application for 'john@example.com' with vacancy job2.
+        $candidate1_latest = Candidate::create([
+            'vacancy_id' => $this->job2->id,
+            'name' => 'Johnathan Doe',
+            'email' => 'john@example.com',
+            'phone' => '081234567890',
+            'current_stage_id' => 2,
+            'status' => 'In Progress',
+            'created_at' => now()->addMinute(),
+        ]);
+
+        // When visiting AtsAllCandidates, John Doe should only appear ONCE in the list.
+        // And it should show the latest application data: 'Johnathan Doe', Vacancy job2, 'In Progress'.
+        Livewire::actingAs($this->user)
+            ->test(\App\Livewire\Ats\AtsAllCandidates::class)
+            ->assertSee('Johnathan Doe')
+            ->assertDontSee('John Doe')
+            ->assertSee('In Progress');
+    }
+
+    public function test_candidate_detail_shows_application_history()
+    {
+        // Create a second application for 'john@example.com'
+        $candidate1_latest = Candidate::create([
+            'vacancy_id' => $this->job2->id,
+            'name' => 'Johnathan Doe',
+            'email' => 'john@example.com',
+            'phone' => '081234567890',
+            'current_stage_id' => 2,
+            'status' => 'In Progress',
+            'created_at' => now()->addMinute(),
+        ]);
+
+        // When viewing detail of candidate1, we should see both job1 and job2 in applicationHistory
+        Livewire::actingAs($this->user)
+            ->test(\App\Livewire\Ats\AtsCandidateDetail::class, ['candidateId' => $candidate1_latest->id])
+            ->assertViewHas('applicationHistory', function($history) use ($candidate1_latest) {
+                return $history->count() === 2 && 
+                       $history->first()->id === $candidate1_latest->id;
+            });
+    }
 }

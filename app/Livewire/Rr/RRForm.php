@@ -11,61 +11,72 @@ use Livewire\Attributes\Layout;
 /**
  * Class RRForm
  * 
- * Komponen Livewire untuk form pembuatan & pengeditan Recruitment Request (RR) Baru.
- * Menangani pemilihan MPP, field read-only, validasi kuota sisa, pengeditan draft yang tidak memiliki pelamar, dan penyimpanan ke database.
+ * Komponen Livewire untuk formulir pembuatan & pengubahan Permintaan Rekrutmen (RR).
+ * Mengelola pemilihan referensi Rencana Tenaga Kerja (MPP), menangani kolom yang hanya-baca (read-only), 
+ * melakukan validasi sisa kuota, serta memproses penyimpanan data ke tabel RR.
  *
- * @package App\Livewire
+ * @package App\Livewire\Rr
  */
 #[Layout('layouts.hr')]
 class RRForm extends Component
 {
-    /**
-     * @var RrDataForm Form object untuk menampung input data RR
-     */
+    /** @var RrDataForm Objek formulir khusus (Livewire Form) untuk menampung isian data RR. */
     public RrDataForm $form;
 
-    /**
-     * @var int|null ID MPP terpilih.
-     */
+    /** @var int|null ID MPP yang dipilih (referensi rencana kerja). */
     public $selectedMppId;
 
-    /**
-     * @var int|null ID RR yang sedang diedit.
-     */
+    /** @var int|null ID RR yang sedang diubah (null jika mode tambah baru). */
     public $vacancyId;
 
-    /**
-     * @var bool Menandakan apakah sedang dalam mode edit.
-     */
+    /** @var bool Penanda apakah formulir saat ini dalam mode Edit. */
     public $isEdit = false;
 
-    /**
-     * @var bool Status form read-only (dikunci dari parameter query).
-     */
+    /** @var bool Status form read-only (berlaku ketika mengedit atau MPP sudah terpilih). */
     public $isReadOnly = false;
 
-    // Field MPP (Read-only)
+    // ==========================================
+    // KOLOM REFERENSI MPP (Hanya-Baca)
+    // ==========================================
+
+    /** @var string Jabatan bawaan dari MPP. */
     public $job_title;
+
+    /** @var string Departemen pengaju dari MPP. */
     public $department;
+
+    /** @var int|string|null Estimasi gaji minimal dari MPP. */
     public $estimated_salary_min;
+
+    /** @var int|string|null Estimasi gaji maksimal dari MPP. */
     public $estimated_salary_max;
+
+    /** @var string|null Target tanggal karyawan masuk berdasarkan SLA MPP. */
     public $expected_join_date;
 
     /**
-     * Inisialisasi komponen.
+     * Inisialisasi awal formulir saat komponen dimuat.
+     * Mengatur status Edit/Tambah dan memvalidasi akses (misal: jika RR sudah berjalan, tidak bisa diedit).
      *
-     * @param int|null $mppId
-     * @param int|null $id
+     * @param int|null $mppId Parameter ID MPP dari URL (opsional).
+     * @param int|null $id Parameter ID RR (jika mode edit).
      * @return void|\Illuminate\Http\RedirectResponse
      */
     public function mount($mppId = null, $id = null)
     {
+        // Positional parameter binding workaround:
+        // /rrs/{id}/edit has a single parameter 'id' which binds to $mppId.
+        if (request()->routeIs('rr.edit')) {
+            $id = $mppId;
+            $mppId = null;
+        }
+
         // Rute edit: jika $id disediakan
         if ($id) {
             $rr = Rr::findOrFail($id);
 
             // Logika rr dapat diedit ketika tidak berada di status active (Published), dan closed/completed.
-            if ($rr->status->value === 'Published' || $rr->status->value === 'Completed/Closed' || $rr->hiredCount() > 0) {
+            if ($rr->status === \App\Enums\RrStatus::PUBLISHED || $rr->status === \App\Enums\RrStatus::COMPLETED || $rr->status === \App\Enums\RrStatus::CLOSED || $rr->hiredCount() > 0) {
                 session()->flash('error', 'Recruitment Request yang sedang aktif, selesai, atau memiliki pelamar tidak dapat diedit.');
                 return redirect()->route('rr.index');
             }
@@ -83,6 +94,7 @@ class RRForm extends Component
             $this->expected_join_date = $rr->expected_join_date ? $rr->expected_join_date->format('Y-m-d') : null;
 
             // Populate HR editable fields to form object
+            $this->form->title = $rr->title;
             $this->form->quota = $rr->quota;
             $this->form->job_description = $rr->job_description;
             $this->form->job_requirements = $rr->job_requirements;
@@ -131,9 +143,10 @@ class RRForm extends Component
     }
 
     /**
-     * Mengisi properti read-only dari objek MPP.
+     * Mengisi properti hanya-baca (read-only) pada tampilan formulir 
+     * menggunakan data dari objek MPP yang dipilih.
      *
-     * @param Mpp $mpp
+     * @param Mpp $mpp Objek Manpower Planning.
      * @return void
      */
     protected function populateMppFields(Mpp $mpp)
@@ -147,7 +160,7 @@ class RRForm extends Component
     }
 
     /**
-     * Mengosongkan properti mpp.
+     * Mengosongkan properti tampilan yang berasal dari MPP (reset kolom).
      *
      * @return void
      */
@@ -162,9 +175,10 @@ class RRForm extends Component
     }
 
     /**
-     * Event handler ketika pilihan dropdown MPP diubah.
+     * Kejadian (event) yang memicu secara otomatis ketika pilihan dropdown MPP diubah oleh pengguna.
+     * Melakukan pengecekan sisa kuota dan apakah masih ada RR aktif lainnya untuk MPP tersebut.
      *
-     * @param int|null $value
+     * @param int|null $value ID MPP yang baru dipilih.
      * @return void
      */
     public function updatedSelectedMppId($value)
@@ -193,7 +207,8 @@ class RRForm extends Component
     }
 
     /**
-     * Simpan data RR ke database.
+     * Memvalidasi input dan menyimpan data Recruitment Request (RR) ke dalam database.
+     * Juga menangani sinkronisasi kuota apabila RR ini sudah memiliki lowongan publik (Vacancy).
      *
      * @return void|\Illuminate\Http\RedirectResponse
      */
@@ -221,6 +236,7 @@ class RRForm extends Component
             }
 
             $rr->update([
+                'title' => $this->form->title,
                 'job_description' => $this->form->job_description,
                 'job_requirements' => $this->form->job_requirements ?: '',
                 'employment_type' => $this->form->employment_type,
@@ -232,7 +248,10 @@ class RRForm extends Component
 
             // Sync kuota ke vacancy jika sudah publish
             if ($rr->vacancy) {
-                $rr->vacancy->update(['quota' => $this->form->quota]);
+                $rr->vacancy->update([
+                    'title' => $this->form->title,
+                    'quota' => $this->form->quota
+                ]);
             }
 
             session()->flash('message', 'Recruitment Request berhasil diperbarui.');
@@ -265,10 +284,11 @@ class RRForm extends Component
             // Simpan RR baru sebagai Draft
             Rr::create([
                 'mpp_id' => $mpp->id,
+                'title' => $this->form->title,
                 'job_title' => $mpp->job_title,
                 'department' => $mpp->department,
-                'estimated_salary_min' => $mpp->estimated_salary_min,
-                'estimated_salary_max' => $mpp->estimated_salary_max,
+                'estimated_salary_min' => $mpp->getRawOriginal('estimated_salary_min'),
+                'estimated_salary_max' => $mpp->getRawOriginal('estimated_salary_max'),
                 'expected_join_date' => $mpp->absolute_target_date,
                 'job_description' => $this->form->job_description,
                 'job_requirements' => $this->form->job_requirements ?: '',
@@ -287,7 +307,8 @@ class RRForm extends Component
     }
 
     /**
-     * Render komponen Livewire.
+     * Merender antarmuka formulir RR.
+     * Menyiapkan daftar *dropdown* pilihan MPP yang memenuhi syarat (Sudah Disetujui & Kuota > 0).
      *
      * @return \Illuminate\View\View
      */

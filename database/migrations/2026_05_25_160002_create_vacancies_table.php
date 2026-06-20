@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('vacancies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rr_id')->constrained('rrs')->onDelete('cascade');
+            $table->string('title', 150)->nullable();
             $table->integer('quota');
             $table->string('job_title', 100);
             $table->string('department', 100);

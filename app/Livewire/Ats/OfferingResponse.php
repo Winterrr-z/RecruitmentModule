@@ -8,13 +8,32 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
+/**
+ * Class OfferingResponse
+ *
+ * Komponen Livewire untuk halaman publik di mana kandidat dapat merespons
+ * (menerima atau menolak) Offering Letter yang dikirimkan oleh HR.
+ *
+ * @package App\Livewire\Ats
+ */
 #[Layout('layouts.guest')]
 class OfferingResponse extends Component
 {
+    /** @var string Token unik untuk mengakses halaman offering ini. */
     public $token;
-    public $candidate;
-    public $statusResponse = null; // 'success_accept', 'success_reject', 'expired', 'invalid'
 
+    /** @var \App\Models\Candidate|null Objek kandidat terkait. */
+    public $candidate;
+
+    /** @var string|null Menyimpan status balasan ('success_accept', 'success_reject', 'expired', 'invalid'). */
+    public $statusResponse = null;
+
+    /**
+     * Memuat data penawaran berdasarkan token dari URL.
+     * Juga mengecek apakah tautan penawaran sudah kedaluwarsa.
+     *
+     * @param string $token Token akses surat penawaran.
+     */
     public function mount($token)
     {
         $this->token = $token;
@@ -39,7 +58,9 @@ class OfferingResponse extends Component
     }
 
     /**
-     * Livewire click action to accept/reject the offering.
+     * Aksi Livewire ketika tombol Terima atau Tolak diklik secara asinkron.
+     * 
+     * @param string $choice Pilihan kandidat ('terima' atau 'tolak').
      */
     public function handleResponse($choice)
     {
@@ -71,7 +92,11 @@ class OfferingResponse extends Component
     }
 
     /**
-     * Standard HTTP POST controller action.
+     * Aksi Controller (Standar HTTP POST) jika form disubmit secara konvensional.
+     * 
+     * @param Request $request
+     * @param string $token
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function respond(Request $request, $token)
     {
@@ -107,9 +132,13 @@ class OfferingResponse extends Component
         return redirect()->route('offering.response', ['token' => $token])->with('status', $choice);
     }
 
+    /**
+     * Render antarmuka halaman respon offering.
+     * Jika terjadi redirect dari POST, periksa session ('status') untuk memunculkan pesan sukses.
+     */
     public function render()
     {
-        // Capture session success status (e.g. from POST redirect)
+        // Menangkap status pesan dari sesi (jika memakai cara fallback POST biasa)
         if (session('status') === 'terima') {
             $this->statusResponse = 'success_accept';
         } elseif (session('status') === 'tolak') {

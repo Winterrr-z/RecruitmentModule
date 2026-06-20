@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('rrs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mpp_id')->constrained('mpps')->onDelete('cascade');
+            $table->string('title', 150)->nullable();
             $table->string('job_title', 100);
             $table->string('department', 100);
             $table->integer('estimated_salary_min')->nullable();

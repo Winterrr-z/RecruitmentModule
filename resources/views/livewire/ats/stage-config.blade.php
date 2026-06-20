@@ -209,8 +209,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                     <!-- Butuh Scorecard Toggle -->
                     <div class="flex items-center">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" wire:model.live="form.needs_scorecard" class="sr-only peer">
+                        <label class="relative inline-flex items-center @if($isScorecardLocked) cursor-not-allowed opacity-50 @else cursor-pointer @endif">
+                            <input type="checkbox" wire:model.live="form.needs_scorecard" class="sr-only peer" @if($isScorecardLocked) disabled @endif>
                             <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-focus:ring-2 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-outline-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             <span class="ml-3 font-body-md text-sm font-semibold text-on-surface">Butuh Scorecard</span>
                         </label>
@@ -229,12 +229,21 @@
                 <!-- Scorecard Template Section -->
                 @if($form->needs_scorecard)
                     <div class="p-4 rounded-md border border-surface-container bg-surface-container-low/20 space-y-4">
+                        @if($isScorecardLocked)
+                            <div class="p-3 bg-red-950/20 text-red-950 border border-red-950/30 rounded-md text-xs font-semibold flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">info</span>
+                                <span>Tidak bisa merubah scorecard karena sudah ada kandidat yang dinilai.</span>
+                            </div>
+                        @endif
+
                         <div class="flex items-center justify-between border-b border-surface-container-high/60 pb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-primary">Kriteria Scorecard</span>
-                            <button type="button" wire:click="addKriteria" class="group inline-flex items-center gap-1 text-[11px] font-bold text-primary no-underline">
-                                <span class="material-symbols-outlined text-[14px]">add</span>
-                                <span class="group-hover:underline">Tambah Kriteria</span>
-                            </button>
+                            @if(!$isScorecardLocked)
+                                <button type="button" wire:click="addKriteria" class="group inline-flex items-center gap-1 text-[11px] font-bold text-primary no-underline">
+                                    <span class="material-symbols-outlined text-[14px]">add</span>
+                                    <span class="group-hover:underline">Tambah Kriteria</span>
+                                </button>
+                            @endif
                         </div>
 
                         <!-- General Errors -->
@@ -255,23 +264,25 @@
                             @foreach($form->scorecardKriteria as $index => $item)
                                 <div class="flex gap-3 items-start">
                                     <div class="flex-1">
-                                        <input type="text" wire:model.blur="form.scorecardKriteria.{{ $index }}.kriteria" 
+                                        <input type="text" wire:model.blur="form.scorecardKriteria.{{ $index }}.criteria" 
                                                placeholder="Kriteria (misal: Komunikasi, Skill Laravel)"
-                                               class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
-                                        @error('form.scorecardKriteria.'.$index.'.kriteria')
+                                               class="w-full px-3 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface @if($isScorecardLocked) cursor-not-allowed opacity-60 @endif"
+                                               @if($isScorecardLocked) disabled @endif>
+                                        @error('form.scorecardKriteria.'.$index.'.criteria')
                                             <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="w-24 relative">
-                                        <input type="number" min="1" max="100" wire:model.blur="form.scorecardKriteria.{{ $index }}.bobot" 
+                                        <input type="number" min="1" max="100" wire:model.blur="form.scorecardKriteria.{{ $index }}.weight" 
                                                placeholder="Bobot"
-                                               class="w-full pl-3 pr-6 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface">
+                                               class="w-full pl-3 pr-6 h-10 bg-surface-container-low border border-surface-container rounded-md text-xs text-on-surface @if($isScorecardLocked) cursor-not-allowed opacity-60 @endif"
+                                               @if($isScorecardLocked) disabled @endif>
                                         <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant/40">%</span>
-                                        @error('form.scorecardKriteria.'.$index.'.bobot')
+                                        @error('form.scorecardKriteria.'.$index.'.weight')
                                             <span class="text-[10px] text-error font-semibold block mt-0.5">{{ $message }}</span>
                                         @enderror
                                     </div>
-                                    @if(count($form->scorecardKriteria) > 1)
+                                    @if(count($form->scorecardKriteria) > 1 && !$isScorecardLocked)
                                         <button type="button" wire:click="removeKriteria({{ $index }})" class="p-2 text-error hover:bg-error/10 rounded-md">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>

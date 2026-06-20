@@ -9,13 +9,13 @@ use Livewire\Component;
 /**
  * Class CareerJobList
  *
- * Komponen Livewire untuk menampilkan daftar vacancy pekerjaan publik maupun
- * untuk pelamar yang sudah login.
+ * Komponen Livewire untuk menampilkan daftar lowongan pekerjaan (vacancy)
+ * baik secara publik (belum login) maupun untuk pelamar yang sudah masuk (login).
  *
- * - Guest     → layouts.guest + view career-job-list (top-bar filter)
- * - Auth      → layouts.applicant + view career-job-list-logged-in (sidebar filter)
+ * - Belum login (Guest) → menggunakan layout 'layouts.guest' dengan filter di baris atas.
+ * - Sudah login (Auth)  → menggunakan layout 'layouts.applicant' dengan filter di bilah sisi (sidebar).
  *
- * @package App\Livewire
+ * @package App\Livewire\Cw
  */
 class CareerJobList extends Component
 {
@@ -63,9 +63,8 @@ class CareerJobList extends Component
     }
 
     /**
-     * Render komponen.
-     *
-     * Mendeteksi status autentikasi dan menyajikan view serta layout yang sesuai.
+     * Render komponen antarmuka.
+     * Mendeteksi status masuk (login) pengguna dan menyajikan tampilan serta layout yang sesuai.
      *
      * @return \Illuminate\View\View
      */
@@ -82,7 +81,8 @@ class CareerJobList extends Component
         // --- Search (shared) ---
         if (!empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('job_title', 'like', '%' . $this->search . '%')
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhere('job_title', 'like', '%' . $this->search . '%')
                   ->orWhere('department', 'like', '%' . $this->search . '%');
             });
         }

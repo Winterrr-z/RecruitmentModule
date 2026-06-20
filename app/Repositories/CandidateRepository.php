@@ -11,8 +11,12 @@ class CandidateRepository
      */
     public function getAllCandidates($filterVacancy, $filterStatus, $filterStage, $search, $perPage = 15)
     {
-        return Candidate::query()
+        $latestIds = Candidate::selectRaw('MAX(id)')
+            ->groupBy('email');
+
+        $paginator = Candidate::query()
             ->with(['vacancy', 'currentStage'])
+            ->whereIn('id', $latestIds)
             ->when($filterVacancy, fn($q) => $q->where('vacancy_id', $filterVacancy))
             ->when($filterStatus, fn($q) => $q->where('status', $filterStatus))
             ->when($filterStage, fn($q) => $q->where('current_stage_id', $filterStage))
@@ -22,6 +26,23 @@ class CandidateRepository
             }))
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
+
+        // Hitung jumlah lamaran untuk email-email yang ada di halaman ini
+        $emails = $paginator->pluck('email')->unique()->all();
+        if (!empty($emails)) {
+            $counts = Candidate::selectRaw('email, count(*) as count')
+                ->whereIn('email', $emails)
+                ->groupBy('email')
+                ->pluck('count', 'email')
+                ->toArray();
+
+            $paginator->through(function($candidate) use ($counts) {
+                $candidate->applications_count = $counts[$candidate->email] ?? 1;
+                return $candidate;
+            });
+        }
+
+        return $paginator;
     }
 
     /**
